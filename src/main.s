@@ -12,6 +12,8 @@ spritey: .word 440
 default_irq: .word 0
 waitflag: .byte 0
 
+.include "config.s"
+
 start:
     jsr irq_config
     jsr config
@@ -56,17 +58,6 @@ irq_config:
     lda #1
     sta VERA_IEN
     cli
-    rts
-
-config:
-    lda #VERA_DC_VIDEO_BITS
-    sta VERA_DC_VIDEO
-    lda #VERA_L1_CONFIG_BITS
-    sta VERA_L1_CONFIG
-    lda #VERA_L1_MAPBASE_BITS
-    sta VERA_L1_MAPBASE
-    lda #VERA_L1_TILEBASE_BITS
-    sta VERA_L1_TILEBASE
     rts
 
 ; Create 2 tiles
