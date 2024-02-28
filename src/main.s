@@ -1,47 +1,8 @@
 .org $080D
 .segment "ONCE"
 
-; Kernal functions
-RDTIM = $FFDE
-JOYGET = $FF56
-
-IRQ_FUNC_ADDR = $0314
-
-TILEBASE_ADDR = $1000
-MAPBASE_ADDR = 0
-
-SPRITE_GFX_ADDR_LO = (TILEBASE_ADDR+256) >> 5; 2nd tile
-SPRITE_GFX_ADDR_HI = %10000000 | ((TILEBASE_ADDR+256) >> 13)
-SPRITE_SPEED = 2
-
-VERA_ADDR_LO = $9F20
-VERA_ADDR_MID = $9F21
-VERA_ADDR_HI_SET = $9F22
-VERA_DATA0 = $9F23
-VERA_IEN = $9F26
-VERA_ISR = $9F27
-VERA_DC_VIDEO = $9F29
-
-VERA_L1_CONFIG = $9F34
-VERA_L1_MAPBASE = $9F35
-VERA_L1_TILEBASE = $9F36
-
-SPRITE_ADDR = $FC08 ; Also 1 for 2nd bank of VRAM
-
-VERA_DC_VIDEO_BITS = %11100001; Sprites on, Layer 1 on, other defaults
-VERA_L1_CONFIG_BITS = %00010011; 64x32 tiles, 8bbp
-VERA_L1_MAPBASE_BITS = 0 ; Mapbase at VRAM Addr 0, need 4kB
-VERA_L1_TILEBASE_BITS = %00001011 ; Start at 4Kb VRAM, 16x16 pixel tiles
-
-
-VERA_ADDR_HI_INC_BITS = %00010000 ; Addr increment 1
-
-TILE_COUNT = 255
-TILES_PER_ROW = 64
-TILES_PER_COL = 32
-VISIBLE_TILES_PER_ROW = 40
-VISIBLE_TILES_PER_COL = 30
-
+.include "x16.inc"
+.include "config.inc"
 
     jmp start
 
@@ -50,20 +11,6 @@ spritex: .word 600
 spritey: .word 440
 default_irq: .word 0
 waitflag: .byte 0
-
-; wait:
-;     pha
-;     phx
-;     phy
-; @tryagain:
-;     jsr RDTIM
-;     cmp timebyte
-;     beq @tryagain
-;     sta timebyte
-;     ply
-;     plx
-;     pla
-;     rts
 
 start:
     jsr irq_config
