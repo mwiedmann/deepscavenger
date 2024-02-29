@@ -7,8 +7,8 @@
     jmp start
 
 timebyte: .byte 0
-shipx: .word 600<<5
-shipy: .word 440<<5
+shipx: .word 320<<5
+shipy: .word 240<<5
 ship_pixelx: .word 0
 ship_pixely: .word 0
 ship_velx: .byte 0
@@ -64,45 +64,79 @@ move_sprite:
     bit #%1000
     bne @check_y_down
     ; User is pressing up
-    lda shipy
+    lda ship_vely
     sec
-    sbc #SPRITE_SPEED
-    sta shipy
-    lda shipy+1
-    sbc #0
-    sta shipy+1
+    sbc #SHIP_ACCEL
+    sta ship_vely
     jmp @check_x_left
 @check_y_down:
     bit #%100
     bne @check_x_left
-    lda shipy
+    lda ship_vely
     clc
-    adc #SPRITE_SPEED
-    sta shipy
-    lda shipy+1
-    adc #0
-    sta shipy+1
+    adc #SHIP_ACCEL
+    sta ship_vely
 @check_x_left:
     pla
     bit #%10
     bne @check_x_right
-    lda shipx
+    lda ship_velx
     sec
-    sbc #SPRITE_SPEED
-    sta shipx
-    lda shipx+1
-    sbc #0
-    sta shipx+1
-    jmp @update_sprite
+    sbc #SHIP_ACCEL
+    sta ship_velx
+    jmp @add_velocity
 @check_x_right:
     bit #%1
-    bne @update_sprite
+    bne @add_velocity
+    lda ship_velx
+    clc
+    adc #SHIP_ACCEL
+    sta ship_velx
+@add_velocity:
+    ; add velocity to y position
+    ldy ship_vely 
+    cpy #128
+    bpl @y_up
+    ; Positive force
+    lda shipy
+    clc
+    adc ship_vely
+    sta shipy
+    lda shipy+1
+    adc #0
+    sta shipy+1
+    jmp @check_x_vel
+@y_up:
+    ; Negative force
+    lda shipy
+    clc
+    adc ship_vely
+    sta shipy
+    lda shipy+1
+    sbc #0
+    sta shipy+1
+@check_x_vel:
+    ; add velocity to x position
+    ldy ship_velx
+    cpy #128
+    bpl @x_left
+    ; Positive force
     lda shipx
     clc
-    adc #SPRITE_SPEED
+    adc ship_velx
     sta shipx
     lda shipx+1
     adc #0
+    sta shipx+1
+    jmp @update_sprite
+@x_left:
+    ; Negative force
+    lda shipx
+    clc
+    adc ship_velx
+    sta shipx
+    lda shipx+1
+    sbc #0
     sta shipx+1
 @update_sprite:
     lda shipx
