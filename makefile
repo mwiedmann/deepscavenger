@@ -1,7 +1,7 @@
 CC=cl65
 
 make:
-	$(CC) --cpu 65C02 -Or -Cl -o ./build/DEEP.PRG -t cx16 \
+	$(CC) --cpu 65C02 -Or -Cl -o ./build/DEEP.PRG -t cx16 -l DEEP.list \
 	src/main.s
 
 run:
