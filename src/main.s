@@ -7,17 +7,26 @@
     jmp start
 
 timebyte: .byte 0
-spritex: .word 600
-spritey: .word 440
+shipx: .word 600
+shipy: .word 440
+ship_velx: .byte 0
+ship_vely: .byte 0
+
 default_irq: .word 0
 waitflag: .byte 0
 
 .include "config.s"
+.include "tiles.s"
+.include "irq.s"
+.include "sprites.s"
+.include "pal.s"
 
 start:
     jsr irq_config
     jsr config
+    jsr load_pal
     jsr create_tiles
+    jsr load_ship
     jsr clear_tiles
     jsr create_sprite
 @move:
@@ -30,114 +39,15 @@ start:
     sta waitflag
     bra @move
 
-irq_routine:
-    lda VERA_ISR
-    and #1
-    beq @continue
-    lda #1
-    sta waitflag ; Signal that its ok to draw now
-    ora VERA_ISR
-    sta VERA_ISR
-@continue:
-    jmp (default_irq)
-
-irq_config:
-    sei
-    ; First, capture the default IRQ handler
-    ; This is so we can call it after our custom handler
-    lda IRQ_FUNC_ADDR
-    sta default_irq
-    lda IRQ_FUNC_ADDR+1
-    sta default_irq+1
-    ; Now replace it with our custom handler
-    lda #<irq_routine
-    sta IRQ_FUNC_ADDR
-    lda #>irq_routine
-    sta IRQ_FUNC_ADDR+1
-    ; Turn on VSYNC
-    lda #1
-    sta VERA_IEN
-    cli
-    rts
-
-; Create 2 tiles
-; 1 black, 1 another color
-create_tiles:
-    lda #<TILEBASE_ADDR
-    sta VERA_ADDR_LO
-    lda #>TILEBASE_ADDR
-    sta VERA_ADDR_MID
-    lda #VERA_ADDR_HI_INC_BITS
-    sta VERA_ADDR_HI_SET
-
-    ldx #0
-    lda #0
-@loop:
-    sta VERA_DATA0
-    inx
-    cpx #0
-    bne @loop
-    inc ; Inc the tile color
-    cmp #TILE_COUNT ; stop after this many tiles
-    bne @loop
-    rts
-
 point_to_mapbase:
     pha
-    lda #<MAPBASE_ADDR
+    lda #<MAPBASE_L1_ADDR
     sta VERA_ADDR_LO
-    lda #>MAPBASE_ADDR
+    lda #>MAPBASE_L1_ADDR
     sta VERA_ADDR_MID
     lda #VERA_ADDR_HI_INC_BITS
     sta VERA_ADDR_HI_SET
     pla
-    rts
-
-clear_tiles:
-    jsr point_to_mapbase
-    lda #0
-    ldy #0
-@outer:
-    ldx #0
-@loop:
-    sta VERA_DATA0
-    sta VERA_DATA0
-    inx
-    cpx #TILES_PER_ROW
-    bmi @loop
-@next_row:
-    iny
-    cpy #TILES_PER_COL
-    bmi @outer
-    rts
-
-point_to_sprite:
-    lda #<SPRITE_ADDR
-    sta VERA_ADDR_LO
-    lda #>SPRITE_ADDR
-    sta VERA_ADDR_MID
-    lda #(VERA_ADDR_HI_INC_BITS+1) ; Sprites are in 2nd bank of VRAM
-    sta VERA_ADDR_HI_SET
-    rts
-
-create_sprite:
-    jsr point_to_sprite
-    lda #SPRITE_GFX_ADDR_LO
-    sta VERA_DATA0
-    lda #SPRITE_GFX_ADDR_HI
-    sta VERA_DATA0
-    lda spritex ; X
-    sta VERA_DATA0
-    lda #0
-    sta VERA_DATA0
-    lda spritey ; Y
-    sta VERA_DATA0
-    lda #0
-    sta VERA_DATA0
-    lda #%00001100 ; In front of layer 1
-    sta VERA_DATA0
-    lda #%10100000 ; 32x32 pixels
-    sta VERA_DATA0
     rts
 
 move_sprite:
@@ -146,57 +56,57 @@ move_sprite:
     pha
     bit #%1000
     bne @check_y_down
-    lda spritey
+    lda shipy
     sec
     sbc #SPRITE_SPEED
-    sta spritey
-    lda spritey+1
+    sta shipy
+    lda shipy+1
     sbc #0
-    sta spritey+1
+    sta shipy+1
     jmp @check_x_left
 @check_y_down:
     bit #%100
     bne @check_x_left
-    lda spritey
+    lda shipy
     clc
     adc #SPRITE_SPEED
-    sta spritey
-    lda spritey+1
+    sta shipy
+    lda shipy+1
     adc #0
-    sta spritey+1
+    sta shipy+1
 @check_x_left:
     pla
     bit #%10
     bne @check_x_right
-    lda spritex
+    lda shipx
     sec
     sbc #SPRITE_SPEED
-    sta spritex
-    lda spritex+1
+    sta shipx
+    lda shipx+1
     sbc #0
-    sta spritex+1
+    sta shipx+1
     jmp @update_sprite
 @check_x_right:
     bit #%1
     bne @update_sprite
-    lda spritex
+    lda shipx
     clc
     adc #SPRITE_SPEED
-    sta spritex
-    lda spritex+1
+    sta shipx
+    lda shipx+1
     adc #0
-    sta spritex+1
+    sta shipx+1
 @update_sprite:
     jsr point_to_sprite
     lda VERA_DATA0 ; skip byte
     lda VERA_DATA0 ; skip byte
-    lda spritex
+    lda shipx
     sta VERA_DATA0
-    lda spritex+1
+    lda shipx+1
     sta VERA_DATA0
-    lda spritey
+    lda shipy
     sta VERA_DATA0
-    lda spritey+1
+    lda shipy+1
     sta VERA_DATA0
 @done:
     rts

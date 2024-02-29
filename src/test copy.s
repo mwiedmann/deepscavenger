@@ -5,11 +5,11 @@
 RDTIM = $FFDE
 JOYGET = $FF56
 
-TILEBASE_ADDR = $1000
-MAPBASE_ADDR = 0
+TILEBASE_L1_ADDR = $1000
+MAPBASE_L1_ADDR = 0
 
-SPRITE_GFX_ADDR_LO = (TILEBASE_ADDR+256) >> 5; 2nd tile
-SPRITE_GFX_ADDR_HI = %10000000 | ((TILEBASE_ADDR+256) >> 13)
+SPRITE_GFX_ADDR_LO = (TILEBASE_L1_ADDR+256) >> 5; 2nd tile
+SPRITE_GFX_ADDR_HI = %10000000 | ((TILEBASE_L1_ADDR+256) >> 13)
 SPRITE_SPEED = 2
 
 VERA_ADDR_LO = $9F20
@@ -43,8 +43,8 @@ VISIBLE_TILES_PER_COL = 30
     jmp start
 
 timebyte: .byte 0
-spritex: .word 600
-spritey: .word 440
+shipx: .word 600
+shipy: .word 440
 
 wait:
     pha
@@ -86,9 +86,9 @@ config:
 ; Create 2 tiles
 ; 1 black, 1 another color
 create_tiles:
-    lda #<TILEBASE_ADDR
+    lda #<TILEBASE_L1_ADDR
     sta VERA_ADDR_LO
-    lda #>TILEBASE_ADDR
+    lda #>TILEBASE_L1_ADDR
     sta VERA_ADDR_MID
     lda #VERA_ADDR_HI_INC_BITS
     sta VERA_ADDR_HI_SET
@@ -107,9 +107,9 @@ create_tiles:
 
 point_to_mapbase:
     pha
-    lda #<MAPBASE_ADDR
+    lda #<MAPBASE_L1_ADDR
     sta VERA_ADDR_LO
-    lda #>MAPBASE_ADDR
+    lda #>MAPBASE_L1_ADDR
     sta VERA_ADDR_MID
     lda #VERA_ADDR_HI_INC_BITS
     sta VERA_ADDR_HI_SET
@@ -149,11 +149,11 @@ create_sprite:
     sta VERA_DATA0
     lda #SPRITE_GFX_ADDR_HI
     sta VERA_DATA0
-    lda spritex ; X
+    lda shipx ; X
     sta VERA_DATA0
     lda #0
     sta VERA_DATA0
-    lda spritey ; Y
+    lda shipy ; Y
     sta VERA_DATA0
     lda #0
     sta VERA_DATA0
@@ -169,45 +169,45 @@ move_sprite:
     pha
     bit #%1000
     bne @check_y_down
-    lda spritey
+    lda shipy
     sec
     sbc #SPRITE_SPEED
-    sta spritey
+    sta shipy
     jmp @check_x_left
 @check_y_down:
     bit #%100
     bne @check_x_left
-    lda spritey
+    lda shipy
     clc
     adc #SPRITE_SPEED
-    sta spritey
+    sta shipy
 @check_x_left:
     pla
     bit #%10
     bne @check_x_right
-    lda spritex
+    lda shipx
     sec
     sbc #SPRITE_SPEED
-    sta spritex
+    sta shipx
     jmp @update_sprite
 @check_x_right:
     bit #%1
     bne @update_sprite
-    lda spritex
+    lda shipx
     clc
     adc #SPRITE_SPEED
-    sta spritex 
+    sta shipx 
 @update_sprite:
     jsr point_to_sprite
     lda VERA_DATA0 ; skip byte
     lda VERA_DATA0 ; skip byte
-    lda spritex
+    lda shipx
     sta VERA_DATA0
-    lda spritex+1
+    lda shipx+1
     sta VERA_DATA0
-    lda spritey
+    lda shipy
     sta VERA_DATA0
-    lda spritey+1
+    lda shipy+1
     sta VERA_DATA0
 @done:
     rts

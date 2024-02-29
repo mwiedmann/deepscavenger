@@ -4,8 +4,8 @@
 ; Kernal functions
 RDTIM = $FFDE
 
-TILEBASE_ADDR = $1000
-MAPBASE_ADDR = 0
+TILEBASE_L1_ADDR = $1000
+MAPBASE_L1_ADDR = 0
 
 VERA_ADDR_LO = $9F20
 VERA_ADDR_MID = $9F21
@@ -70,9 +70,9 @@ config:
 ; Create 2 tiles
 ; 1 black, 1 another color
 create_tiles:
-    lda #<TILEBASE_ADDR
+    lda #<TILEBASE_L1_ADDR
     sta VERA_ADDR_LO
-    lda #>TILEBASE_ADDR
+    lda #>TILEBASE_L1_ADDR
     sta VERA_ADDR_MID
     lda #VERA_ADDR_HI_INC_BITS
     sta VERA_ADDR_HI_SET
@@ -91,9 +91,9 @@ create_tiles:
 
 point_to_mapbase:
     pha
-    lda #<MAPBASE_ADDR
+    lda #<MAPBASE_L1_ADDR
     sta VERA_ADDR_LO
-    lda #>MAPBASE_ADDR
+    lda #>MAPBASE_L1_ADDR
     sta VERA_ADDR_MID
     lda #VERA_ADDR_HI_INC_BITS
     sta VERA_ADDR_HI_SET

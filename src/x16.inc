@@ -4,6 +4,9 @@ X16_H = 1
 ; Kernal functions
 RDTIM = $FFDE
 JOYGET = $FF56
+SETNAM = $FFBD
+SETLFS = $FFBA
+LOAD = $FFD5
 
 IRQ_FUNC_ADDR = $0314
 
@@ -20,11 +23,7 @@ VERA_L1_MAPBASE = $9F35
 VERA_L1_TILEBASE = $9F36
 
 SPRITE_ADDR = $FC08 ; Also 1 for 2nd bank of VRAM
-
-VERA_DC_VIDEO_BITS = %11100001; Sprites on, Layer 1 on, other defaults
-VERA_L1_CONFIG_BITS = %00010011; 64x32 tiles, 8bbp
-VERA_L1_MAPBASE_BITS = 0 ; Mapbase at VRAM Addr 0, need 4kB
-VERA_L1_TILEBASE_BITS = %00001011 ; Start at 4Kb VRAM, 16x16 pixel tiles
+PALETTE_ADDR = $FA00 ; Also 1 for 2nd bank of VRAM
 
 VERA_ADDR_HI_INC_BITS = %00010000 ; Addr increment 1
 
