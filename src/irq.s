@@ -9,6 +9,9 @@ irq_routine:
     beq @continue
     lda #1
     sta waitflag ; Signal that its ok to draw now
+    lda waitcount
+    inc
+    sta waitcount
     ora VERA_ISR
     sta VERA_ISR
 @continue:
