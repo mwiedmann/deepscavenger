@@ -7,13 +7,15 @@ irq_routine:
     lda VERA_ISR
     and #1
     beq @continue
+    ; sta VERA_ISR ; Clear the VSYNC IRQ
     lda #1
     sta waitflag ; Signal that its ok to draw now
-    lda waitcount
+    lda rotatewait
     inc
-    sta waitcount
-    ora VERA_ISR
-    sta VERA_ISR
+    sta rotatewait
+    lda thrustwait
+    inc
+    sta thrustwait
 @continue:
     jmp (default_irq)
 

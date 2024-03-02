@@ -14,11 +14,11 @@ ship_pixely: .word 0
 ship_velx: .word 0
 ship_vely: .word 0
 
-ship_ang: .byte 0 ;0=0, 1=22.5, 2=45, 3=67.5, 4=90, 5=112.5, etc.
+ship_ang: .byte 4 ;0=0, 1=22.5, 2=45, 3=67.5, 4=90, 5=112.5, etc.
 
 ; Precalculated sin/cos (adjusted for a pixel velocity I want) for each angle
-ship_vel_ang_x: .byte 0, 3, 6, 7, 8, 7, 6, 3, 0, 256-3, 256-6, 256-7, 256-8, 256-7, 256-6, 256-3
-ship_vel_ang_y: .byte 8, 7, 6, 3, 0, 256-3, 256-6, 256-7, 256-8, 256-7, 256-6, 256-3, 0, 3, 6, 7
+ship_vel_ang_x: .word 0,       3,       6,       7,       8, 7, 6, 3, 0, 65535-3, 65535-6, 65535-7, 65535-8, 65535-7, 65535-6, 65535-3
+ship_vel_ang_y: .word 65535-8, 65535-7, 65535-6, 65535-3, 0, 3, 6, 7, 8, 7,       6,       3,       0,       65535-3, 65535-6, 65535-7
 
 ; What sprite frame to use for each angle
 ship_frame_ang: .byte  0,         1,         2,         3,         4,         3,          2,        1,         0,         1,         2,         3,         4,         3,         2,         1
@@ -36,7 +36,8 @@ ship_frame_addr_hi: .byte %10000000 | (SHIP_LOAD_ADDR >> 13), %10000000 | ((SHIP
 
 default_irq: .word 0
 waitflag: .byte 0
-waitcount: .byte 0
+rotatewait: .byte 0
+thrustwait: .byte 0
 
 .include "config.s"
 .include "tiles.s"
@@ -77,36 +78,45 @@ move_sprite:
     lda #0
     jsr JOYGET
     pha ; Push the joystick state so we can use it later
-    bit #%1000
-    bne @check_y_down
-    ; User is pressing up
-    lda ship_vely
-    sec
-    sbc #SHIP_ACCEL
-    sta ship_vely
-    lda ship_vely+1
-    sbc #0
-    sta ship_vely+1
-    jmp @check_rotation
-@check_y_down:
-    bit #%100
+    ldx thrustwait
+    cpx #SHIP_THRUST_TICKS ; We only thrust the ship every few ticks (otherwise it takes off SUPER fast)
     bne @check_rotation
+    ldx #0 ; clear the thrustwait
+    stx thrustwait
+    bit #%1000 ; See if pushing up (thrust)
+    bne @check_rotation ; Skip thrust and jump to check rotation
+    ; User is pressing up
+    ; Shift the ship ang (mult 2) because ship_vel_ang_x are .word
+    clc
+    lda ship_ang
+    rol
+    tax ; We now have a 0-31 index based on 0-15 angle
+    ; First increase the x velocity
+    lda ship_velx
+    clc
+    adc ship_vel_ang_x, x ; x thrust based on angle (lo byte)
+    sta ship_velx
+    lda ship_velx+1
+    adc ship_vel_ang_x+1, x ; x thrust based on angle (hi byte)
+    sta ship_velx+1
+    ; Second increase the y velocity
     lda ship_vely
     clc
-    adc #SHIP_ACCEL
+    adc ship_vel_ang_y, x ; y thrust based on angle (lo byte)
     sta ship_vely
     lda ship_vely+1
-    adc #0
+    adc ship_vel_ang_y+1, x ; y thrust based on angle (hi byte)
     sta ship_vely+1
 @check_rotation:
     pla ; Pull the joystick state off the stack
-    ldx waitcount
-    cpx #SHIP_ROTATE_TICKS
+    ldx rotatewait
+    cpx #SHIP_ROTATE_TICKS ; We only rotate the ship every few ticks (otherwise it spins SUPER fast)
     bne @add_velocity
-    ldx #0 ; clear the waitcount
-    stx waitcount
+    ldx #0 ; clear the rotatewait
+    stx rotatewait
     bit #%10 ; Pressing left?
     bne @check_x_right
+    ; User is pressing left
     lda ship_ang
     sec
     sbc #1
@@ -117,6 +127,7 @@ move_sprite:
 @check_x_right:
     bit #%1 ; Pressing right?
     bne @add_velocity
+    ; User is pressing right
     lda ship_ang ; Inc the angle
     clc
     adc #1
