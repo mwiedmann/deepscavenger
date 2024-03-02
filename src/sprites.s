@@ -21,11 +21,11 @@ create_sprite:
     sta VERA_DATA0
     lda #<SPRITE_GFX_ADDR_HI
     sta VERA_DATA0
-    lda shipx ; X
+    lda ship_x ; X
     sta VERA_DATA0
     lda #0
     sta VERA_DATA0
-    lda shipy ; Y
+    lda ship_y ; Y
     sta VERA_DATA0
     lda #0
     sta VERA_DATA0

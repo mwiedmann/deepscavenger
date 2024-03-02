@@ -7,12 +7,12 @@
     jmp start
 
 timebyte: .byte 0
-shipx: .word 320<<5
-shipy: .word 240<<5
-ship_pixelx: .word 0
-ship_pixely: .word 0
-ship_velx: .word 0
-ship_vely: .word 0
+ship_x: .word 320<<5
+ship_y: .word 240<<5
+ship_pixel_x: .word 0
+ship_pixel_y: .word 0
+ship_vel_x: .word 0
+ship_vel_y: .word 0
 
 ship_ang: .byte 4 ;0=0, 1=22.5, 2=45, 3=67.5, 4=90, 5=112.5, etc.
 
@@ -92,21 +92,23 @@ move_sprite:
     rol
     tax ; We now have a 0-31 index based on 0-15 angle
     ; First increase the x velocity
-    lda ship_velx
+    lda ship_vel_x
     clc
     adc ship_vel_ang_x, x ; x thrust based on angle (lo byte)
-    sta ship_velx
-    lda ship_velx+1
+    sta ship_vel_x
+    lda ship_vel_x+1
     adc ship_vel_ang_x+1, x ; x thrust based on angle (hi byte)
-    sta ship_velx+1
+    sta ship_vel_x+1
     ; Second increase the y velocity
-    lda ship_vely
+    lda ship_vel_y
     clc
     adc ship_vel_ang_y, x ; y thrust based on angle (lo byte)
-    sta ship_vely
-    lda ship_vely+1
+    sta ship_vel_y
+    lda ship_vel_y+1
     adc ship_vel_ang_y+1, x ; y thrust based on angle (hi byte)
-    sta ship_vely+1
+    sta ship_vel_y+1
+    ; Do we need to check the max velocity (we can just cap the x/y individually)?
+    ; They must stay on screen so its unlikely high speed will matter...they will crash
 @check_rotation:
     pla ; Pull the joystick state off the stack
     ldx rotatewait
@@ -138,57 +140,94 @@ move_sprite:
     sta ship_ang
 @add_velocity:
     ; Add velocity to y position
-    lda shipy
+    lda ship_y
     clc
-    adc ship_vely
-    sta shipy
-    lda shipy+1
-    adc ship_vely+1
-    sta shipy+1
+    adc ship_vel_y
+    sta ship_y
+    lda ship_y+1
+    adc ship_vel_y+1
+    sta ship_y+1
     ; Add velocity to x position
-    lda shipx
+    lda ship_x
     clc
-    adc ship_velx
-    sta shipx
-    lda shipx+1
-    adc ship_velx+1
-    sta shipx+1
+    adc ship_vel_x
+    sta ship_x
+    lda ship_x+1
+    adc ship_vel_x+1
+    sta ship_x+1
     ; Update sprite position
-    lda shipx
-    sta ship_pixelx
-    lda shipx+1
-    sta ship_pixelx+1
-    lda shipy
-    sta ship_pixely
-    lda shipy+1
-    sta ship_pixely+1
+    lda ship_x
+    sta ship_pixel_x
+    lda ship_x+1
+    sta ship_pixel_x+1
+    lda ship_y
+    sta ship_pixel_y
+    lda ship_y+1
+    sta ship_pixel_y+1
     ldx #0
 @shift_x:
-    ; The shipx/y is a larger number (shifted up 5 bits) to simulate a fractional number
+    ; The ship_x/y is a larger number (shifted up 5 bits) to simulate a fractional number
     ; We need to shift it back down to get to the actual pixel position
     clc
-    lda ship_pixelx+1
+    lda ship_pixel_x+1
     ror
-    sta ship_pixelx+1
-    lda ship_pixelx
+    sta ship_pixel_x+1
+    lda ship_pixel_x
     ror
-    sta ship_pixelx
+    sta ship_pixel_x
     inx
     cpx #5
     bne @shift_x
     ldx #0
 @shift_y:
     clc
-    lda ship_pixely+1
+    lda ship_pixel_y+1
     ror
-    sta ship_pixely+1
-    lda ship_pixely
+    sta ship_pixel_y+1
+    lda ship_pixel_y
     ror
-    sta ship_pixely
+    sta ship_pixel_y
     inx
     cpx #5
     bne @shift_y
-    ; ship_pixelx/y should have the actual pixel values now
+    ; ship_pixel_x/y should have the actual pixel values now
+    ; Make sure they are still on screen...crash if not!
+    ; branches to LABEL2 if NUM1 >= NUM2
+    LDA ship_pixel_x+1  ; compare high bytes
+    CMP #>640
+    BCC @pixel_x_ok ; if NUM1H < NUM2H then NUM1 < NUM2
+    BNE @pixel_crash ; if NUM1H <> NUM2H then NUM1 > NUM2 (so NUM1 >= NUM2)
+    LDA ship_pixel_x  ; compare low bytes
+    CMP #<640
+    BCS @pixel_crash ; if NUM1L >= NUM2L then NUM1 >= NUM2
+@pixel_x_ok:
+    ; Check y pixel
+    LDA ship_pixel_y+1  ; compare high bytes
+    CMP #>480
+    BCC @pixel_y_ok ; if NUM1H < NUM2H then NUM1 < NUM2
+    BNE @pixel_crash ; if NUM1H <> NUM2H then NUM1 > NUM2 (so NUM1 >= NUM2)
+    LDA ship_pixel_y  ; compare low bytes
+    CMP #<480
+    BCS @pixel_crash ; if NUM1L >= NUM2L then NUM1 >= NUM2
+    jmp @pixel_y_ok
+@pixel_crash:
+    ; Put player back in middle of screen and stop their ship
+    lda #<(320<<5)
+    sta ship_x
+    lda #>(320<<5)
+    sta ship_x+1
+    lda #<(240<<5)
+    sta ship_y
+    lda #>(240<<5)
+    sta ship_y+1
+    lda #0
+    sta ship_vel_x
+    sta ship_vel_x+1
+    sta ship_vel_y
+    sta ship_vel_y+1
+    sta ship_ang
+    rts
+@pixel_y_ok:
     jsr point_to_sprite
     ldx ship_ang ; Ship's angle (0-15)
     ldy ship_frame_ang, x ; Sprite frame based on angle (0-4)
@@ -196,16 +235,15 @@ move_sprite:
     sta VERA_DATA0 ; Write the lo addr for the sprite frame based on ang
     lda ship_frame_addr_hi, y ; Frame addr hi
     sta VERA_DATA0 ; Write the hi addr for the sprite frame based on ang
-    lda ship_pixelx
+    lda ship_pixel_x
     sta VERA_DATA0
-    lda ship_pixelx+1
+    lda ship_pixel_x+1
     sta VERA_DATA0
-    lda ship_pixely
+    lda ship_pixel_y
     sta VERA_DATA0
-    lda ship_pixely+1
+    lda ship_pixel_y+1
     sta VERA_DATA0
     lda ship_flip_ang, x
     sta VERA_DATA0
-@done:
     rts
 
