@@ -3,18 +3,13 @@
 
 .include "x16.inc"
 .include "config.inc"
+.include "entities.inc"
 
     jmp start
 
 timebyte: .byte 0
-ship_x: .word 320<<5
-ship_y: .word 240<<5
-ship_pixel_x: .word 0
-ship_pixel_y: .word 0
-ship_vel_x: .word 0
-ship_vel_y: .word 0
 
-ship_ang: .byte 4 ;0=0, 1=22.5, 2=45, 3=67.5, 4=90, 5=112.5, etc.
+ship: .tag Entity
 
 ; Precalculated sin/cos (adjusted for a pixel velocity I want) for each angle
 ship_vel_ang_x: .word 0,       3,       6,       7,       8, 7, 6, 3, 0, 65535-3, 65535-6, 65535-7, 65535-8, 65535-7, 65535-6, 65535-3
@@ -88,25 +83,25 @@ move_sprite:
     ; User is pressing up
     ; Shift the ship ang (mult 2) because ship_vel_ang_x are .word
     clc
-    lda ship_ang
+    lda ship+Entity::_ang
     rol
     tax ; We now have a 0-31 index based on 0-15 angle
     ; First increase the x velocity
-    lda ship_vel_x
+    lda ship+Entity::_vel_x
     clc
     adc ship_vel_ang_x, x ; x thrust based on angle (lo byte)
-    sta ship_vel_x
-    lda ship_vel_x+1
+    sta ship+Entity::_vel_x
+    lda ship+Entity::_vel_x+1
     adc ship_vel_ang_x+1, x ; x thrust based on angle (hi byte)
-    sta ship_vel_x+1
+    sta ship+Entity::_vel_x+1
     ; Second increase the y velocity
-    lda ship_vel_y
+    lda ship+Entity::_vel_y
     clc
     adc ship_vel_ang_y, x ; y thrust based on angle (lo byte)
-    sta ship_vel_y
-    lda ship_vel_y+1
+    sta ship+Entity::_vel_y
+    lda ship+Entity::_vel_y+1
     adc ship_vel_ang_y+1, x ; y thrust based on angle (hi byte)
-    sta ship_vel_y+1
+    sta ship+Entity::_vel_y+1
     ; Do we need to check the max velocity (we can just cap the x/y individually)?
     ; They must stay on screen so its unlikely high speed will matter...they will crash
 @check_rotation:
@@ -119,7 +114,7 @@ move_sprite:
     bit #%10 ; Pressing left?
     bne @check_x_right
     ; User is pressing left
-    lda ship_ang
+    lda ship+Entity::_ang
     sec
     sbc #1
     cmp #255 ; See if below min of 0
@@ -130,118 +125,118 @@ move_sprite:
     bit #%1 ; Pressing right?
     bne @add_velocity
     ; User is pressing right
-    lda ship_ang ; Inc the angle
+    lda ship+Entity::_ang ; Inc the angle
     clc
     adc #1
     cmp #16 ; See if over max of 15
     bne @save_angle
     lda #0 ; Back to 0 if exceeded max
 @save_angle:
-    sta ship_ang
+    sta ship+Entity::_ang
 @add_velocity:
     ; Add velocity to y position
-    lda ship_y
+    lda ship+Entity::_y
     clc
-    adc ship_vel_y
-    sta ship_y
-    lda ship_y+1
-    adc ship_vel_y+1
-    sta ship_y+1
+    adc ship+Entity::_vel_y
+    sta ship+Entity::_y
+    lda ship+Entity::_y+1
+    adc ship+Entity::_vel_y+1
+    sta ship+Entity::_y+1
     ; Add velocity to x position
-    lda ship_x
+    lda ship+Entity::_x
     clc
-    adc ship_vel_x
-    sta ship_x
-    lda ship_x+1
-    adc ship_vel_x+1
-    sta ship_x+1
+    adc ship+Entity::_vel_x
+    sta ship+Entity::_x
+    lda ship+Entity::_x+1
+    adc ship+Entity::_vel_x+1
+    sta ship+Entity::_x+1
     ; Update sprite position
-    lda ship_x
-    sta ship_pixel_x
-    lda ship_x+1
-    sta ship_pixel_x+1
-    lda ship_y
-    sta ship_pixel_y
-    lda ship_y+1
-    sta ship_pixel_y+1
+    lda ship+Entity::_x
+    sta ship+Entity::_pixel_x
+    lda ship+Entity::_x+1
+    sta ship+Entity::_pixel_x+1
+    lda ship+Entity::_y
+    sta ship+Entity::_pixel_y
+    lda ship+Entity::_y+1
+    sta ship+Entity::_pixel_y+1
     ldx #0
 @shift_x:
-    ; The ship_x/y is a larger number (shifted up 5 bits) to simulate a fractional number
+    ; The ship+Entity::_x/y is a larger number (shifted up 5 bits) to simulate a fractional number
     ; We need to shift it back down to get to the actual pixel position
     clc
-    lda ship_pixel_x+1
+    lda ship+Entity::_pixel_x+1
     ror
-    sta ship_pixel_x+1
-    lda ship_pixel_x
+    sta ship+Entity::_pixel_x+1
+    lda ship+Entity::_pixel_x
     ror
-    sta ship_pixel_x
+    sta ship+Entity::_pixel_x
     inx
     cpx #5
     bne @shift_x
     ldx #0
 @shift_y:
     clc
-    lda ship_pixel_y+1
+    lda ship+Entity::_pixel_y+1
     ror
-    sta ship_pixel_y+1
-    lda ship_pixel_y
+    sta ship+Entity::_pixel_y+1
+    lda ship+Entity::_pixel_y
     ror
-    sta ship_pixel_y
+    sta ship+Entity::_pixel_y
     inx
     cpx #5
     bne @shift_y
-    ; ship_pixel_x/y should have the actual pixel values now
+    ; ship+Entity::_pixel_x/y should have the actual pixel values now
     ; Make sure they are still on screen...crash if not!
     ; branches to LABEL2 if NUM1 >= NUM2
-    LDA ship_pixel_x+1  ; compare high bytes
+    LDA ship+Entity::_pixel_x+1  ; compare high bytes
     CMP #>640
     BCC @pixel_x_ok ; if NUM1H < NUM2H then NUM1 < NUM2
     BNE @pixel_crash ; if NUM1H <> NUM2H then NUM1 > NUM2 (so NUM1 >= NUM2)
-    LDA ship_pixel_x  ; compare low bytes
+    LDA ship+Entity::_pixel_x  ; compare low bytes
     CMP #<640
     BCS @pixel_crash ; if NUM1L >= NUM2L then NUM1 >= NUM2
 @pixel_x_ok:
     ; Check y pixel
-    LDA ship_pixel_y+1  ; compare high bytes
+    LDA ship+Entity::_pixel_y+1  ; compare high bytes
     CMP #>480
     BCC @pixel_y_ok ; if NUM1H < NUM2H then NUM1 < NUM2
     BNE @pixel_crash ; if NUM1H <> NUM2H then NUM1 > NUM2 (so NUM1 >= NUM2)
-    LDA ship_pixel_y  ; compare low bytes
+    LDA ship+Entity::_pixel_y  ; compare low bytes
     CMP #<480
     BCS @pixel_crash ; if NUM1L >= NUM2L then NUM1 >= NUM2
     jmp @pixel_y_ok
 @pixel_crash:
     ; Put player back in middle of screen and stop their ship
     lda #<(320<<5)
-    sta ship_x
+    sta ship+Entity::_x
     lda #>(320<<5)
-    sta ship_x+1
+    sta ship+Entity::_x+1
     lda #<(240<<5)
-    sta ship_y
+    sta ship+Entity::_y
     lda #>(240<<5)
-    sta ship_y+1
+    sta ship+Entity::_y+1
     lda #0
-    sta ship_vel_x
-    sta ship_vel_x+1
-    sta ship_vel_y
-    sta ship_vel_y+1
-    sta ship_ang
+    sta ship+Entity::_vel_x
+    sta ship+Entity::_vel_x+1
+    sta ship+Entity::_vel_y
+    sta ship+Entity::_vel_y+1
+    sta ship+Entity::_ang
     rts
 @pixel_y_ok:
     jsr point_to_sprite
-    ldx ship_ang ; Ship's angle (0-15)
+    ldx ship+Entity::_ang ; Ship's angle (0-15)
     ldy ship_frame_ang, x ; Sprite frame based on angle (0-4)
     lda ship_frame_addr_lo, y ; Frame addr lo
     sta VERA_DATA0 ; Write the lo addr for the sprite frame based on ang
     lda ship_frame_addr_hi, y ; Frame addr hi
     sta VERA_DATA0 ; Write the hi addr for the sprite frame based on ang
-    lda ship_pixel_x
+    lda ship+Entity::_pixel_x
     sta VERA_DATA0
-    lda ship_pixel_x+1
+    lda ship+Entity::_pixel_x+1
     sta VERA_DATA0
-    lda ship_pixel_y
+    lda ship+Entity::_pixel_y
     sta VERA_DATA0
-    lda ship_pixel_y+1
+    lda ship+Entity::_pixel_y+1
     sta VERA_DATA0
     lda ship_flip_ang, x
     sta VERA_DATA0

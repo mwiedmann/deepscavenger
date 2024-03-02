@@ -4,28 +4,23 @@
 CHROUT = $FFD2
 CHECK = 65536-32
 
+.struct Point
+    _x .word
+    _y .word
+.endstruct
+
     jmp start
 
-NUM1: .word 65536-31
+p1: .tag Point
+p2: .tag Point
 
 start:
-    sec
-    lda NUM1+1  ; compare high bytes
-    sbc #>CHECK ; Positive num always 0
-    bvc checklt ; the equality comparison is in the Z flag here
-    eor #$80   ; the Z flag is affected here
-checklt: BMI lt ; if NUM1H < NUM2H then NUM1 < NUM2
-    bvc checkgt ; the Z flag was affected only if V is 1
-    eor #$80   ; restore the Z flag to the value it had after SBC NUM2H
-checkgt: BNE gte ; if NUM1H <> NUM2H then NUM1 > NUM2 (so NUM1 >= NUM2)
-    lda NUM1  ; compare low bytes
-    sbc #<CHECK
-    bcc lt ; if NUM1L < NUM2L then NUM1 < NUM2
-gte:
-    lda #71 ; Greater
-    jsr CHROUT
-    rts
-lt:
-    lda #76 ; Lesser
-    jsr CHROUT
+    lda #1
+    sta p1+Point::_x
+    lda #2
+    sta p1+Point::_y
+    lda #3
+    sta p2+Point::_x
+    lda #4
+    sta p2+Point::_y
     rts

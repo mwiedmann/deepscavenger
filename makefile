@@ -14,7 +14,7 @@ run:
 
 rt:
 	cd build && \
-	../../x16emur46/x16emu -prg TEST.PRG -run
+	../../x16emur46/x16emu -prg TEST.PRG -debug
 
 debug:
 	cd build && \
