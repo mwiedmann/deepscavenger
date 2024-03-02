@@ -49,7 +49,8 @@ start:
     jsr clear_tiles
     jsr create_sprite
 @move:
-    jsr move_sprite
+    jsr move_ship
+    jsr move_entity
 @waiting:
     lda waitflag
     cmp #0
@@ -69,7 +70,7 @@ point_to_mapbase:
     pla
     rts
 
-move_sprite:
+move_ship:
     lda #0
     jsr JOYGET
     pha ; Push the joystick state so we can use it later
@@ -108,7 +109,7 @@ move_sprite:
     pla ; Pull the joystick state off the stack
     ldx rotatewait
     cpx #SHIP_ROTATE_TICKS ; We only rotate the ship every few ticks (otherwise it spins SUPER fast)
-    bne @add_velocity
+    bne @done
     ldx #0 ; clear the rotatewait
     stx rotatewait
     bit #%10 ; Pressing left?
@@ -123,7 +124,7 @@ move_sprite:
     jmp @save_angle
 @check_x_right:
     bit #%1 ; Pressing right?
-    bne @add_velocity
+    bne @done
     ; User is pressing right
     lda ship+Entity::_ang ; Inc the angle
     clc
@@ -133,7 +134,10 @@ move_sprite:
     lda #0 ; Back to 0 if exceeded max
 @save_angle:
     sta ship+Entity::_ang
-@add_velocity:
+@done:
+    rts
+
+move_entity:
     ; Add velocity to y position
     lda ship+Entity::_y
     clc
