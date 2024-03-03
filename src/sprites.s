@@ -51,13 +51,17 @@ create_sprite:
     sta VERA_DATA0
     lda #<SPRITE_GFX_ADDR_HI
     sta VERA_DATA0
-    lda ship+Entity::_x ; X
+    ldy #Entity::_pixel_x
+    lda (active_entity), y
     sta VERA_DATA0
-    lda #0
+    ldy #Entity::_pixel_x+1
+    lda (active_entity), y
     sta VERA_DATA0
-    lda ship+Entity::_y ; Y
+    ldy #Entity::_pixel_y
+    lda (active_entity), y
     sta VERA_DATA0
-    lda #0
+    ldy #Entity::_pixel_y+1
+    lda (active_entity), y
     sta VERA_DATA0
     lda #%00001100 ; In front of layer 1
     sta VERA_DATA0
@@ -83,7 +87,7 @@ load_ship:
     rts
 
 
-reset_ship_entity:
+reset_active_entity:
     lda #<(320<<5)
     ldy #Entity::_x
     sta (active_entity), y
@@ -95,6 +99,18 @@ reset_ship_entity:
     sta (active_entity), y
     lda #>(240<<5)
     ldy #Entity::_y+1
+    sta (active_entity), y
+    lda #<320
+    ldy #Entity::_pixel_x
+    sta (active_entity), y
+    lda #>320
+    ldy #Entity::_pixel_x+1
+    sta (active_entity), y
+    lda #<240
+    ldy #Entity::_pixel_y
+    sta (active_entity), y
+    lda #>240
+    ldy #Entity::_pixel_y+1
     sta (active_entity), y
     lda #0
     ldy #Entity::_vel_x
@@ -119,5 +135,21 @@ set_ship_as_active:
     lda #>ship
     sta active_entity+1
     rts
-    
+
+
+sp_temp1: .word 0
+
+create_enemy_sprites:
+    ldx #0
+    stx sp_temp1
+    clc
+    lda #<enemies
+    adc sp_temp1
+    sta active_entity
+    lda #>enemies+1
+    adc #0
+    sta active_entity+1
+
+    rts
+
 .endif

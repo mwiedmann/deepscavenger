@@ -15,6 +15,7 @@
 timebyte: .byte 0
 
 ship: .tag Entity
+enemies: .res .sizeof(Entity)*3
 
 ; Precalculated sin/cos (adjusted for a pixel velocity I want) for each angle
 ship_vel_ang_x: .word 0,       3,       6,       7,       8, 7, 6, 3, 0, 65535-3, 65535-6, 65535-7, 65535-8, 65535-7, 65535-6, 65535-3
@@ -39,8 +40,6 @@ waitflag: .byte 0
 rotatewait: .byte 0
 thrustwait: .byte 0
 
-ZEROPAGE = $30
-
 .include "config.s"
 .include "tiles.s"
 .include "irq.s"
@@ -54,7 +53,7 @@ start:
     jsr create_tiles
     jsr load_ship
     jsr set_ship_as_active
-    jsr reset_ship_entity
+    jsr reset_active_entity
     jsr clear_tiles
     ; pass the sprite_num for the ship and create its sprite
     lda ship+Entity::_sprite_num
@@ -254,7 +253,7 @@ check_entity_bounds:
     jmp @pixels_ok
 @pixel_crash:
     ; Put player back in middle of screen and stop their ship
-    jsr reset_ship_entity
+    jsr reset_active_entity
 @pixels_ok:
     rts
 
