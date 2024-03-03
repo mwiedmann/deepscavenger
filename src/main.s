@@ -1,3 +1,6 @@
+.zeropage
+    active_entity: .res 2
+
 .org $080D
 .segment "ONCE"
 
@@ -34,6 +37,8 @@ waitflag: .byte 0
 rotatewait: .byte 0
 thrustwait: .byte 0
 
+ZEROPAGE = $30
+
 .include "config.s"
 .include "tiles.s"
 .include "irq.s"
@@ -50,6 +55,10 @@ start:
     jsr create_sprite
 @move:
     jsr move_ship
+    lda #<ship
+    sta active_entity
+    lda #>ship
+    sta active_entity+1
     jsr move_entity
 @waiting:
     lda waitflag
@@ -138,31 +147,43 @@ move_ship:
     rts
 
 move_entity:
+    ; active_entity holds the address of the entity to move
     ; Add velocity to y position
-    lda ship+Entity::_y
+    ldy #Entity::_y ; Point to _y lo bit
+    lda (active_entity), y ; Get the _y (lo bit)
+    ldy #Entity::_vel_y ; Get the _vel_y (lo bit)
     clc
-    adc ship+Entity::_vel_y
-    sta ship+Entity::_y
-    lda ship+Entity::_y+1
-    adc ship+Entity::_vel_y+1
-    sta ship+Entity::_y+1
+    adc (active_entity), y ; Add the _vel_y (lo bit, moves entity y position)
+    ldy #Entity::_y ; Point back to _y (lo bit) so we can update it
+    sta (active_entity), y ; Store the updated _y (lo bit)
+    ldy #Entity::_pixel_y ; Point to _pixel_y (lo bit) so we can update it
+    sta (active_entity), y ; Copy _y to _pixel_y (lo bit)
+    ldy #Entity::_y+1 ; Point to _y hi bit
+    lda (active_entity), y ; Get the _y (hi bit)
+    ldy #Entity::_vel_y+1 ; Point to the _vel_y (hi bit)
+    adc (active_entity), y ; Add the _vel_y (hi bit, moves entity y position)
+    ldy #Entity::_y+1 ; Point back to _y (hi bit) so we can update it
+    sta (active_entity), y ; Store the updated _y (hi bit)
+    ldy #Entity::_pixel_y+1 ; Point to _pixel_y (hi bit) so we can update it
+    sta (active_entity), y ; Copy _y to _pixel_y (hi bit)
     ; Add velocity to x position
-    lda ship+Entity::_x
+    ldy #Entity::_x ; Point to _x lo bit
+    lda (active_entity), y ; Get the _x (lo bit)
+    ldy #Entity::_vel_x ; Get the _vel_x (lo bit)
     clc
-    adc ship+Entity::_vel_x
-    sta ship+Entity::_x
-    lda ship+Entity::_x+1
-    adc ship+Entity::_vel_x+1
-    sta ship+Entity::_x+1
-    ; Update sprite position
-    lda ship+Entity::_x
-    sta ship+Entity::_pixel_x
-    lda ship+Entity::_x+1
-    sta ship+Entity::_pixel_x+1
-    lda ship+Entity::_y
-    sta ship+Entity::_pixel_y
-    lda ship+Entity::_y+1
-    sta ship+Entity::_pixel_y+1
+    adc (active_entity), y ; Add the _vel_x (lo bit, moves entity x position)
+    ldy #Entity::_x ; Point back to _x (lo bit) so we can update it
+    sta (active_entity), y ; Store the updated _x (lo bit)
+    ldy #Entity::_pixel_x ; Point to _pixel_x (lo bit) so we can update it
+    sta (active_entity), y ; Copy _x to _pixel_x (lo bit)
+    ldy #Entity::_x+1 ; Point to _x hi bit
+    lda (active_entity), y ; Get the _x (hi bit)
+    ldy #Entity::_vel_x+1 ; Point to the _vel_x (hi bit)
+    adc (active_entity), y ; Add the _vel_x (hi bit, moves entity x position)
+    ldy #Entity::_x+1 ; Point back to _x (hi bit) so we can update it
+    sta (active_entity), y ; Store the updated _x (hi bit)
+    ldy #Entity::_pixel_x+1 ; Point to _pixel_x (hi bit) so we can update it
+    sta (active_entity), y ; Copy _x to _pixel_x (hi bit)
     ldx #0
 @shift_x:
     ; The ship+Entity::_x/y is a larger number (shifted up 5 bits) to simulate a fractional number
