@@ -189,65 +189,82 @@ move_entity:
     ; The ship+Entity::_x/y is a larger number (shifted up 5 bits) to simulate a fractional number
     ; We need to shift it back down to get to the actual pixel position
     clc
-    lda ship+Entity::_pixel_x+1
+    ldy #Entity::_pixel_x+1
+    lda (active_entity), y
     ror
-    sta ship+Entity::_pixel_x+1
-    lda ship+Entity::_pixel_x
+    sta (active_entity), y
+    ldy #Entity::_pixel_x
+    lda (active_entity), y
     ror
-    sta ship+Entity::_pixel_x
+    sta (active_entity), y
     inx
     cpx #5
     bne @shift_x
     ldx #0
 @shift_y:
     clc
-    lda ship+Entity::_pixel_y+1
+    ldy #Entity::_pixel_y+1
+    lda (active_entity), y
     ror
-    sta ship+Entity::_pixel_y+1
-    lda ship+Entity::_pixel_y
+    sta (active_entity), y
+    ldy #Entity::_pixel_y
+    lda (active_entity), y
     ror
-    sta ship+Entity::_pixel_y
+    sta (active_entity), y
     inx
     cpx #5
     bne @shift_y
     ; ship+Entity::_pixel_x/y should have the actual pixel values now
     ; Make sure they are still on screen...crash if not!
     ; branches to LABEL2 if NUM1 >= NUM2
-    LDA ship+Entity::_pixel_x+1  ; compare high bytes
+    ldy #Entity::_pixel_x+1
+    lda (active_entity), y ; compare high bytes
     CMP #>640
     BCC @pixel_x_ok ; if NUM1H < NUM2H then NUM1 < NUM2
     BNE @pixel_crash ; if NUM1H <> NUM2H then NUM1 > NUM2 (so NUM1 >= NUM2)
-    LDA ship+Entity::_pixel_x  ; compare low bytes
+    ldy #Entity::_pixel_x
+    lda (active_entity), y ; compare low bytes
     CMP #<640
     BCS @pixel_crash ; if NUM1L >= NUM2L then NUM1 >= NUM2
 @pixel_x_ok:
     ; Check y pixel
-    LDA ship+Entity::_pixel_y+1  ; compare high bytes
+    ldy #Entity::_pixel_y+1
+    lda (active_entity), y  ; compare high bytes
     CMP #>480
-    BCC @pixel_y_ok ; if NUM1H < NUM2H then NUM1 < NUM2
+    BCC @pixels_ok ; if NUM1H < NUM2H then NUM1 < NUM2
     BNE @pixel_crash ; if NUM1H <> NUM2H then NUM1 > NUM2 (so NUM1 >= NUM2)
-    LDA ship+Entity::_pixel_y  ; compare low bytes
+    ldy #Entity::_pixel_y
+    lda (active_entity), y  ; compare low bytes
     CMP #<480
     BCS @pixel_crash ; if NUM1L >= NUM2L then NUM1 >= NUM2
-    jmp @pixel_y_ok
+    jmp @pixels_ok
 @pixel_crash:
     ; Put player back in middle of screen and stop their ship
     lda #<(320<<5)
-    sta ship+Entity::_x
+    ldy #Entity::_x
+    sta (active_entity), y
     lda #>(320<<5)
-    sta ship+Entity::_x+1
+    ldy #Entity::_x+1
+    sta (active_entity), y
     lda #<(240<<5)
-    sta ship+Entity::_y
+    ldy #Entity::_y
+    sta (active_entity), y
     lda #>(240<<5)
-    sta ship+Entity::_y+1
+    ldy #Entity::_y+1
+    sta (active_entity), y
     lda #0
-    sta ship+Entity::_vel_x
-    sta ship+Entity::_vel_x+1
-    sta ship+Entity::_vel_y
-    sta ship+Entity::_vel_y+1
-    sta ship+Entity::_ang
+    ldy #Entity::_vel_x
+    sta (active_entity), y
+    ldy #Entity::_vel_x+1
+    sta (active_entity), y
+    ldy #Entity::_vel_y
+    sta (active_entity), y
+    ldy #Entity::_vel_y+1
+    sta (active_entity), y
+    ldy #Entity::_ang
+    sta (active_entity), y
     rts
-@pixel_y_ok:
+@pixels_ok:
     jsr point_to_sprite
     ldx ship+Entity::_ang ; Ship's angle (0-15)
     ldy ship_frame_ang, x ; Sprite frame based on angle (0-4)
