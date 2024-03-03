@@ -51,14 +51,18 @@ start:
     jsr config
     jsr load_pal
     jsr create_tiles
+    jsr clear_tiles
     jsr load_ship
     jsr set_ship_as_active
     jsr reset_active_entity
-    jsr clear_tiles
+    lda #SHIP_SPRITE_NUM ; Ship sprite num
+    ldy #Entity::_sprite_num
+    sta (active_entity), y
     ; pass the sprite_num for the ship and create its sprite
     lda ship+Entity::_sprite_num
     sta param1
     jsr create_sprite
+    jsr create_enemy_sprites
 @move:
     jsr move_ship
     jsr set_ship_as_active

@@ -123,9 +123,6 @@ reset_active_entity:
     sta (active_entity), y
     ldy #Entity::_ang
     sta (active_entity), y
-    lda #7
-    ldy #Entity::_sprite_num
-    sta (active_entity), y
     rts
 
 
@@ -137,18 +134,29 @@ set_ship_as_active:
     rts
 
 
-sp_temp1: .word 0
+sp_offset: .word 0
+sp_num: .byte 0
 
 create_enemy_sprites:
+    ldx #ENEMY_SPRITE_NUM_START
+    stx sp_num
     ldx #0
-    stx sp_temp1
+    stx sp_offset
+
     clc
     lda #<enemies
-    adc sp_temp1
+    adc sp_offset
     sta active_entity
-    lda #>enemies+1
+    lda #>enemies
     adc #0
     sta active_entity+1
+
+    jsr reset_active_entity
+    lda sp_num
+    ldy #Entity::_sprite_num
+    sta (active_entity), y ; Set enemy sprite num
+    sta param1 ; pass the sprite_num for the enemy and create its sprite
+    jsr create_sprite
 
     rts
 
