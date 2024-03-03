@@ -1,5 +1,7 @@
 .zeropage
     active_entity: .res 2
+    param1: .res 2
+    param2: .res 2
 
 .org $080D
 .segment "ONCE"
@@ -51,16 +53,20 @@ start:
     jsr load_pal
     jsr create_tiles
     jsr load_ship
+    jsr set_ship_as_active
+    jsr reset_ship_entity
     jsr clear_tiles
+    ; pass the sprite_num for the ship and create its sprite
+    lda ship+Entity::_sprite_num
+    sta param1
     jsr create_sprite
 @move:
     jsr move_ship
-    lda #<ship
-    sta active_entity
-    lda #>ship
-    sta active_entity+1
+    jsr set_ship_as_active
     jsr move_entity
     jsr check_entity_bounds
+    lda ship+Entity::_sprite_num
+    sta param1
     jsr update_sprite
 @waiting:
     lda waitflag
@@ -248,29 +254,7 @@ check_entity_bounds:
     jmp @pixels_ok
 @pixel_crash:
     ; Put player back in middle of screen and stop their ship
-    lda #<(320<<5)
-    ldy #Entity::_x
-    sta (active_entity), y
-    lda #>(320<<5)
-    ldy #Entity::_x+1
-    sta (active_entity), y
-    lda #<(240<<5)
-    ldy #Entity::_y
-    sta (active_entity), y
-    lda #>(240<<5)
-    ldy #Entity::_y+1
-    sta (active_entity), y
-    lda #0
-    ldy #Entity::_vel_x
-    sta (active_entity), y
-    ldy #Entity::_vel_x+1
-    sta (active_entity), y
-    ldy #Entity::_vel_y
-    sta (active_entity), y
-    ldy #Entity::_vel_y+1
-    sta (active_entity), y
-    ldy #Entity::_ang
-    sta (active_entity), y
+    jsr reset_ship_entity
 @pixels_ok:
     rts
 
