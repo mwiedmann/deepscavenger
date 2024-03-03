@@ -9,6 +9,7 @@ ENTITIES_H=1
     _vel_x .word
     _vel_y .word
     _ang .byte ;0=0, 1=22.5, 2=45, 3=67.5, 4=90, 5=112.5, etc.
+    _sprite_num .byte
 .endstruct
 
 .endif

@@ -60,6 +60,8 @@ start:
     lda #>ship
     sta active_entity+1
     jsr move_entity
+    jsr check_entity_bounds
+    jsr update_sprite
 @waiting:
     lda waitflag
     cmp #0
@@ -67,6 +69,7 @@ start:
     lda #0
     sta waitflag
     bra @move
+
 
 point_to_mapbase:
     pha
@@ -78,6 +81,7 @@ point_to_mapbase:
     sta VERA_ADDR_HI_SET
     pla
     rts
+
 
 move_ship:
     lda #0
@@ -145,6 +149,7 @@ move_ship:
     sta ship+Entity::_ang
 @done:
     rts
+
 
 move_entity:
     ; active_entity holds the address of the entity to move
@@ -214,6 +219,9 @@ move_entity:
     inx
     cpx #5
     bne @shift_y
+
+
+check_entity_bounds:
     ; ship+Entity::_pixel_x/y should have the actual pixel values now
     ; Make sure they are still on screen...crash if not!
     ; branches to LABEL2 if NUM1 >= NUM2
@@ -263,8 +271,11 @@ move_entity:
     sta (active_entity), y
     ldy #Entity::_ang
     sta (active_entity), y
-    rts
 @pixels_ok:
+    rts
+
+
+update_sprite:
     jsr point_to_sprite
     ldx ship+Entity::_ang ; Ship's angle (0-15)
     ldy ship_frame_ang, x ; Sprite frame based on angle (0-4)
