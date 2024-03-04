@@ -64,8 +64,9 @@ start:
     jsr create_sprite
     jsr create_enemy_sprites
 @move:
-    jsr move_ship
+    jsr move_enemies
     jsr set_ship_as_active
+    jsr move_ship
     jsr move_entity
     jsr check_entity_bounds
     lda ship+Entity::_sprite_num
@@ -260,25 +261,3 @@ check_entity_bounds:
     jsr reset_active_entity
 @pixels_ok:
     rts
-
-
-update_sprite:
-    jsr point_to_sprite
-    ldx ship+Entity::_ang ; Ship's angle (0-15)
-    ldy ship_frame_ang, x ; Sprite frame based on angle (0-4)
-    lda ship_frame_addr_lo, y ; Frame addr lo
-    sta VERA_DATA0 ; Write the lo addr for the sprite frame based on ang
-    lda ship_frame_addr_hi, y ; Frame addr hi
-    sta VERA_DATA0 ; Write the hi addr for the sprite frame based on ang
-    lda ship+Entity::_pixel_x
-    sta VERA_DATA0
-    lda ship+Entity::_pixel_x+1
-    sta VERA_DATA0
-    lda ship+Entity::_pixel_y
-    sta VERA_DATA0
-    lda ship+Entity::_pixel_y+1
-    sta VERA_DATA0
-    lda ship_flip_ang, x
-    sta VERA_DATA0
-    rts
-

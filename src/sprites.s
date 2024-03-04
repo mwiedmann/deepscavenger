@@ -70,6 +70,33 @@ create_sprite:
     rts
 
 
+update_sprite:
+    jsr point_to_sprite
+    ldy #Entity::_ang ; Ship's angle (0-15)
+    lda (active_entity), y
+    tax
+    ldy ship_frame_ang, x ; Sprite frame based on angle (0-4)
+    lda ship_frame_addr_lo, y ; Frame addr lo
+    sta VERA_DATA0 ; Write the lo addr for the sprite frame based on ang
+    lda ship_frame_addr_hi, y ; Frame addr hi
+    sta VERA_DATA0 ; Write the hi addr for the sprite frame based on ang
+    ldy #Entity::_pixel_x
+    lda (active_entity), y
+    sta VERA_DATA0
+    ldy #Entity::_pixel_x+1
+    lda (active_entity), y
+    sta VERA_DATA0
+    ldy #Entity::_pixel_y
+    lda (active_entity), y
+    sta VERA_DATA0
+    ldy #Entity::_pixel_y+1
+    lda (active_entity), y
+    sta VERA_DATA0
+    lda ship_flip_ang, x
+    sta VERA_DATA0
+    rts
+
+
 load_ship:
     lda #$08
     ldx #<ship_filename
@@ -121,8 +148,8 @@ reset_active_entity:
     sta (active_entity), y
     ldy #Entity::_vel_y+1
     sta (active_entity), y
-    ldy #Entity::_ang
-    sta (active_entity), y
+    ;ldy #Entity::_ang
+    ;sta (active_entity), y
     rts
 
 
@@ -136,13 +163,16 @@ set_ship_as_active:
 
 sp_offset: .word 0
 sp_num: .byte 0
+sp_enemy_count: .byte 0
 
 create_enemy_sprites:
+    ldx #0
+    stx sp_enemy_count
     ldx #ENEMY_SPRITE_NUM_START
     stx sp_num
     ldx #0
     stx sp_offset
-
+@next_enemy:
     clc
     lda #<enemies
     adc sp_offset
@@ -152,12 +182,90 @@ create_enemy_sprites:
     sta active_entity+1
 
     jsr reset_active_entity
+    lda sp_enemy_count
+    ldy #Entity::_ang
+    sta (active_entity), y ; Set enemy ang
     lda sp_num
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set enemy sprite num
     sta param1 ; pass the sprite_num for the enemy and create its sprite
     jsr create_sprite
 
+    lda sp_offset
+    adc #.sizeof(Entity)
+    sta sp_offset
+    lda sp_num
+    inc
+    sta sp_num
+    lda sp_enemy_count
+    inc
+    sta sp_enemy_count
+    cmp #ENEMY_COUNT
+    bne @next_enemy
     rts
 
+accel_entity:
+    ldy #Entity::_ang
+    lda (active_entity), y
+    clc
+    rol ; Shift the ship ang (mult 2) because ship_vel_ang_x are .word
+    tax ; We now have a 0-31 index based on 0-15 angle
+    ; First increase the x velocity
+    ldy #Entity::_vel_x
+    lda (active_entity), y
+    clc
+    adc ship_vel_ang_x, x ; x thrust based on angle (lo byte)
+    sta (active_entity), y
+    ldy #Entity::_vel_x+1
+    lda (active_entity), y
+    adc ship_vel_ang_x+1, x ; x thrust based on angle (hi byte)
+    sta (active_entity), y
+    ; Second increase the y velocity
+    ldy #Entity::_vel_y
+    lda (active_entity), y
+    clc
+    adc ship_vel_ang_y, x ; y thrust based on angle (lo byte)
+    sta (active_entity), y
+    ldy #Entity::_vel_y+1
+    lda (active_entity), y
+    adc ship_vel_ang_y+1, x ; y thrust based on angle (hi byte)
+    sta (active_entity), y
+    rts
+
+
+move_enemies:
+    ldx #0
+    stx sp_enemy_count
+    ldx #0
+    stx sp_offset
+@next_enemy:
+    clc
+    lda #<enemies
+    adc sp_offset
+    sta active_entity
+    lda #>enemies
+    adc #0
+    sta active_entity+1
+    ldx thrustwait
+    cpx #SHIP_THRUST_TICKS ; We only thrust the ship every few ticks (otherwise it takes off SUPER fast)
+    bne @skip_accel
+    jsr accel_entity
+@skip_accel:
+    jsr move_entity
+    jsr check_entity_bounds
+
+    ldy #Entity::_sprite_num
+    lda (active_entity), y
+    sta param1
+    jsr update_sprite
+
+    lda sp_offset
+    adc #.sizeof(Entity)
+    sta sp_offset
+    lda sp_enemy_count
+    inc
+    sta sp_enemy_count
+    cmp #ENEMY_COUNT
+    bne @next_enemy
+    rts
 .endif
