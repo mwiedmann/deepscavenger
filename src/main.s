@@ -31,10 +31,6 @@ ship_flip_ang: .byte   %00001100, %00001100, %00001100, %00001100, %00001100, %0
 ; VFLip 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0
 ; HFlip 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1
 
-; Precalculated the lo/hi bit-shifted addrs for the sprite images for each frame
-ship_frame_addr_lo: .byte <(SHIP_LOAD_ADDR >> 5), <((SHIP_LOAD_ADDR+SHIP_SPRITE_SIZE) >> 5), <((SHIP_LOAD_ADDR+(SHIP_SPRITE_SIZE*2)) >> 5), <((SHIP_LOAD_ADDR+(SHIP_SPRITE_SIZE*3)) >> 5), <((SHIP_LOAD_ADDR+(SHIP_SPRITE_SIZE*4)) >> 5)
-ship_frame_addr_hi: .byte %10000000 | (SHIP_LOAD_ADDR >> 13), %10000000 | ((SHIP_LOAD_ADDR+SHIP_SPRITE_SIZE) >> 13), %10000000 | ((SHIP_LOAD_ADDR+(SHIP_SPRITE_SIZE*2)) >> 13), %10000000 | ((SHIP_LOAD_ADDR+(SHIP_SPRITE_SIZE*3)) >> 13), %10000000 | ((SHIP_LOAD_ADDR+(SHIP_SPRITE_SIZE*4)) >> 13)
-
 default_irq: .word 0
 waitflag: .byte 0
 rotatewait: .byte 0
@@ -43,6 +39,7 @@ thrustwait: .byte 0
 .include "config.s"
 .include "tiles.s"
 .include "irq.s"
+.include "loading.s"
 .include "sprites.s"
 .include "pal.s"
 
@@ -59,11 +56,21 @@ start:
     lda #SHIP_SPRITE_NUM ; Ship sprite num
     ldy #Entity::_sprite_num
     sta (active_entity), y
+    lda #<SHIP_LOAD_ADDR ; Ship img addr
+    ldy #Entity::_image_addr
+    sta (active_entity), y
+    lda #>SHIP_LOAD_ADDR ; Ship img addr
+    ldy #Entity::_image_addr+1
+    sta (active_entity), y
     ; pass the sprite_num for the ship and create its sprite
     lda ship+Entity::_sprite_num
     sta param1
     jsr create_sprite
     jsr create_enemy_sprites
+    ; Reset our counters now that we are ready to accept input
+    lda #0
+    sta rotatewait
+    sta thrustwait
 @move:
     jsr move_enemies
     jsr set_ship_as_active

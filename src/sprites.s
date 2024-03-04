@@ -4,9 +4,6 @@ SPRITES_S = 1
 .include "x16.inc"
 .include "config.inc"
 
-ship_filename: .asciiz "ship.bin"
-laser_filename: .asciiz "laser.bin"
-
 active_sprite: .word 0
 sprite_offset: .word 0
 
@@ -49,9 +46,9 @@ point_to_sprite:
 ; param1: sprite_num
 create_sprite:
     jsr point_to_sprite
-    lda #<SPRITE_SHIP_GFX_ADDR_LO
+    lda #0
     sta VERA_DATA0
-    lda #<SPRITE_SHIP_GFX_ADDR_HI
+    lda #%10000000
     sta VERA_DATA0
     ldy #Entity::_pixel_x
     lda (active_entity), y
@@ -72,16 +69,61 @@ create_sprite:
     rts
 
 
+us_img_addr: .word 0
+us_frame: .byte 0
+us_ang: .byte 0
+
 update_sprite:
     jsr point_to_sprite
     ldy #Entity::_ang ; Ship's angle (0-15)
     lda (active_entity), y
+    sta us_ang
     tax
-    ldy ship_frame_ang, x ; Sprite frame based on angle (0-4)
-    lda ship_frame_addr_lo, y ; Frame addr lo
+    lda ship_frame_ang, x ; Sprite frame based on angle (0-4)
+    sta us_frame ; us_frame now has the sprite frame number
+
+    ; Load the image addr so we can add to and bit shift it
+    ldy #Entity::_image_addr
+    lda (active_entity), y
+    sta us_img_addr
+    ldy #Entity::_image_addr+1
+    lda (active_entity), y
+    sta us_img_addr+1
+
+    ldx #0
+@move_frame:
+    cpx us_frame
+    beq @frame_slide_done
+    clc
+    lda us_img_addr
+    adc #<DEFAULT_FRAME_SIZE
+    sta us_img_addr
+    lda us_img_addr+1
+    adc #>DEFAULT_FRAME_SIZE
+    sta us_img_addr+1
+    inx
+    bra @move_frame
+@frame_slide_done:
+    ldx #0
+@start_shift: ; Shift the image addr bits as sprites use bits 12:5 and 16:13 (we default 16 to 0)
+    clc
+    lda us_img_addr+1
+    ror
+    sta us_img_addr+1
+    lda us_img_addr
+    ror
+    sta us_img_addr
+    inx
+    cpx #5
+    bne @start_shift
+
+    ; Do the addr calc on the fly (>>5)
+    lda us_img_addr ; Frame addr lo
     sta VERA_DATA0 ; Write the lo addr for the sprite frame based on ang
-    lda ship_frame_addr_hi, y ; Frame addr hi
+    lda us_img_addr+1 ; Frame addr hi
+    ora #%10000000 ; Keep the 256 color mode on
     sta VERA_DATA0 ; Write the hi addr for the sprite frame based on ang
+    
     ldy #Entity::_pixel_x
     lda (active_entity), y
     sta VERA_DATA0
@@ -94,43 +136,10 @@ update_sprite:
     ldy #Entity::_pixel_y+1
     lda (active_entity), y
     sta VERA_DATA0
+    ldx us_ang
     lda ship_flip_ang, x
     sta VERA_DATA0
     rts
-
-
-load_ship:
-    lda #$08
-    ldx #<ship_filename
-    ldy #>ship_filename
-    jsr SETNAM
-    ; 0,8,2
-    lda #0
-    ldx #8
-    ldy #2
-    jsr SETLFS
-    lda #2 ; VRAM 1st bank
-    ldx #<SHIP_LOAD_ADDR 
-    ldy #>SHIP_LOAD_ADDR
-    jsr LOAD
-    rts
-
-load_laser:
-    lda #$09
-    ldx #<laser_filename
-    ldy #>laser_filename
-    jsr SETNAM
-    ; 0,8,2
-    lda #0
-    ldx #8
-    ldy #2
-    jsr SETLFS
-    lda #2 ; VRAM 1st bank
-    ldx #<LASER_LOAD_ADDR 
-    ldy #>LASER_LOAD_ADDR
-    jsr LOAD
-    rts
-
 
 reset_active_entity:
     lda #<(320<<5)
@@ -203,6 +212,12 @@ create_enemy_sprites:
     lda sp_enemy_count
     ldy #Entity::_ang
     sta (active_entity), y ; Set enemy ang
+    lda #<LASER_LOAD_ADDR ; Ship img addr
+    ldy #Entity::_image_addr
+    sta (active_entity), y
+    lda #>LASER_LOAD_ADDR ; Ship img addr
+    ldy #Entity::_image_addr+1
+    sta (active_entity), y
     lda sp_num
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set enemy sprite num
@@ -277,6 +292,7 @@ move_enemies:
     sta param1
     jsr update_sprite
 
+    clc
     lda sp_offset
     adc #.sizeof(Entity)
     sta sp_offset
