@@ -53,6 +53,7 @@ start:
     jsr create_tiles
     jsr clear_tiles
     jsr load_ship
+    jsr load_laser
     jsr set_ship_as_active
     jsr reset_active_entity
     lda #SHIP_SPRITE_NUM ; Ship sprite num

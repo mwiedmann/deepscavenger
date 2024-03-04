@@ -21,7 +21,8 @@ debug:
 	../../x16emur46/x16emu -prg DEEP.PRG -debug
 
 pal:
-	node tools/gimp-pal-convert.js gfx/ship.data.pal build/PAL.BIN
+	node tools/gimp-pal-convert.js gfx/sprites.data.pal build/PAL.BIN
 
 img:
 	node tools/gimp-img-convert.js gfx/sprites.data build/SHIP.BIN 32 32 0 5 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/LASER.BIN 32 32 6 5 1

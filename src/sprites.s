@@ -5,8 +5,10 @@ SPRITES_S = 1
 .include "config.inc"
 
 ship_filename: .asciiz "ship.bin"
+laser_filename: .asciiz "laser.bin"
+
 active_sprite: .word 0
-sprite_offset: .word 0;
+sprite_offset: .word 0
 
 ; NOTE: This is limited to 31 sprites because we only do 8bit sprite offset calc (shifting)
 ; param1: sprite number
@@ -47,9 +49,9 @@ point_to_sprite:
 ; param1: sprite_num
 create_sprite:
     jsr point_to_sprite
-    lda #<SPRITE_GFX_ADDR_LO
+    lda #<SPRITE_SHIP_GFX_ADDR_LO
     sta VERA_DATA0
-    lda #<SPRITE_GFX_ADDR_HI
+    lda #<SPRITE_SHIP_GFX_ADDR_HI
     sta VERA_DATA0
     ldy #Entity::_pixel_x
     lda (active_entity), y
@@ -110,6 +112,22 @@ load_ship:
     lda #2 ; VRAM 1st bank
     ldx #<SHIP_LOAD_ADDR 
     ldy #>SHIP_LOAD_ADDR
+    jsr LOAD
+    rts
+
+load_laser:
+    lda #$09
+    ldx #<laser_filename
+    ldy #>laser_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #2 ; VRAM 1st bank
+    ldx #<LASER_LOAD_ADDR 
+    ldy #>LASER_LOAD_ADDR
     jsr LOAD
     rts
 
