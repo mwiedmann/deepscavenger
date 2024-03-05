@@ -15,7 +15,7 @@
 timebyte: .byte 0
 
 ship: .tag Entity
-enemies: .res .sizeof(Entity)*ENEMY_COUNT
+entities: .res .sizeof(Entity)*LASER_COUNT
 
 ; Precalculated sin/cos (adjusted for a pixel velocity I want) for each angle
 ship_vel_ang_x: .word 0,       3,       6,       7,       8, 7, 6, 3, 0, 65535-3, 65535-6, 65535-7, 65535-8, 65535-7, 65535-6, 65535-3
@@ -66,13 +66,13 @@ start:
     lda ship+Entity::_sprite_num
     sta param1
     jsr create_sprite
-    jsr create_enemy_sprites
+    jsr create_laser_sprites
     ; Reset our counters now that we are ready to accept input
     lda #0
     sta rotatewait
     sta thrustwait
 @move:
-    jsr move_enemies
+    jsr move_entities
     jsr set_ship_as_active
     jsr move_ship
     jsr move_entity

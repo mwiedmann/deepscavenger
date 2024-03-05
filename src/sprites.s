@@ -190,26 +190,26 @@ set_ship_as_active:
 
 sp_offset: .word 0
 sp_num: .byte 0
-sp_enemy_count: .byte 0
+sp_laser_count: .byte 0
 
-create_enemy_sprites:
+create_laser_sprites:
     ldx #0
-    stx sp_enemy_count
-    ldx #ENEMY_SPRITE_NUM_START
+    stx sp_laser_count
+    ldx #LASER_SPRITE_NUM_START
     stx sp_num
     ldx #0
     stx sp_offset
-@next_enemy:
+@next_laser:
     clc
-    lda #<enemies
+    lda #<entities
     adc sp_offset
     sta active_entity
-    lda #>enemies
+    lda #>entities
     adc #0
     sta active_entity+1
 
     jsr reset_active_entity
-    lda sp_enemy_count
+    lda sp_laser_count
     ldy #Entity::_ang
     sta (active_entity), y ; Set enemy ang
     lda #<LASER_LOAD_ADDR ; Ship img addr
@@ -230,11 +230,11 @@ create_enemy_sprites:
     lda sp_num
     inc
     sta sp_num
-    lda sp_enemy_count
+    lda sp_laser_count
     inc
-    sta sp_enemy_count
-    cmp #ENEMY_COUNT
-    bne @next_enemy
+    sta sp_laser_count
+    cmp #LASER_COUNT
+    bne @next_laser
     rts
 
 accel_entity:
@@ -266,21 +266,21 @@ accel_entity:
     rts
 
 
-move_enemies:
+move_entities:
     ldx #0
-    stx sp_enemy_count
+    stx sp_laser_count
     ldx #0
     stx sp_offset
-@next_enemy:
+@next_entity:
     clc
-    lda #<enemies
+    lda #<entities
     adc sp_offset
     sta active_entity
-    lda #>enemies
+    lda #>entities
     adc #0
     sta active_entity+1
     ldx thrustwait
-    cpx #SHIP_THRUST_TICKS ; We only thrust the ship every few ticks (otherwise it takes off SUPER fast)
+    cpx #SHIP_THRUST_TICKS ; We only thrust entities every few ticks (otherwise they take off SUPER fast)
     bne @skip_accel
     jsr accel_entity
 @skip_accel:
@@ -296,10 +296,10 @@ move_enemies:
     lda sp_offset
     adc #.sizeof(Entity)
     sta sp_offset
-    lda sp_enemy_count
+    lda sp_laser_count
     inc
-    sta sp_enemy_count
-    cmp #ENEMY_COUNT
-    bne @next_enemy
+    sta sp_laser_count
+    cmp #LASER_COUNT
+    bne @next_entity
     rts
 .endif
