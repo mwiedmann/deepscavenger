@@ -93,7 +93,6 @@ update_sprite:
     ldy #Entity::_image_addr+1
     lda (active_entity), y
     sta us_img_addr+1
-
     ldx #0
 @move_frame:
     cpx us_frame
@@ -152,7 +151,7 @@ update_sprite:
 
 fire_laser:
     ldx #0
-    stx sp_laser_count
+    stx sp_entity_count
     stx sp_offset
 @next_entity:
     clc
@@ -193,9 +192,9 @@ fire_laser:
     lda sp_offset
     adc #.sizeof(Entity)
     sta sp_offset
-    lda sp_laser_count
+    lda sp_entity_count
     inc
-    sta sp_laser_count
+    sta sp_entity_count
     cmp #LASER_COUNT
     bne @next_entity
 @done:
@@ -254,14 +253,14 @@ set_ship_as_active:
 
 sp_offset: .word 0
 sp_num: .byte 0
-sp_laser_count: .byte 0
+sp_entity_count: .byte 0
 
 create_laser_sprites:
     ldx #0
-    stx sp_laser_count
+    stx sp_entity_count
     ldx #LASER_SPRITE_NUM_START
     stx sp_num
-    ldx #0
+    ldx #.sizeof(Entity)*LASER_ENTITY_NUM_START
     stx sp_offset
 @next_laser:
     clc
@@ -275,9 +274,6 @@ create_laser_sprites:
     lda #0
     sta param1
     jsr reset_active_entity
-    lda sp_laser_count
-    ldy #Entity::_ang
-    sta (active_entity), y ; Set enemy ang
     lda #<LASER_LOAD_ADDR ; Img addr
     ldy #Entity::_image_addr
     sta (active_entity), y
@@ -289,18 +285,61 @@ create_laser_sprites:
     sta (active_entity), y ; Set enemy sprite num
     sta param1 ; pass the sprite_num for the enemy and create its sprite
     jsr create_sprite
-
     lda sp_offset
     adc #.sizeof(Entity)
     sta sp_offset
     lda sp_num
     inc
     sta sp_num
-    lda sp_laser_count
+    lda sp_entity_count
     inc
-    sta sp_laser_count
+    sta sp_entity_count
     cmp #LASER_COUNT
     bne @next_laser
+    rts
+
+
+create_ufo_sprites:
+    ldx #0
+    stx sp_entity_count
+    ldx #UFO_SPRITE_NUM_START
+    stx sp_num
+    ldx #.sizeof(Entity)*UFO_ENTITY_NUM_START
+    stx sp_offset
+@next_ufo:
+    clc
+    lda #<entities
+    adc sp_offset
+    sta active_entity
+    lda #>entities
+    adc #0
+    sta active_entity+1
+
+    lda #0
+    sta param1
+    jsr reset_active_entity
+    lda #<UFO_LOAD_ADDR ; Img addr
+    ldy #Entity::_image_addr
+    sta (active_entity), y
+    lda #>UFO_LOAD_ADDR ; Img addr
+    ldy #Entity::_image_addr+1
+    sta (active_entity), y
+    lda sp_num
+    ldy #Entity::_sprite_num
+    sta (active_entity), y ; Set enemy sprite num
+    sta param1 ; pass the sprite_num for the enemy and create its sprite
+    jsr create_sprite
+    lda sp_offset
+    adc #.sizeof(Entity)
+    sta sp_offset
+    lda sp_num
+    inc
+    sta sp_num
+    lda sp_entity_count
+    inc
+    sta sp_entity_count
+    cmp #UFO_COUNT
+    bne @next_ufo
     rts
 
 accel_entity:
@@ -334,7 +373,7 @@ accel_entity:
 
 move_entities:
     ldx #0
-    stx sp_laser_count
+    stx sp_entity_count
     ldx #0
     stx sp_offset
 @next_entity:
@@ -349,8 +388,8 @@ move_entities:
     lda (active_entity), y
     cmp #0
     beq @skip_entity ; Skip if not visible
-    ldx laserwait
-    cpx #LASER_THRUST_TICKS ; We only thrust entities every few ticks (otherwise they take off SUPER fast)
+    ldx accelwait
+    cpx #ENTITY_ACCEL_TICKS ; We only thrust entities every few ticks (otherwise they take off SUPER fast)
     bne @skip_accel
     jsr accel_entity
 @skip_accel:
@@ -367,16 +406,16 @@ move_entities:
     lda sp_offset
     adc #.sizeof(Entity)
     sta sp_offset
-    lda sp_laser_count
+    lda sp_entity_count
     inc
-    sta sp_laser_count
+    sta sp_entity_count
     cmp #LASER_COUNT
     bne @next_entity
-    ldx laserwait
-    cpx #LASER_THRUST_TICKS
+    ldx accelwait
+    cpx #ENTITY_ACCEL_TICKS
     bne @done
     lda #0
-    sta laserwait
+    sta accelwait
 @done:
     rts
 

@@ -3,6 +3,13 @@ LOADING_S = 1
 
 ship_filename: .asciiz "ship.bin"
 laser_filename: .asciiz "laser.bin"
+ufo_filename: .asciiz "ufo.bin"
+
+load_sprites:
+    jsr load_ship
+    jsr load_laser
+    jsr load_ufo
+    rts
 
 load_ship:
     lda #$08
@@ -33,6 +40,22 @@ load_laser:
     lda #2 ; VRAM 1st bank
     ldx #<LASER_LOAD_ADDR 
     ldy #>LASER_LOAD_ADDR
+    jsr LOAD
+    rts
+
+load_ufo:
+    lda #$07
+    ldx #<ufo_filename
+    ldy #>ufo_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #2 ; VRAM 1st bank
+    ldx #<UFO_LOAD_ADDR 
+    ldy #>UFO_LOAD_ADDR
     jsr LOAD
     rts
 

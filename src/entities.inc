@@ -12,6 +12,8 @@ ENTITIES_H=1
     _sprite_num .byte
     _image_addr .word
     _visible .byte
+    _has_accel .byte
+    _has_ang .byte
 .endstruct
 
 .endif

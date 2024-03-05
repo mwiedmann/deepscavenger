@@ -15,7 +15,7 @@
 timebyte: .byte 0
 
 ship: .tag Entity
-entities: .res .sizeof(Entity)*LASER_COUNT
+entities: .res .sizeof(Entity)*(LASER_COUNT+UFO_COUNT)
 
 ; Precalculated sin/cos (adjusted for a pixel velocity I want) for each angle
 ship_vel_ang_x: .word 0,       3,       6,       7,       8, 7, 6, 3, 0, 65535-3, 65535-6, 65535-7, 65535-8, 65535-7, 65535-6, 65535-3
@@ -36,7 +36,9 @@ waitflag: .byte 0
 rotatewait: .byte 0
 thrustwait: .byte 0
 firewait: .byte 0
-laserwait: .byte 0
+accelwait: .byte 0
+
+joy_a: .byte 0
 
 .include "config.s"
 .include "tiles.s"
@@ -51,8 +53,7 @@ start:
     jsr load_pal
     jsr create_tiles
     jsr clear_tiles
-    jsr load_ship
-    jsr load_laser
+    jsr load_sprites
     jsr set_ship_as_active
     lda #0
     sta param1 ; ship should be visible
@@ -74,12 +75,13 @@ start:
     sta param1
     jsr create_sprite
     jsr create_laser_sprites
+    jsr create_ufo_sprites
     ; Reset our counters now that we are ready to accept input
     lda #0
     sta rotatewait
     sta thrustwait
     sta firewait
-    sta laserwait
+    sta accelwait
 @move:
     jsr move_entities
     jsr set_ship_as_active
@@ -115,16 +117,22 @@ point_to_mapbase:
 move_ship:
     lda #0
     jsr JOYGET
-    pha ; Push the joystick state so we can use it later
-    ldx thrustwait
-    cpx #SHIP_THRUST_TICKS ; We only thrust the ship every few ticks (otherwise it takes off SUPER fast)
-    bne @check_rotation
-    ldx #0 ; clear the thrustwait
-    stx thrustwait
+    sta joy_a ; hold the joystick A state
+    lda thrustwait
+    cmp #0 ; We only thrust the ship every few ticks (otherwise it takes off SUPER fast)
+    beq @thrust_ready
+    sec
+    sbc #1
+    sta thrustwait
+    bra @check_rotation
+@thrust_ready:
+    lda joy_a
     bit #%1000 ; See if pushing up (thrust)
     bne @check_rotation ; Skip thrust and jump to check rotation
     ; User is pressing up
     ; Shift the ship ang (mult 2) because ship_vel_ang_x are .word
+    ldx #SHIP_THRUST_TICKS
+    stx thrustwait ; Reset thrust ticks
     clc
     lda ship+Entity::_ang
     rol
@@ -148,15 +156,19 @@ move_ship:
     ; Do we need to check the max velocity (we can just cap the x/y individually)?
     ; They must stay on screen so its unlikely high speed will matter...they will crash
 @check_rotation:
-    ldx rotatewait
-    cpx #SHIP_ROTATE_TICKS ; We only rotate the ship every few ticks (otherwise it spins SUPER fast)
-    bne @check_fire
-    ldx #0 ; clear the rotatewait
-    stx rotatewait
-    pla ; Pull the joystick state off the stack
-    pha ; store it back for firing check
+    lda rotatewait
+    cmp #0 ; We only rotate the ship every few ticks (otherwise it spins SUPER fast)
+    beq @rotate_ready
+    sec
+    sbc #1
+    sta rotatewait
+    bra @check_fire
+@rotate_ready:
+    lda joy_a
     bit #%10 ; Pressing left?
     bne @check_x_right
+    ldx #SHIP_ROTATE_TICKS
+    stx rotatewait ; Reset rotate ticks
     ; User is pressing left
     lda ship+Entity::_ang
     sec
@@ -169,6 +181,8 @@ move_ship:
     bit #%1 ; Pressing right?
     bne @check_fire
     ; User is pressing right
+    ldx #SHIP_ROTATE_TICKS
+    stx rotatewait ; Reset rotate ticks
     lda ship+Entity::_ang ; Inc the angle
     clc
     adc #1
@@ -178,14 +192,19 @@ move_ship:
 @save_angle:
     sta ship+Entity::_ang
 @check_fire:
-    pla ; Pull the joystick state off the stack
-    ldx firewait
-    cpx #SHIP_FIRE_TICKS ; We only fire every few ticks
-    bne @done
-    ldx #0 ; clear the firewait
-    stx firewait
+    lda firewait
+    cmp #0 ; We only fire every few ticks
+    beq @fire_ready
+    sec
+    sbc #1
+    sta firewait
+    bra @done
+@fire_ready:
+    lda joy_a
     bit #%100 ; Pressing down (fire)?
     bne @done
+    ldx #SHIP_FIRE_TICKS
+    stx firewait ; Reset fire ticks
     jsr fire_laser
     jsr set_ship_as_active
 @done:

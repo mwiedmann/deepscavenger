@@ -10,18 +10,9 @@ irq_routine:
     ; sta VERA_ISR ; Clear the VSYNC IRQ
     lda #1
     sta waitflag ; Signal that its ok to draw now
-    lda rotatewait
+    lda accelwait
     inc
-    sta rotatewait
-    lda thrustwait
-    inc
-    sta thrustwait
-    lda firewait
-    inc
-    sta firewait
-    lda laserwait
-    inc
-    sta laserwait
+    sta accelwait
 @continue:
     jmp (default_irq)
 
