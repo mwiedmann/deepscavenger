@@ -24,6 +24,6 @@ pal:
 	node tools/gimp-pal-convert.js gfx/sprites.data.pal build/PAL.BIN
 
 img:
-	node tools/gimp-img-convert.js gfx/sprites.data build/SHIP.BIN 32 32 0 5 1
-	node tools/gimp-img-convert.js gfx/sprites.data build/LASER.BIN 32 32 5 5 1
-	node tools/gimp-img-convert.js gfx/sprites.data build/UFO.BIN 32 32 10 1 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/SHIP.BIN 32 32 5 0 5 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/LASER.BIN 32 32 5 5 5 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/UFO.BIN 32 32 5 10 1 1

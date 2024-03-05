@@ -149,6 +149,42 @@ update_sprite:
     sta VERA_DATA0
     rts
 
+launch_ufo:
+    ldx #0
+    stx sp_entity_count
+    ldx #.sizeof(Entity)*UFO_ENTITY_NUM_START
+    stx sp_offset
+@next_entity:
+    clc
+    lda #<entities
+    adc sp_offset
+    sta active_entity
+    lda #>entities
+    adc #0
+    sta active_entity+1
+    ldy #Entity::_visible
+    lda (active_entity), y
+    cmp #0
+    bne @skip_entity
+    ; Found a free ufo
+    lda #1
+    ldy #Entity::_visible
+    sta (active_entity), y
+    bra @done
+@skip_entity:
+    clc
+    lda sp_offset
+    adc #.sizeof(Entity)
+    sta sp_offset
+    lda sp_entity_count
+    inc
+    sta sp_entity_count
+    cmp #UFO_COUNT
+    bne @next_entity
+@done:
+    rts
+
+
 fire_laser:
     ldx #0
     stx sp_entity_count
@@ -235,10 +271,10 @@ reset_active_entity:
     sta (active_entity), y
     ldy #Entity::_vel_y+1
     sta (active_entity), y
+    ldy #Entity::_ang
+    sta (active_entity), y
     lda param1
     ldy #Entity::_visible
-    sta (active_entity), y
-    ldy #Entity::_ang
     sta (active_entity), y
     rts
 
@@ -314,9 +350,8 @@ create_ufo_sprites:
     lda #>entities
     adc #0
     sta active_entity+1
-
     lda #0
-    sta param1
+    sta param1 ; Not visible
     jsr reset_active_entity
     lda #<UFO_LOAD_ADDR ; Img addr
     ldy #Entity::_image_addr
@@ -409,7 +444,7 @@ move_entities:
     lda sp_entity_count
     inc
     sta sp_entity_count
-    cmp #LASER_COUNT
+    cmp #ENTITY_COUNT
     bne @next_entity
     ldx accelwait
     cpx #ENTITY_ACCEL_TICKS

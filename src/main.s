@@ -15,7 +15,7 @@
 timebyte: .byte 0
 
 ship: .tag Entity
-entities: .res .sizeof(Entity)*(LASER_COUNT+UFO_COUNT)
+entities: .res .sizeof(Entity)*ENTITY_COUNT
 
 ; Precalculated sin/cos (adjusted for a pixel velocity I want) for each angle
 ship_vel_ang_x: .word 0,       3,       6,       7,       8, 7, 6, 3, 0, 65535-3, 65535-6, 65535-7, 65535-8, 65535-7, 65535-6, 65535-3
@@ -76,6 +76,7 @@ start:
     jsr create_sprite
     jsr create_laser_sprites
     jsr create_ufo_sprites
+    jsr launch_ufo
     ; Reset our counters now that we are ready to accept input
     lda #0
     sta rotatewait
