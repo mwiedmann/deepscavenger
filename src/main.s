@@ -35,6 +35,8 @@ default_irq: .word 0
 waitflag: .byte 0
 rotatewait: .byte 0
 thrustwait: .byte 0
+firewait: .byte 0
+laserwait: .byte 0
 
 .include "config.s"
 .include "tiles.s"
@@ -52,9 +54,14 @@ start:
     jsr load_ship
     jsr load_laser
     jsr set_ship_as_active
+    lda #0
+    sta param1 ; ship should be visible
     jsr reset_active_entity
     lda #SHIP_SPRITE_NUM ; Ship sprite num
     ldy #Entity::_sprite_num
+    sta (active_entity), y
+    lda #1 ; Ship visibility on
+    ldy #Entity::_visible
     sta (active_entity), y
     lda #<SHIP_LOAD_ADDR ; Ship img addr
     ldy #Entity::_image_addr
@@ -71,11 +78,15 @@ start:
     lda #0
     sta rotatewait
     sta thrustwait
+    sta firewait
+    sta laserwait
 @move:
     jsr move_entities
     jsr set_ship_as_active
     jsr move_ship
     jsr move_entity
+    lda #1
+    sta param1 ; Keep ship visible if out of bounds
     jsr check_entity_bounds
     lda ship+Entity::_sprite_num
     sta param1
@@ -137,12 +148,13 @@ move_ship:
     ; Do we need to check the max velocity (we can just cap the x/y individually)?
     ; They must stay on screen so its unlikely high speed will matter...they will crash
 @check_rotation:
-    pla ; Pull the joystick state off the stack
     ldx rotatewait
     cpx #SHIP_ROTATE_TICKS ; We only rotate the ship every few ticks (otherwise it spins SUPER fast)
-    bne @done
+    bne @check_fire
     ldx #0 ; clear the rotatewait
     stx rotatewait
+    pla ; Pull the joystick state off the stack
+    pha ; store it back for firing check
     bit #%10 ; Pressing left?
     bne @check_x_right
     ; User is pressing left
@@ -155,7 +167,7 @@ move_ship:
     jmp @save_angle
 @check_x_right:
     bit #%1 ; Pressing right?
-    bne @done
+    bne @check_fire
     ; User is pressing right
     lda ship+Entity::_ang ; Inc the angle
     clc
@@ -165,6 +177,17 @@ move_ship:
     lda #0 ; Back to 0 if exceeded max
 @save_angle:
     sta ship+Entity::_ang
+@check_fire:
+    pla ; Pull the joystick state off the stack
+    ldx firewait
+    cpx #SHIP_FIRE_TICKS ; We only fire every few ticks
+    bne @done
+    ldx #0 ; clear the firewait
+    stx firewait
+    bit #%100 ; Pressing down (fire)?
+    bne @done
+    jsr fire_laser
+    jsr set_ship_as_active
 @done:
     rts
 
@@ -237,8 +260,9 @@ move_entity:
     inx
     cpx #5
     bne @shift_y
+    rts
 
-
+; param1 = visible
 check_entity_bounds:
     ; ship+Entity::_pixel_x/y should have the actual pixel values now
     ; Make sure they are still on screen...crash if not!
@@ -265,7 +289,7 @@ check_entity_bounds:
     BCS @pixel_crash ; if NUM1L >= NUM2L then NUM1 >= NUM2
     jmp @pixels_ok
 @pixel_crash:
-    ; Put player back in middle of screen and stop their ship
     jsr reset_active_entity
+    jsr update_sprite
 @pixels_ok:
     rts

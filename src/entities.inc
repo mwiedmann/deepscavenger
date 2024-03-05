@@ -11,6 +11,7 @@ ENTITIES_H=1
     _ang .byte ;0=0, 1=22.5, 2=45, 3=67.5, 4=90, 5=112.5, etc.
     _sprite_num .byte
     _image_addr .word
+    _visible .byte
 .endstruct
 
 .endif

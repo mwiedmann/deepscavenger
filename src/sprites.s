@@ -72,15 +72,19 @@ create_sprite:
 us_img_addr: .word 0
 us_frame: .byte 0
 us_ang: .byte 0
+us_visible: .byte 0
 
 update_sprite:
     jsr point_to_sprite
-    ldy #Entity::_ang ; Ship's angle (0-15)
+    ldy #Entity::_ang ; Entity's angle (0-15)
     lda (active_entity), y
     sta us_ang
     tax
     lda ship_frame_ang, x ; Sprite frame based on angle (0-4)
     sta us_frame ; us_frame now has the sprite frame number
+    ldy #Entity::_visible ; Entity visibility
+    lda (active_entity), y
+    sta us_visible
 
     ; Load the image addr so we can add to and bit shift it
     ldy #Entity::_image_addr
@@ -138,9 +142,57 @@ update_sprite:
     sta VERA_DATA0
     ldx us_ang
     lda ship_flip_ang, x
+    ldy us_visible
+    cpy #1
+    beq @write_flip
+    and #%11110011 ; Hide entity, z-depth=0
+@write_flip:
     sta VERA_DATA0
     rts
 
+fire_laser:
+    ldx #0
+    stx sp_laser_count
+    stx sp_offset
+@next_entity:
+    clc
+    lda #<entities
+    adc sp_offset
+    sta active_entity
+    lda #>entities
+    adc #0
+    sta active_entity+1
+    ldy #Entity::_visible
+    lda (active_entity), y
+    cmp #0
+    bne @skip_entity
+    ; Found a free laser
+    ; Move it to the ship position and launch it!
+    ldy #0 ; copy bytes 0-12
+@copy:
+    lda ship, y
+    sta (active_entity), y
+    iny
+    cpy #13
+    bne @copy
+    lda #1
+    ldy #Entity::_visible
+    sta (active_entity), y
+    bra @done
+@skip_entity:
+    clc
+    lda sp_offset
+    adc #.sizeof(Entity)
+    sta sp_offset
+    lda sp_laser_count
+    inc
+    sta sp_laser_count
+    cmp #LASER_COUNT
+    bne @next_entity
+@done:
+    rts
+
+; param1 = visible
 reset_active_entity:
     lda #<(320<<5)
     ldy #Entity::_x
@@ -175,6 +227,9 @@ reset_active_entity:
     sta (active_entity), y
     ldy #Entity::_vel_y+1
     sta (active_entity), y
+    lda param1
+    ldy #Entity::_visible
+    sta (active_entity), y
     ;ldy #Entity::_ang
     ;sta (active_entity), y
     rts
@@ -208,14 +263,16 @@ create_laser_sprites:
     adc #0
     sta active_entity+1
 
+    lda #0
+    sta param1
     jsr reset_active_entity
     lda sp_laser_count
     ldy #Entity::_ang
     sta (active_entity), y ; Set enemy ang
-    lda #<LASER_LOAD_ADDR ; Ship img addr
+    lda #<LASER_LOAD_ADDR ; Img addr
     ldy #Entity::_image_addr
     sta (active_entity), y
-    lda #>LASER_LOAD_ADDR ; Ship img addr
+    lda #>LASER_LOAD_ADDR ; Img addr
     ldy #Entity::_image_addr+1
     sta (active_entity), y
     lda sp_num
@@ -279,19 +336,24 @@ move_entities:
     lda #>entities
     adc #0
     sta active_entity+1
-    ldx thrustwait
-    cpx #SHIP_THRUST_TICKS ; We only thrust entities every few ticks (otherwise they take off SUPER fast)
+    ldy #Entity::_visible
+    lda (active_entity), y
+    cmp #0
+    beq @skip_entity ; Skip if not visible
+    ldx laserwait
+    cpx #LASER_THRUST_TICKS ; We only thrust entities every few ticks (otherwise they take off SUPER fast)
     bne @skip_accel
     jsr accel_entity
 @skip_accel:
     jsr move_entity
+    lda #0
+    sta param1 ; make entity not visible if out of bounds
     jsr check_entity_bounds
-
     ldy #Entity::_sprite_num
     lda (active_entity), y
     sta param1
     jsr update_sprite
-
+@skip_entity:
     clc
     lda sp_offset
     adc #.sizeof(Entity)
@@ -301,5 +363,12 @@ move_entities:
     sta sp_laser_count
     cmp #LASER_COUNT
     bne @next_entity
+    ldx laserwait
+    cpx #LASER_THRUST_TICKS
+    bne @done
+    lda #0
+    sta laserwait
+@done:
     rts
+
 .endif

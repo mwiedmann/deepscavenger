@@ -16,6 +16,12 @@ irq_routine:
     lda thrustwait
     inc
     sta thrustwait
+    lda firewait
+    inc
+    sta firewait
+    lda laserwait
+    inc
+    sta laserwait
 @continue:
     jmp (default_irq)
 
