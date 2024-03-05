@@ -178,6 +178,15 @@ fire_laser:
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
+    ldx #0
+@initial_accel:
+    ; Accelerate the laser a few times to get it started moving
+    phx
+    jsr accel_entity
+    plx
+    inx
+    cpx #5
+    bne @initial_accel
     bra @done
 @skip_entity:
     clc
@@ -230,8 +239,8 @@ reset_active_entity:
     lda param1
     ldy #Entity::_visible
     sta (active_entity), y
-    ;ldy #Entity::_ang
-    ;sta (active_entity), y
+    ldy #Entity::_ang
+    sta (active_entity), y
     rts
 
 
