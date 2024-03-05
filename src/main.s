@@ -64,6 +64,8 @@ start:
     lda #1 ; Ship visibility on
     ldy #Entity::_visible
     sta (active_entity), y
+    ldy #Entity::_ob_behavior
+    sta (active_entity), y ; Ship wraps around screen
     lda #<SHIP_LOAD_ADDR ; Ship img addr
     ldy #Entity::_image_addr
     sta (active_entity), y
@@ -282,8 +284,12 @@ move_entity:
     bne @shift_y
     rts
 
+pixel_crash_dir: .byte 0 ; x=0, y=1
+
 ; param1 = visible
 check_entity_bounds:
+    lda #0
+    sta pixel_crash_dir
     ; ship+Entity::_pixel_x/y should have the actual pixel values now
     ; Make sure they are still on screen...crash if not!
     ; branches to LABEL2 if NUM1 >= NUM2
@@ -298,6 +304,8 @@ check_entity_bounds:
     BCS @pixel_crash ; if NUM1L >= NUM2L then NUM1 >= NUM2
 @pixel_x_ok:
     ; Check y pixel
+    lda #1
+    sta pixel_crash_dir
     ldy #Entity::_pixel_y+1
     lda (active_entity), y  ; compare high bytes
     CMP #>480
@@ -309,7 +317,53 @@ check_entity_bounds:
     BCS @pixel_crash ; if NUM1L >= NUM2L then NUM1 >= NUM2
     jmp @pixels_ok
 @pixel_crash:
+    ldy #Entity::_ob_behavior
+    lda (active_entity), y
+    cmp #0
+    beq @reset
+    lda pixel_crash_dir
+    cmp #0
+    bne @check_y_wrap
+@wrap:
+    ldy #Entity::_x+1
+    lda (active_entity), y
+    ; bit #0 ; Check negative, means exited left side (<0)
+    bpl @right_wrap
+    lda #>(639<<5)
+    sta (active_entity), y
+    ldy #Entity::_x
+    lda #<(639<<5)
+    sta (active_entity), y
+    bra @final_update
+@right_wrap:
+    ldy #Entity::_x+1
+    lda #0
+    sta (active_entity), y
+    ldy #Entity::_x
+    sta (active_entity), y
+    bra @final_update
+@check_y_wrap:
+    ldy #Entity::_y+1
+    lda (active_entity), y
+    ; bit #0 ; Check negative, means exited top side (<0)
+    bpl @down_wrap
+    lda #>(479<<5)
+    sta (active_entity), y
+    ldy #Entity::_y
+    lda #<(479<<5)
+    sta (active_entity), y
+    bra @final_update
+@down_wrap:
+    ldy #Entity::_y+1
+    lda #0
+    sta (active_entity), y
+    ldy #Entity::_y
+    sta (active_entity), y
+@wrap_done:
+    bra @final_update
+@reset:
     jsr reset_active_entity
     jsr update_sprite
+@final_update:
 @pixels_ok:
     rts

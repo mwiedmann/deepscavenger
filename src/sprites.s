@@ -170,6 +170,15 @@ launch_ufo:
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
+    ldx #0
+@initial_accel:
+    ; Accelerate the laser a few times to get it started moving
+    phx
+    jsr accel_entity
+    plx
+    inx
+    cpx #5
+    bne @initial_accel
     bra @done
 @skip_entity:
     clc
@@ -271,6 +280,8 @@ reset_active_entity:
     sta (active_entity), y
     ldy #Entity::_vel_y+1
     sta (active_entity), y
+    ldy #Entity::_ob_behavior
+    sta (active_entity), y
     ldy #Entity::_ang
     sta (active_entity), y
     lda param1
@@ -306,7 +317,6 @@ create_laser_sprites:
     lda #>entities
     adc #0
     sta active_entity+1
-
     lda #0
     sta param1
     jsr reset_active_entity
@@ -315,6 +325,11 @@ create_laser_sprites:
     sta (active_entity), y
     lda #>LASER_LOAD_ADDR ; Img addr
     ldy #Entity::_image_addr+1
+    sta (active_entity), y
+    lda #1
+    ldy #Entity::_has_accel
+    sta (active_entity), y
+    ldy #Entity::_has_ang
     sta (active_entity), y
     lda sp_num
     ldy #Entity::_sprite_num
@@ -358,6 +373,14 @@ create_ufo_sprites:
     sta (active_entity), y
     lda #>UFO_LOAD_ADDR ; Img addr
     ldy #Entity::_image_addr+1
+    sta (active_entity), y
+    lda #1
+    ldy #Entity::_ob_behavior
+    sta (active_entity), y
+    lda #0
+    ldy #Entity::_has_accel
+    sta (active_entity), y
+    ldy #Entity::_has_ang
     sta (active_entity), y
     lda sp_num
     ldy #Entity::_sprite_num
@@ -426,6 +449,10 @@ move_entities:
     ldx accelwait
     cpx #ENTITY_ACCEL_TICKS ; We only thrust entities every few ticks (otherwise they take off SUPER fast)
     bne @skip_accel
+    ldy #Entity::_has_accel
+    lda (active_entity), y
+    cmp #0
+    beq @skip_accel
     jsr accel_entity
 @skip_accel:
     jsr move_entity
