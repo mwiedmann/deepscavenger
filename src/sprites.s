@@ -76,10 +76,16 @@ us_visible: .byte 0
 
 update_sprite:
     jsr point_to_sprite
+    ldy #Entity::_has_ang ; Does sprite change based on angle?
+    lda (active_entity), y
+    ldx #0
+    cmp #0
+    beq update_ang_frame
     ldy #Entity::_ang ; Entity's angle (0-15)
     lda (active_entity), y
     sta us_ang
     tax
+update_ang_frame:
     lda ship_frame_ang, x ; Sprite frame based on angle (0-4)
     sta us_frame ; us_frame now has the sprite frame number
     ldy #Entity::_visible ; Entity visibility
@@ -149,6 +155,19 @@ update_sprite:
     sta VERA_DATA0
     rts
 
+launch_ufos:
+    lda #0
+    sta param1
+    jsr launch_ufo
+    lda #2
+    sta param1
+    jsr launch_ufo
+    lda #4
+    sta param1
+    jsr launch_ufo
+    rts
+
+; param1 - ang
 launch_ufo:
     ldx #0
     stx sp_entity_count
@@ -167,12 +186,15 @@ launch_ufo:
     cmp #0
     bne @skip_entity
     ; Found a free ufo
+    lda param1
+    ldy #Entity::_ang
+    sta (active_entity), y
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
     ldx #0
 @initial_accel:
-    ; Accelerate the laser a few times to get it started moving
+    ; Accelerate the ufo a few times to get it started moving
     phx
     jsr accel_entity
     plx

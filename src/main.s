@@ -66,6 +66,8 @@ start:
     sta (active_entity), y
     ldy #Entity::_ob_behavior
     sta (active_entity), y ; Ship wraps around screen
+    ldy #Entity::_has_ang
+    sta (active_entity), y ; Ship sprite has angle based frames
     lda #<SHIP_LOAD_ADDR ; Ship img addr
     ldy #Entity::_image_addr
     sta (active_entity), y
@@ -78,7 +80,7 @@ start:
     jsr create_sprite
     jsr create_laser_sprites
     jsr create_ufo_sprites
-    jsr launch_ufo
+    jsr launch_ufos
     ; Reset our counters now that we are ready to accept input
     lda #0
     sta rotatewait
