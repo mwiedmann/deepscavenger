@@ -45,6 +45,8 @@ joy_a: .byte 0
 .include "irq.s"
 .include "loading.s"
 .include "sprites.s"
+.include "ship.s"
+.include "ufo.s"
 .include "pal.s"
 
 start:
@@ -54,31 +56,7 @@ start:
     jsr create_tiles
     jsr clear_tiles
     jsr load_sprites
-    jsr set_ship_as_active
-    lda #0
-    sta param1 ; ship should be visible
-    jsr reset_active_entity
-    lda #SHIP_SPRITE_NUM ; Ship sprite num
-    ldy #Entity::_sprite_num
-    sta (active_entity), y
-    lda #1 ; Ship visibility on
-    ldy #Entity::_visible
-    sta (active_entity), y
-    ldy #Entity::_ob_behavior
-    sta (active_entity), y ; Ship wraps around screen
-    ldy #Entity::_has_ang
-    sta (active_entity), y ; Ship sprite has angle based frames
-    lda #<SHIP_LOAD_ADDR ; Ship img addr
-    ldy #Entity::_image_addr
-    sta (active_entity), y
-    lda #>SHIP_LOAD_ADDR ; Ship img addr
-    ldy #Entity::_image_addr+1
-    sta (active_entity), y
-    ; pass the sprite_num for the ship and create its sprite
-    lda ship+Entity::_sprite_num
-    sta param1
-    jsr create_sprite
-    jsr create_laser_sprites
+    jsr create_ship
     jsr create_ufo_sprites
     jsr launch_ufos
     ; Reset our counters now that we are ready to accept input
