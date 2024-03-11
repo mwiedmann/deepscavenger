@@ -53,6 +53,7 @@ point_to_sprite:
     rts
 
 ; param1: sprite_num
+; param2: size
 create_sprite:
     jsr point_to_sprite
     lda #0
@@ -73,7 +74,7 @@ create_sprite:
     sta VERA_DATA0
     lda #%00001100 ; In front of layer 1
     sta VERA_DATA0
-    lda #%10100000 ; 32x32 pixels
+    lda param2 ; #%10100000 ; 32x32 pixels
     sta VERA_DATA0
     rts
 
@@ -160,29 +161,17 @@ update_ang_frame:
 
 ; param1 = visible
 reset_active_entity:
-    lda #<(320<<5)
+    lda #<((320-16)<<5)
     ldy #Entity::_x
     sta (active_entity), y
-    lda #>(320<<5)
+    lda #>((320-16)<<5)
     ldy #Entity::_x+1
     sta (active_entity), y
-    lda #<(240<<5)
+    lda #<((240-16)<<5)
     ldy #Entity::_y
     sta (active_entity), y
-    lda #>(240<<5)
+    lda #>((240-16)<<5)
     ldy #Entity::_y+1
-    sta (active_entity), y
-    lda #<320
-    ldy #Entity::_pixel_x
-    sta (active_entity), y
-    lda #>320
-    ldy #Entity::_pixel_x+1
-    sta (active_entity), y
-    lda #<240
-    ldy #Entity::_pixel_y
-    sta (active_entity), y
-    lda #>240
-    ldy #Entity::_pixel_y+1
     sta (active_entity), y
     lda #0
     ldy #Entity::_vel_x

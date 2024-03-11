@@ -47,6 +47,7 @@ joy_a: .byte 0
 .include "sprites.s"
 .include "ship.s"
 .include "ufo.s"
+.include "gate.s"
 .include "pal.s"
 
 start:
@@ -57,6 +58,7 @@ start:
     jsr clear_tiles
     jsr load_sprites
     jsr create_ship
+    jsr create_gate_sprite
     jsr create_ufo_sprites
     jsr launch_ufos
     ; Reset our counters now that we are ready to accept input

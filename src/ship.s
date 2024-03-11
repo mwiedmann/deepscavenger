@@ -22,6 +22,8 @@ create_ship:
     ; pass the sprite_num for the ship and create its sprite
     lda ship+Entity::_sprite_num
     sta param1
+    lda #%10100000 ; 32x32
+    sta param2
     jsr create_sprite
     jsr create_laser_sprites
     rts
@@ -119,6 +121,8 @@ create_laser_sprites:
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set enemy sprite num
     sta param1 ; pass the sprite_num for the enemy and create its sprite
+    lda #%10100000
+    sta param2 ; 32x32
     jsr create_sprite
     lda sp_offset
     adc #.sizeof(Entity)

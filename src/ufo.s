@@ -38,6 +38,8 @@ create_ufo_sprites:
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set enemy sprite num
     sta param1 ; pass the sprite_num for the enemy and create its sprite
+    lda #%10100000
+    sta param2 ; 32x32
     jsr create_sprite
     lda sp_offset
     adc #.sizeof(Entity)
@@ -69,6 +71,12 @@ launch_ufos:
     sta param1
     jsr launch_ufo
     lda #4
+    sta param1
+    jsr launch_ufo
+    lda #7
+    sta param1
+    jsr launch_ufo
+    lda #11
     sta param1
     jsr launch_ufo
     rts
