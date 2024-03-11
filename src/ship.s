@@ -6,6 +6,9 @@ create_ship:
     lda #SHIP_SPRITE_NUM ; Ship sprite num
     ldy #Entity::_sprite_num
     sta (active_entity), y
+    lda #%10000000
+    ldy #Entity::_collision
+    sta (active_entity), y
     lda #1 ; Ship visibility on
     ldy #Entity::_visible
     sta (active_entity), y
@@ -21,9 +24,11 @@ create_ship:
     sta (active_entity), y
     ; pass the sprite_num for the ship and create its sprite
     lda ship+Entity::_sprite_num
-    sta param1
+    sta cs_sprite_num
     lda #%10100000 ; 32x32
-    sta param2
+    sta cs_size
+    lda #%10001100
+    sta cs_czf
     jsr create_sprite
     jsr create_laser_sprites
     rts
@@ -112,6 +117,9 @@ create_laser_sprites:
     lda #>LASER_LOAD_ADDR ; Img addr
     ldy #Entity::_image_addr+1
     sta (active_entity), y
+    lda #%01000000
+    ldy #Entity::_collision
+    sta (active_entity), y
     lda #1
     ldy #Entity::_has_accel
     sta (active_entity), y
@@ -120,9 +128,11 @@ create_laser_sprites:
     lda sp_num
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set enemy sprite num
-    sta param1 ; pass the sprite_num for the enemy and create its sprite
+    sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
     lda #%10100000
-    sta param2 ; 32x32
+    sta cs_size ; 32x32
+    lda #%00001100
+    sta cs_czf
     jsr create_sprite
     lda sp_offset
     adc #.sizeof(Entity)

@@ -345,6 +345,8 @@ check_entity_bounds:
     bra @final_update
 @reset:
     jsr reset_active_entity
+    lda param1
+    sta pts_sprite_num
     jsr update_sprite
 @final_update:
 @pixels_ok:

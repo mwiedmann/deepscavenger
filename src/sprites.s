@@ -17,14 +17,14 @@ us_ang: .byte 0
 us_visible: .byte 0
 
 ; NOTE: This is limited to 31 sprites because we only do 8bit sprite offset calc (shifting)
-; param1: sprite number
+pts_sprite_num: .byte 0
 
 point_to_sprite:
     lda #<SPRITE_ADDR
     sta active_sprite
     lda #>SPRITE_ADDR
     sta active_sprite+1
-    lda param1 ; Get sprite num from param1
+    lda pts_sprite_num
     ldx #0
 @mult_8: ; Mult sprite num by 8 to get the memory offset of that sprite
     clc
@@ -54,7 +54,13 @@ point_to_sprite:
 
 ; param1: sprite_num
 ; param2: size
+cs_sprite_num: .byte 0
+cs_size: .byte 0
+cs_czf: .byte 0
+
 create_sprite:
+    lda cs_sprite_num
+    sta pts_sprite_num
     jsr point_to_sprite
     lda #0
     sta VERA_DATA0
@@ -72,13 +78,15 @@ create_sprite:
     ldy #Entity::_pixel_y+1
     lda (active_entity), y
     sta VERA_DATA0
-    lda #%00001100 ; In front of layer 1
+    lda cs_czf ; #%00001100 ; In front of layer 1
     sta VERA_DATA0
-    lda param2 ; #%10100000 ; 32x32 pixels
+    lda cs_size ; #%10100000 ; 32x32 pixels
     sta VERA_DATA0
     rts
 
 update_sprite:
+    lda param1
+    sta pts_sprite_num
     jsr point_to_sprite
     ldy #Entity::_has_ang ; Does sprite change based on angle?
     lda (active_entity), y
@@ -149,8 +157,10 @@ update_ang_frame:
     ldy #Entity::_pixel_y+1
     lda (active_entity), y
     sta VERA_DATA0
+    ldy #Entity::_collision
+    lda (active_entity), y
     ldx us_ang
-    lda ship_flip_ang, x
+    ora ship_flip_ang, x
     ldy us_visible
     cpy #1
     beq @write_flip

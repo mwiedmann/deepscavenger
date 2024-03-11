@@ -29,8 +29,8 @@ irq_config:
     sta IRQ_FUNC_ADDR
     lda #>irq_routine
     sta IRQ_FUNC_ADDR+1
-    ; Turn on VSYNC
-    lda #1
+    ; Turn on Sprite collisions and VSYNC
+    lda #%101
     sta VERA_IEN
     cli
     rts

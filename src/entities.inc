@@ -15,6 +15,7 @@ ENTITIES_H=1
     _has_accel .byte
     _has_ang .byte
     _ob_behavior .byte ; 0=dead, 1=reset, 2=wrap
+    _collision .byte
 .endstruct
 
 .endif

@@ -21,6 +21,9 @@ create_gate_sprite:
     lda us_img_addr+1 ; Img addr
     ldy #Entity::_image_addr+1
     sta (active_entity), y
+    lda #%11000000
+    ldy #Entity::_collision
+    sta (active_entity), y
     lda #0
     ldy #Entity::_has_accel
     sta (active_entity), y
@@ -41,8 +44,10 @@ create_gate_sprite:
     lda #GATE_SPRITE_NUM
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set gate sprite num
-    sta param1 ; pass the sprite_num for the gate and create its sprite
+    sta cs_sprite_num ; pass the sprite_num for the gate and create its sprite
     lda #%11110000 ; 64x64
-    sta param2
+    sta cs_size
+    lda #%10001100
+    sta cs_czf
     jsr create_sprite
     rts
