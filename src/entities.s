@@ -188,6 +188,9 @@ no_collision:
     lda comp_entity2
     adc #.sizeof(Entity)
     sta comp_entity2
+    lda comp_entity2+1
+    adc #0
+    sta comp_entity2+1
     lda hc_inner_entity_count
     inc
     sta hc_inner_entity_count
@@ -196,22 +199,32 @@ no_collision:
     ; Reached last entity
     lda hc_outer_entity_count
     inc
-    cmp #ENTITY_COUNT
-    beq @done ; Reached end of list...stop
     sta hc_outer_entity_count ; Store the incremented outer index
-    inc
-    sta hc_inner_entity_count ; Inc and store as the starting inner index
+    cmp #ENTITY_COUNT-1
+    beq @something_wrong ;@done ; Reached end of list...stop
+    inc ; Inc and store as the starting inner index
+    sta hc_inner_entity_count 
+    clc
     lda comp_entity1 ; Update the outer entity
     adc #.sizeof(Entity)
     sta comp_entity1
+    lda comp_entity1+1
+    adc #0
+    sta comp_entity1+1
     clc
+    lda comp_entity1 ; Set the inner entity to 1 more than the outer
     adc #.sizeof(Entity)
-    sta comp_entity2 ; Set the inner entity as 1 more (should match hc_inner_entity_count)
+    sta comp_entity2
+    lda comp_entity1+1
+    adc #0
+    sta comp_entity2+1
 @keep_checking:
     jmp check_entities
 @done:
     rts
-
+@something_wrong:
+    brk
+    
 hide_collision_sprites:
     ; Just hide the 2nd one for now
     ldy #Entity::_visible
