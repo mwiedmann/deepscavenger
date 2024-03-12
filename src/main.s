@@ -16,7 +16,7 @@
 
 timebyte: .byte 0
 
-ship: .tag Entity
+ship:
 entities: .res .sizeof(Entity)*ENTITY_COUNT
 
 ; Precalculated sin/cos (adjusted for a pixel velocity I want) for each angle
@@ -71,16 +71,8 @@ start:
     sta firewait
     sta accelwait
 @move:
-    jsr move_entities
-    jsr set_ship_as_active
     jsr move_ship
-    jsr move_entity
-    lda #1
-    sta param1 ; Keep ship visible if out of bounds
-    jsr check_entity_bounds
-    lda ship+Entity::_sprite_num
-    sta param1
-    jsr update_sprite
+    jsr move_entities
 @waiting:
     lda waitflag
     cmp #0
