@@ -6,6 +6,12 @@ create_ship:
     lda #SHIP_SPRITE_NUM ; Ship sprite num
     ldy #Entity::_sprite_num
     sta (active_entity), y
+    lda #SHIP_TYPE
+    ldy #Entity::_type
+    sta (active_entity), y
+    lda #32
+    ldy #Entity::_size
+    sta (active_entity), y
     lda #%10000000
     ldy #Entity::_collision
     sta (active_entity), y
@@ -117,6 +123,12 @@ create_laser_sprites:
     lda #>LASER_LOAD_ADDR ; Img addr
     ldy #Entity::_image_addr+1
     sta (active_entity), y
+    lda #LASER_TYPE
+    ldy #Entity::_type
+    sta (active_entity), y
+    lda #32
+    ldy #Entity::_size
+    sta (active_entity), y
     lda #%01000000
     ldy #Entity::_collision
     sta (active_entity), y
@@ -131,7 +143,7 @@ create_laser_sprites:
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
     lda #%10100000
     sta cs_size ; 32x32
-    lda #%00001100
+    lda #%01001100
     sta cs_czf
     jsr create_sprite
     lda sp_offset

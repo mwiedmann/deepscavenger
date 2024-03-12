@@ -1,6 +1,11 @@
 .ifndef ENTITIES_H
 ENTITIES_H=1
 
+SHIP_TYPE = 0
+LASER_TYPE = 1
+UFO_TYPE = 2
+GATE_TYPE = 3
+
 .struct Entity
     _x .word
     _y .word
@@ -16,6 +21,8 @@ ENTITIES_H=1
     _has_ang .byte
     _ob_behavior .byte ; 0=dead, 1=reset, 2=wrap
     _collision .byte
+    _type .byte ; 0=ship, 1=laser, 2=ufo, 3=gate
+    _size .byte
 .endstruct
 
 .endif

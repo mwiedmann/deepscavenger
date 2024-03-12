@@ -1,5 +1,7 @@
 .zeropage
     active_entity: .res 2
+    comp_entity1: .res 2
+    comp_entity2: .res 2
     param1: .res 2
     param2: .res 2
 
@@ -45,6 +47,7 @@ joy_a: .byte 0
 .include "irq.s"
 .include "loading.s"
 .include "sprites.s"
+.include "entities.s"
 .include "ship.s"
 .include "ufo.s"
 .include "gate.s"
