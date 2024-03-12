@@ -5,6 +5,14 @@ IRQ_S = 1
 
 irq_routine:
     lda VERA_ISR
+    and #%100
+    beq @check_vsync
+    ; Collision
+    sta VERA_ISR ; Clear the collision
+    jsr handle_collision
+    jmp @continue
+@check_vsync:
+    lda VERA_ISR
     and #1
     beq @continue
     ; sta VERA_ISR ; Clear the VSYNC IRQ
