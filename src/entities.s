@@ -192,10 +192,12 @@ check_entities:
     ; values are ready to compare
     lda hc_comp_val1+1
     cmp hc_comp_val2+1 ; compare the hi bytes
-    bcc no_collision ; If hi bytes are not equal, they are too far apart to collide 
+    bcc no_collision ; If hi bytes are not equal, they are too far apart to collide
+    bne @got_collision
     lda hc_comp_val1
     cmp hc_comp_val2 ; compare the lo bytes
-    bcc no_collision ; A < B, no possible collision 
+    bcc no_collision ; A < B, no possible collision
+@got_collision: 
     ; If we made it here, we have a collision!
     jsr hide_collision_sprites
     rts
@@ -245,27 +247,29 @@ last_inner_entity:
     rts
     
 hide_collision_sprites:
-    ; Just hide the 2nd one for now
-    ldy #Entity::_visible
-    lda #0
-    ; sta (comp_entity1), y
-    sta (comp_entity2), y
-    ; Hide entity1 (set as active and hide)
-    ; lda comp_entity1
-    ; sta active_entity
-    ; lda comp_entity1+1
-    ; sta active_entity+1
-    ; ldy #Entity::_sprite_num
-    ; lda (comp_entity1), y
-    ; sta param1
-    ; jsr update_sprite
-    ; Hide entity2
+    lda comp_entity1
+    sta active_entity
+    lda comp_entity1+1
+    sta active_entity+1
+    jsr destroy_active_entity
     lda comp_entity2
     sta active_entity
     lda comp_entity2+1
     sta active_entity+1
+    jsr destroy_active_entity
+    rts
+
+destroy_active_entity:
+    ldy #Entity::_type
+    lda (active_entity), y
+    cmp #GATE_TYPE
+    beq @skip_gate
+    ldy #Entity::_visible
+    lda #0 ; Hide it
+    sta (active_entity), y
     ldy #Entity::_sprite_num
-    lda (comp_entity2), y
+    lda (active_entity), y
     sta param1
     jsr update_sprite
+@skip_gate:
     rts

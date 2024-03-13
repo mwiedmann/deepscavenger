@@ -1,5 +1,5 @@
 ufo_start_x: .word 200<<5, 480<<5, 200<<5, 480<<5, 200<<5
-ufo_start_y: .word 0<<5,   32<<5,  64<<5,  96<<5,  128<<5
+ufo_start_y: .word 0<<5,   32<<5,  64<<5,  96<<5,  200<<5
 
 create_ufo_sprites:
     lda #<UFO_LOAD_ADDR

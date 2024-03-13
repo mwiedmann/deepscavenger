@@ -1,7 +1,7 @@
 create_ship:
     jsr set_ship_as_active
     lda #0
-    sta param1 ; ship should be visible
+    sta param1 ; ship should not be visible to start
     jsr reset_active_entity
     lda #SHIP_SPRITE_NUM ; Ship sprite num
     ldy #Entity::_sprite_num

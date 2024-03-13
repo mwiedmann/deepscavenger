@@ -16,8 +16,8 @@
 
 timebyte: .byte 0
 
-ship:
-entities: .res .sizeof(Entity)*ENTITY_COUNT
+entities: .res .sizeof(Entity)*(ENTITY_COUNT-1) ; We tack on ship after this
+ship: .tag Entity
 
 ; Precalculated sin/cos (adjusted for a pixel velocity I want) for each angle
 ship_vel_ang_x: .word 0,       3,       6,       7,       8, 7, 6, 3, 0, 65535-3, 65535-6, 65535-7, 65535-8, 65535-7, 65535-6, 65535-3
