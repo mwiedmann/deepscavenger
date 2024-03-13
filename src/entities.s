@@ -3,13 +3,14 @@ move_entities:
     stx sp_entity_count
     ldx #0
     stx sp_offset
+    stx sp_offset+1
 @next_entity:
     clc
     lda #<entities
     adc sp_offset
     sta active_entity
     lda #>entities
-    adc #0
+    adc sp_offset+1
     sta active_entity+1
     ldy #Entity::_visible
     lda (active_entity), y
@@ -37,6 +38,9 @@ move_entities:
     lda sp_offset
     adc #.sizeof(Entity)
     sta sp_offset
+    lda sp_offset+1
+    adc #0
+    sta sp_offset+1
     lda sp_entity_count
     inc
     sta sp_entity_count

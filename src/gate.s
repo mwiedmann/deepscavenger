@@ -3,14 +3,16 @@ create_gate_sprite:
     sta us_img_addr
     lda #>GATE_LOAD_ADDR
     sta us_img_addr+1
-    ldx #.sizeof(Entity)*GATE_ENTITY_NUM
+    ldx #<(.sizeof(Entity)*GATE_ENTITY_NUM)
     stx sp_offset
+    ldx #>(.sizeof(Entity)*GATE_ENTITY_NUM)
+    stx sp_offset+1
     clc
     lda #<entities
     adc sp_offset
     sta active_entity
     lda #>entities
-    adc #0
+    adc sp_offset+1
     sta active_entity+1
     lda #1
     sta param1 ;visible

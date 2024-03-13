@@ -43,13 +43,14 @@ fire_laser:
     ldx #0
     stx sp_entity_count
     stx sp_offset
+    stx sp_offset+1
 @next_entity:
     clc
     lda #<entities
     adc sp_offset
     sta active_entity
     lda #>entities
-    adc #0
+    adc sp_offset+1
     sta active_entity+1
     ldy #Entity::_visible
     lda (active_entity), y
@@ -82,6 +83,9 @@ fire_laser:
     lda sp_offset
     adc #.sizeof(Entity)
     sta sp_offset
+    lda sp_offset+1
+    adc #0
+    sta sp_offset+1
     lda sp_entity_count
     inc
     sta sp_entity_count
@@ -104,15 +108,17 @@ create_laser_sprites:
     stx sp_entity_count
     ldx #LASER_SPRITE_NUM_START
     stx sp_num
-    ldx #.sizeof(Entity)*LASER_ENTITY_NUM_START
+    ldx #<(.sizeof(Entity)*LASER_ENTITY_NUM_START)
     stx sp_offset
+    ldx #>(.sizeof(Entity)*LASER_ENTITY_NUM_START)
+    stx sp_offset+1
 @next_laser:
     clc
     lda #<entities
     adc sp_offset
     sta active_entity
     lda #>entities
-    adc #0
+    adc sp_offset+1
     sta active_entity+1
     lda #0
     sta param1
@@ -149,6 +155,9 @@ create_laser_sprites:
     lda sp_offset
     adc #.sizeof(Entity)
     sta sp_offset
+    lda sp_offset+1
+    adc #0
+    sta sp_offset+1
     lda sp_num
     inc
     sta sp_num

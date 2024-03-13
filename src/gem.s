@@ -1,20 +1,20 @@
-ufo_start_x: .word 200<<5, 480<<5, 200<<5, 480<<5, 200<<5
-ufo_start_y: .word 0<<5,   32<<5,  64<<5,  96<<5,  200<<5
+gem_start_x: .word 100<<5, 200<<5, 300<<5, 400<<5, 500<<5
+gem_start_y: .word 350<<5, 350<<5, 350<<5, 350<<5, 350<<5
 
-create_ufo_sprites:
-    lda #<UFO_LOAD_ADDR
+create_gem_sprites:
+    lda #<GEM_LOAD_ADDR
     sta us_img_addr
-    lda #>UFO_LOAD_ADDR
+    lda #>GEM_LOAD_ADDR
     sta us_img_addr+1
     ldx #0
     stx sp_entity_count
-    ldx #UFO_SPRITE_NUM_START
+    ldx #GEM_SPRITE_NUM_START
     stx sp_num
-    ldx #<(.sizeof(Entity)*UFO_ENTITY_NUM_START)
+    ldx #<(.sizeof(Entity)*GEM_ENTITY_NUM_START)
     stx sp_offset
-    ldx #>(.sizeof(Entity)*UFO_ENTITY_NUM_START)
+    ldx #>(.sizeof(Entity)*GEM_ENTITY_NUM_START)
     stx sp_offset+1
-next_ufo:
+next_gem:
     clc
     lda #<entities
     adc sp_offset
@@ -26,19 +26,19 @@ next_ufo:
     sta param1 ; Not visible
     jsr reset_active_entity
     clc
-    lda sp_entity_count ; Use this to get an index into ufo_start_?
+    lda sp_entity_count ; Use this to get an index into gem_start_?
     rol
     tax
-    lda ufo_start_x, x
+    lda gem_start_x, x
     ldy #Entity::_x
     sta (active_entity), y
-    lda ufo_start_x+1, x
+    lda gem_start_x+1, x
     ldy #Entity::_x+1
     sta (active_entity), y
-    lda ufo_start_y, x
+    lda gem_start_y, x
     ldy #Entity::_y
     sta (active_entity), y
-    lda ufo_start_y+1, x
+    lda gem_start_y+1, x
     ldy #Entity::_y+1
     sta (active_entity), y
     jsr move_entity ; Update the pixel positions
@@ -48,11 +48,8 @@ next_ufo:
     lda us_img_addr+1 ; Img addr
     ldy #Entity::_image_addr+1
     sta (active_entity), y
-    lda #UFO_TYPE
+    lda #GEM_TYPE
     ldy #Entity::_type
-    sta (active_entity), y
-    lda #1
-    ldy #Entity::_ob_behavior
     sta (active_entity), y
     lda #32
     ldy #Entity::_size
@@ -80,53 +77,43 @@ next_ufo:
     lda sp_offset+1
     adc #0
     sta sp_offset+1
-    ; Increase the UFO img addr
-    clc
-    lda us_img_addr
-    adc #<UFO_SPRITE_FRAME_SIZE
-    sta us_img_addr
-    lda us_img_addr+1
-    adc #>UFO_SPRITE_FRAME_SIZE
-    sta us_img_addr+1
+    ; Increase the GEM img once we have more than 1 image
+    ; ; Increase the GEM img addr
+    ; clc
+    ; lda us_img_addr
+    ; adc #<GEM_SPRITE_FRAME_SIZE
+    ; sta us_img_addr
+    ; lda us_img_addr+1
+    ; adc #>GEM_SPRITE_FRAME_SIZE
+    ; sta us_img_addr+1
     lda sp_num
     inc
     sta sp_num
     lda sp_entity_count
     inc
     sta sp_entity_count
-    cmp #UFO_COUNT
+    cmp #GEM_COUNT
     beq @done
-    jmp next_ufo
+    jmp next_gem
 @done:
     rts
 
 
-launch_ufos:
-    lda #4
-    sta param1
-    jsr launch_ufo
-    lda #4
-    sta param1
-    jsr launch_ufo
-    lda #4
-    sta param1
-    jsr launch_ufo
-    lda #4
-    sta param1
-    jsr launch_ufo
-    lda #4
-    sta param1
-    jsr launch_ufo
+launch_gems:
+    jsr launch_gem
+    jsr launch_gem
+    jsr launch_gem
+    jsr launch_gem
+    jsr launch_gem
     rts
 
-; param1 - ang
-; param2 - img offset
-launch_ufo:
+
+launch_gem:
     ldx #0
     stx sp_entity_count
-    ldx #<(.sizeof(Entity)*UFO_ENTITY_NUM_START)
+    ldx #<(.sizeof(Entity)*GEM_ENTITY_NUM_START)
     stx sp_offset
-    ldx #>(.sizeof(Entity)*UFO_ENTITY_NUM_START)
+    ldx #>(.sizeof(Entity)*GEM_ENTITY_NUM_START)
     stx sp_offset+1
 @next_entity:
     clc
@@ -140,22 +127,11 @@ launch_ufo:
     lda (active_entity), y
     cmp #0
     bne @skip_entity
-    ; Found a free ufo
-    lda param1
-    ldy #Entity::_ang
-    sta (active_entity), y
+    ; Found a free gem
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
     ldx #0
-@initial_accel:
-    ; Accelerate the ufo a few times to get it started moving
-    phx
-    jsr accel_entity
-    plx
-    inx
-    cpx #5
-    bne @initial_accel
     bra @done
 @skip_entity:
     clc
@@ -168,7 +144,7 @@ launch_ufo:
     lda sp_entity_count
     inc
     sta sp_entity_count
-    cmp #UFO_COUNT
+    cmp #GEM_COUNT
     bne @next_entity
 @done:
     rts

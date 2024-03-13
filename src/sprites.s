@@ -16,7 +16,6 @@ us_frame: .byte 0
 us_ang: .byte 0
 us_visible: .byte 0
 
-; NOTE: This is limited to 31 sprites because we only do 8bit sprite offset calc (shifting)
 pts_sprite_num: .byte 0
 
 point_to_sprite:
@@ -91,6 +90,8 @@ update_sprite:
     ldy #Entity::_has_ang ; Does sprite change based on angle?
     lda (active_entity), y
     ldx #0
+    stx us_ang
+    stx us_frame
     cmp #0
     beq update_ang_frame
     ldy #Entity::_ang ; Entity's angle (0-15)
