@@ -58,6 +58,7 @@ hc_comp_val2: .word 0
 handle_collision:
     ldx #0
     stx hc_outer_entity_count
+    ldx #1
     stx hc_inner_entity_count
     ldx #<entities ; entity 0
     stx comp_entity1
@@ -70,6 +71,17 @@ handle_collision:
 check_entities:
     ; See if entities are colliding
     ; First check if these CAN collidate
+    ldy #Entity::_visible ; Is this entity even visible
+    lda (comp_entity1), y
+    cmp #1
+    beq @check_other_visible
+    jmp last_inner_entity ; Outer entity isn't visible
+@check_other_visible:
+    lda (comp_entity2), y
+    cmp #1
+    beq @check_collision_flags
+    jmp no_collision ; Inner entity isn't visible
+@check_collision_flags:
     ldy #Entity::_collision
     lda (comp_entity1), y
     and (comp_entity2), y
@@ -99,12 +111,14 @@ check_entities:
     ; values are ready to compare
     lda hc_comp_val2+1
     cmp hc_comp_val1+1 ; compare the hi bytes
-    bne @jump_to_no_collision ; If hi bytes are not equal, they are too far apart to collide 
+    bcc @jump_to_no_collision ; If hi bytes are not equal, they are too far apart to collide 
+    bne @x2_check
     lda hc_comp_val2
     cmp hc_comp_val1 ; compare the lo bytes
     bcc @jump_to_no_collision ; A < B, no possible collision 
     ; 2nd check if x1+size < x2 (then it is to the left of the object and no collision)
     ; Load the _pixel_x into vars and increase x2 by size, then compare
+@x2_check:
     clc
     ldy #Entity::_pixel_x
     lda (comp_entity1), y
@@ -124,12 +138,14 @@ check_entities:
     ; values are ready to compare
     lda hc_comp_val1+1
     cmp hc_comp_val2+1 ; compare the hi bytes
-    bne no_collision ; If hi bytes are not equal, they are too far apart to collide 
+    bcc no_collision ; If hi bytes are not equal, they are too far apart to collide
+    bne @y1_check
     lda hc_comp_val1
     cmp hc_comp_val2 ; compare the lo bytes
     bcc no_collision ; A < B, no possible collision 
     ; 3rd check if y1 > y2+size (then it is to the right of the object and no collision)
     ; Load the _pixel_y into vars and increase y2 by size, then compare
+@y1_check:
     clc
     ldy #Entity::_pixel_y
     lda (comp_entity1), y
@@ -149,12 +165,14 @@ check_entities:
     ; values are ready to compare
     lda hc_comp_val2+1
     cmp hc_comp_val1+1 ; compare the hi bytes
-    bne no_collision ; If hi bytes are not equal, they are too far apart to collide 
+    bcc no_collision ; If hi bytes are not equal, they are too far apart to collide
+    bne @y2_check
     lda hc_comp_val2
     cmp hc_comp_val1 ; compare the lo bytes
     bcc no_collision ; A < B, no possible collision 
      ; 4th check if y1+size < y2 (then it is to the left of the object and no collision)
     ; Load the _pixel_y into vars and increase y2 by size, then compare
+@y2_check:
     clc
     ldy #Entity::_pixel_y
     lda (comp_entity1), y
@@ -174,7 +192,7 @@ check_entities:
     ; values are ready to compare
     lda hc_comp_val1+1
     cmp hc_comp_val2+1 ; compare the hi bytes
-    bne no_collision ; If hi bytes are not equal, they are too far apart to collide 
+    bcc no_collision ; If hi bytes are not equal, they are too far apart to collide 
     lda hc_comp_val1
     cmp hc_comp_val2 ; compare the lo bytes
     bcc no_collision ; A < B, no possible collision 
@@ -195,7 +213,9 @@ no_collision:
     inc
     sta hc_inner_entity_count
     cmp #ENTITY_COUNT
-    bne @keep_checking
+    beq last_inner_entity
+    jmp check_entities
+last_inner_entity:
     ; Reached last entity
     lda hc_outer_entity_count
     inc
@@ -218,12 +238,11 @@ no_collision:
     lda comp_entity1+1
     adc #0
     sta comp_entity2+1
-@keep_checking:
     jmp check_entities
 @done:
     rts
 @something_wrong:
-    brk
+    rts
     
 hide_collision_sprites:
     ; Just hide the 2nd one for now
