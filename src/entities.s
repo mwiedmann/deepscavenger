@@ -203,7 +203,7 @@ check_entities:
     bcc no_collision ; A < B, no possible collision
 @got_collision: 
     ; If we made it here, we have a collision!
-    jsr hide_collision_sprites
+    jsr handle_collision_sprites
     rts
     ; Need to look at the sprite type to decide what to do (player death, score points, etc.)
 no_collision:
@@ -250,7 +250,81 @@ last_inner_entity:
 @something_wrong:
     rts
     
-hide_collision_sprites:
+handle_collision_sprites:
+    ldy #Entity::_type
+    lda (comp_entity1), y
+    cmp #LASER_TYPE
+    beq @laser
+    cmp #UFO_TYPE
+    beq @ufo
+    cmp #GEM_TYPE
+    beq @gem
+    cmp #GATE_TYPE
+    beq @gate
+    jmp @destroy_1 ; Catch all, shouldn't get here
+    ; Cases
+    ; Laser - UFO - Gem - Gate - Ship
+@laser:
+    ldy #Entity::_type
+    lda (comp_entity2), y
+    cmp #UFO_TYPE
+    beq @laser_ufo
+    bra @destroy_1 ; Laser hitting anything else just destroys the laser
+@laser_ufo:
+    ; Destroy both - score points
+    bra @destroy_both
+@ufo:
+    ldy #Entity::_type
+    lda (comp_entity2), y
+    cmp #GEM_TYPE
+    beq @ufo_gem
+    cmp #GATE_TYPE
+    beq @ufo_gate
+    cmp #SHIP_TYPE
+    beq @ufo_ship
+    bra @destroy_1
+@ufo_gem:
+    ; Destroy Gem
+    bra @destroy_2
+@ufo_gate:
+    ; Destroy ufo
+    bra @destroy_1
+@ufo_ship:
+    ; Both die
+    bra @destroy_both
+@gem:
+    ldy #Entity::_type
+    lda (comp_entity2), y
+    cmp #SHIP_TYPE
+    beq @gem_ship
+    bra @destroy_1
+@gem_ship:
+    ; Ship gets gem and points
+    bra @destroy_1
+@gate:
+    ldy #Entity::_type
+    lda (comp_entity2), y
+    cmp #SHIP_TYPE
+    beq @gate_ship
+    bra @destroy_2 ; Not sure what else this would be, but gate is indestructable
+@gate_ship:
+    ; Ship crashes
+    bra @destroy_2
+@destroy_1:
+    lda comp_entity1
+    sta active_entity
+    lda comp_entity1+1
+    sta active_entity+1
+    jsr destroy_active_entity
+    bra @done
+@destroy_2:
+    lda comp_entity2
+    sta active_entity
+    lda comp_entity2+1
+    sta active_entity+1
+    jsr destroy_active_entity
+    bra @done
+@destroy_both:
     lda comp_entity1
     sta active_entity
     lda comp_entity1+1
@@ -261,7 +335,9 @@ hide_collision_sprites:
     lda comp_entity2+1
     sta active_entity+1
     jsr destroy_active_entity
+@done:
     rts
+
 
 destroy_active_entity:
     ldy #Entity::_type
