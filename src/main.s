@@ -59,6 +59,7 @@ start:
     jsr config
     jsr load_pal
     jsr clear_tiles
+    jsr show_header
     jsr load_sprites
     jsr create_ship
     jsr create_gate_sprite
