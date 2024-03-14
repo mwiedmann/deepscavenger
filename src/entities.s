@@ -254,6 +254,7 @@ last_inner_entity:
     rts
     
 handle_collision_sprites:
+    jsr clear_amount_to_add ; Clear the scoring amount
     ldy #Entity::_type
     lda (comp_entity1), y
     cmp #LASER_TYPE
@@ -275,6 +276,9 @@ handle_collision_sprites:
     bra @destroy_1 ; Laser hitting anything else just destroys the laser
 @laser_ufo:
     ; Destroy both - score points
+    lda #$25
+    sta amount_to_add
+    jsr add_points
     bra @destroy_both
 @ufo:
     ldy #Entity::_type
@@ -303,6 +307,11 @@ handle_collision_sprites:
     bra @destroy_1
 @gem_ship:
     ; Ship gets gem and points
+    lda #$50
+    sta amount_to_add
+    lda #$1
+    sta amount_to_add+1
+    jsr add_points
     bra @destroy_1
 @gate:
     ldy #Entity::_type
@@ -339,6 +348,7 @@ handle_collision_sprites:
     sta active_entity+1
     jsr destroy_active_entity
 @done:
+    jsr update_score
     rts
 
 

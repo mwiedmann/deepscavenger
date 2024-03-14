@@ -21,11 +21,4 @@ add_points:
     cld
     rts
 
-score_gem:
-    jsr clear_amount_to_add
-    lda #1
-    sta amount_to_add
-    jsr add_points
-    rts
-
 .endif

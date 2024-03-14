@@ -63,6 +63,7 @@ start:
     jsr load_pal
     jsr clear_tiles
     jsr show_header
+    jsr update_score
     jsr load_sprites
     jsr create_ship
     jsr create_gate_sprite
@@ -79,7 +80,6 @@ start:
 @move:
     jsr move_ship
     jsr move_entities
-    jsr update_score
 @waiting:
     lda waitflag
     cmp #0
@@ -191,7 +191,6 @@ move_ship:
     ldx #SHIP_FIRE_TICKS
     stx firewait ; Reset fire ticks
     jsr fire_laser
-    jsr score_gem ; TODO: JUST FOR TESTING
     jsr set_ship_as_active
 @done:
     rts
