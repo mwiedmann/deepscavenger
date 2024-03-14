@@ -1,8 +1,6 @@
 .ifndef PAL_S
 PAL_S = 1
 
-.include "x16.inc"
-
 pal_filename: .asciiz "pal.bin"
 
 load_pal:

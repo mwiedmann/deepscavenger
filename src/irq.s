@@ -1,8 +1,6 @@
 .ifndef IRQ_S
 IRQ_S = 1
 
-.include "x16.inc"
-
 irq_routine:
     lda VERA_ISR
     and #%100

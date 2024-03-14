@@ -1,3 +1,6 @@
+.ifndef GATE_S
+GATE_S = 1
+
 create_gate_sprite:
     lda #<GATE_LOAD_ADDR
     sta us_img_addr
@@ -55,7 +58,9 @@ create_gate_sprite:
     sta cs_sprite_num ; pass the sprite_num for the gate and create its sprite
     lda #%11110000 ; 64x64
     sta cs_size
-    lda #%11101100
+    lda #%11100000
     sta cs_czf
     jsr create_sprite
     rts
+
+.endif

@@ -1,9 +1,6 @@
 .ifndef SPRITES_S
 SPRITES_S = 1
 
-.include "x16.inc"
-.include "config.inc"
-
 active_sprite: .word 0
 sprite_offset: .word 0
 

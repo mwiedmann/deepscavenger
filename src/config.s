@@ -1,9 +1,6 @@
 .ifndef CONFIG_S
 CONFIG_S = 1
 
-.include "x16.inc"
-.include "config.inc"
-
 config:
     lda #VERA_DC_VIDEO_BITS
     sta VERA_DC_VIDEO

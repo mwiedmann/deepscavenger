@@ -6,6 +6,7 @@ laser_filename: .asciiz "laser.bin"
 ufo_filename: .asciiz "ufo.bin"
 gate_filename: .asciiz "gate.bin"
 gem_filename: .asciiz "gem.bin"
+font_filename: .asciiz "font.bin"
 
 load_sprites:
     jsr load_ship
@@ -13,6 +14,7 @@ load_sprites:
     jsr load_ufo
     jsr load_gem
     jsr load_gate
+    jsr load_font
     rts
 
 load_ship:
@@ -92,6 +94,22 @@ load_gate:
     lda #2 ; VRAM 1st bank
     ldx #<GATE_LOAD_ADDR 
     ldy #>GATE_LOAD_ADDR
+    jsr LOAD
+    rts
+
+load_font:
+    lda #$08
+    ldx #<font_filename
+    ldy #>font_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #2 ; VRAM 1st bank
+    ldx #<TILEBASE_L1_ADDR 
+    ldy #>TILEBASE_L1_ADDR
     jsr LOAD
     rts
 

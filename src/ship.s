@@ -1,3 +1,6 @@
+.ifndef SHIP_S
+SHIP_S = 1
+
 create_ship:
     jsr set_ship_as_active
     lda #0
@@ -33,7 +36,7 @@ create_ship:
     sta cs_sprite_num
     lda #%10100000 ; 32x32
     sta cs_size
-    lda #%10001100
+    lda #%10000000
     sta cs_czf
     jsr create_sprite
     jsr create_laser_sprites
@@ -149,7 +152,7 @@ create_laser_sprites:
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
     lda #%10100000
     sta cs_size ; 32x32
-    lda #%01001100
+    lda #%01000000
     sta cs_czf
     jsr create_sprite
     lda sp_offset
@@ -167,3 +170,5 @@ create_laser_sprites:
     cmp #LASER_COUNT
     bne @next_laser
     rts
+
+.endif

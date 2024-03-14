@@ -1,3 +1,6 @@
+.ifndef ENTITIES_S
+ENTITIES_S = 1
+
 move_entities:
     ldx #0
     stx sp_entity_count
@@ -353,3 +356,5 @@ destroy_active_entity:
     jsr update_sprite
 @skip_gate:
     rts
+
+.endif

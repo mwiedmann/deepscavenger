@@ -27,7 +27,7 @@ ship_vel_ang_y: .word 65535-8, 65535-7, 65535-6, 65535-3, 0, 3, 6, 7, 8, 7,     
 ship_frame_ang: .byte  0,         1,         2,         3,         4,         3,          2,        1,         0,         1,         2,         3,         4,         3,         2,         1
 
 ; We make use of the V/H-flip on the sprite to get reuse of the 5 frames. These are precalced for easy use
-ship_flip_ang: .byte   %00001100, %00001100, %00001100, %00001100, %00001100, %00001110, %00001110, %00001110, %00001110, %00001111, %00001111, %00001111, %00001101, %00001101, %00001101, %00001101
+ship_flip_ang: .byte   %00001000, %00001000, %00001000, %00001000, %00001000, %00001010, %00001010, %00001010, %00001010, %00001011, %00001011, %00001011, %00001001, %00001001, %00001001, %00001001
 
 ; These are the V/H-Flip bits we use for each angle
 ; VFLip 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0
@@ -58,7 +58,6 @@ start:
     jsr irq_config
     jsr config
     jsr load_pal
-    jsr create_tiles
     jsr clear_tiles
     jsr load_sprites
     jsr create_ship
@@ -86,14 +85,12 @@ start:
 
 
 point_to_mapbase:
-    pha
     lda #<MAPBASE_L1_ADDR
     sta VERA_ADDR_LO
     lda #>MAPBASE_L1_ADDR
     sta VERA_ADDR_MID
     lda #VERA_ADDR_HI_INC_BITS
     sta VERA_ADDR_HI_SET
-    pla
     rts
 
 

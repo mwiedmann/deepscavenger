@@ -1,3 +1,6 @@
+.ifndef UFO_S
+UFO_S = 1
+
 ufo_start_x: .word 200<<5, 480<<5, 200<<5, 480<<5, 200<<5
 ufo_start_y: .word 0<<5,   32<<5,  64<<5,  96<<5,  200<<5
 
@@ -71,7 +74,7 @@ next_ufo:
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
     lda #%10100000
     sta cs_size ; 32x32
-    lda #%11001100
+    lda #%11000000
     sta cs_czf
     jsr create_sprite
     lda sp_offset
@@ -172,3 +175,5 @@ launch_ufo:
     bne @next_entity
 @done:
     rts
+
+.endif

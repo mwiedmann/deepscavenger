@@ -1,3 +1,6 @@
+.ifndef GEM_S
+GEM_S = 1
+
 gem_start_x: .word 100<<5, 200<<5, 300<<5, 400<<5, 500<<5
 gem_start_y: .word 350<<5, 350<<5, 350<<5, 350<<5, 350<<5
 
@@ -68,7 +71,7 @@ next_gem:
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
     lda #%10100000
     sta cs_size ; 32x32
-    lda #%11001100
+    lda #%11000000
     sta cs_czf
     jsr create_sprite
     lda sp_offset
@@ -148,3 +151,5 @@ launch_gem:
     bne @next_entity
 @done:
     rts
+
+.endif

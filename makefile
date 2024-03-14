@@ -29,3 +29,4 @@ img:
 	node tools/gimp-img-convert.js gfx/sprites.data build/UFO.BIN 32 32 6 12 5 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/GEM.BIN 32 32 6 18 1 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/GATE.BIN 64 64 3 6 1 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/FONT.BIN 16 16 12 144 12 4
