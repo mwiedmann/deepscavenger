@@ -42,6 +42,8 @@ accelwait: .byte 0
 
 joy_a: .byte 0
 
+score: .byte 0,0
+
 .include "config.s"
 .include "tiles.s"
 .include "irq.s"
@@ -53,6 +55,7 @@ joy_a: .byte 0
 .include "gem.s"
 .include "gate.s"
 .include "pal.s"
+.include "score.s"
 
 start:
     jsr irq_config
@@ -76,6 +79,7 @@ start:
 @move:
     jsr move_ship
     jsr move_entities
+    jsr update_score
 @waiting:
     lda waitflag
     cmp #0
@@ -187,6 +191,7 @@ move_ship:
     ldx #SHIP_FIRE_TICKS
     stx firewait ; Reset fire ticks
     jsr fire_laser
+    jsr score_gem ; TODO: JUST FOR TESTING
     jsr set_ship_as_active
 @done:
     rts

@@ -3,7 +3,7 @@ TILES_S = 1
 
 TRANS_TILE = 58
 
-header_msg: .asciiz "WELCOME TO SCAVENGER"
+header_msg: .asciiz "WELCOME TO SCAVENGER        SCORE:"
 
 clear_tiles:
     jsr point_to_mapbase
@@ -41,6 +41,31 @@ show_header:
     rts
     
 
+update_score:
+    ; Point to the score section of mapbase
+    lda #<(MAPBASE_L1_ADDR+68)
+    sta VERA_ADDR_LO
+    lda #>(MAPBASE_L1_ADDR+68)
+    sta VERA_ADDR_MID
+    lda #VERA_ADDR_HI_INC_BITS
+    sta VERA_ADDR_HI_SET
+    ldx #1
+@next_num:
+    lda score, x
+    jsr get_font_num
+    lda num_high
+    sta VERA_DATA0
+    lda #0
+    sta VERA_DATA0
+    lda num_low
+    sta VERA_DATA0
+    lda #0
+    sta VERA_DATA0
+    dex
+    cpx #255
+    bne @next_num
+    rts
+
 ; Assumes char is in A reg
 get_font_char:
     cmp #193
@@ -52,5 +77,28 @@ get_font_char:
     sec
     sbc #6
     rts
+
+
+; Assumes num is in A reg
+num_low: .byte 0
+num_high: .byte 0
+
+get_font_num:
+    pha
+    and #%1111 ; remove high part
+    clc
+    adc #42
+    sta num_low
+    pla
+    ror
+    ror
+    ror
+    ror
+    and #%1111 ; remove high part
+    clc
+    adc #42
+    sta num_high
+    rts
+
 
 .endif
