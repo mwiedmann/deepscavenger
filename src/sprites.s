@@ -80,26 +80,36 @@ create_sprite:
     sta VERA_DATA0
     rts
 
+us_skip_flip: .byte 0
+
 update_sprite:
+    lda #0
+    sta us_skip_flip
     lda param1
     sta pts_sprite_num
     jsr point_to_sprite
-    ldy #Entity::_has_ang ; Does sprite change based on angle?
-    lda (active_entity), y
     ldx #0
     stx us_ang
-    stx us_frame
+    stx us_frame ; We have full 16 frames for these
+    ldy #Entity::_has_ang ; Does sprite change based on angle?
+    lda (active_entity), y
     cmp #0
     beq @update_ang_frame
     cmp #2 ; Auto rotate
     bne @skip_auto_rotate
+    ldy #Entity::_ang ; Entity's angle (0-15)
+    lda (active_entity), y
+    sta us_ang
+    sta us_frame ; We have full 16 frames for these
+    lda #1
+    sta us_skip_flip
     ldy #Entity::_ang_ticks
     lda (active_entity), y
     clc
     adc #1
     sta (active_entity), y
-    cmp #30 ; Rotate every this many ticks
-    bne @skip_auto_rotate
+    cmp #6 ; Rotate every this many ticks
+    bne @skip_update_ang_frame
     lda #0
     sta (active_entity), y ; Set ticks back to 0
     ldy #Entity::_ang ; Time to rotate, inc the angle
@@ -111,14 +121,18 @@ update_sprite:
     lda #0
 @skip_back_to_zero:
     sta (active_entity), y ; The updated ang
+    sta us_frame ; We have full 16 frames for these
+    bra @skip_update_ang_frame
 @skip_auto_rotate:
     ldy #Entity::_ang ; Entity's angle (0-15)
     lda (active_entity), y
     sta us_ang
+    sta us_frame
     tax
 @update_ang_frame:
     lda ship_frame_ang, x ; Sprite frame based on angle (0-4)
     sta us_frame ; us_frame now has the sprite frame number
+@skip_update_ang_frame:
     ldy #Entity::_visible ; Entity visibility
     lda (active_entity), y
     sta us_visible
@@ -178,8 +192,13 @@ update_sprite:
     sta VERA_DATA0
     ldy #Entity::_collision
     lda (active_entity), y
+    ldx us_skip_flip
+    cpx #1
+    beq @skip_flipping
     ldx us_ang
     ora ship_flip_ang, x
+@skip_flipping:
+    ora #%00001000
     ldy us_visible
     cpy #1
     beq @write_flip
