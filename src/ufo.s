@@ -54,6 +54,9 @@ next_ufo:
     lda #UFO_TYPE
     ldy #Entity::_type
     sta (active_entity), y
+    lda #2
+    ldy #Entity::_has_ang
+    sta (active_entity), y
     lda #1
     ldy #Entity::_ob_behavior
     sta (active_entity), y
@@ -65,8 +68,6 @@ next_ufo:
     sta (active_entity), y
     lda #0
     ldy #Entity::_has_accel
-    sta (active_entity), y
-    ldy #Entity::_has_ang
     sta (active_entity), y
     lda sp_num
     ldy #Entity::_sprite_num
@@ -85,12 +86,6 @@ next_ufo:
     sta sp_offset+1
     ; Increase the UFO img addr
     clc
-    lda us_img_addr
-    adc #<UFO_SPRITE_FRAME_SIZE
-    sta us_img_addr
-    lda us_img_addr+1
-    adc #>UFO_SPRITE_FRAME_SIZE
-    sta us_img_addr+1
     lda sp_num
     inc
     sta sp_num

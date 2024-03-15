@@ -90,12 +90,33 @@ update_sprite:
     stx us_ang
     stx us_frame
     cmp #0
-    beq update_ang_frame
+    beq @update_ang_frame
+    cmp #2 ; Auto rotate
+    bne @skip_auto_rotate
+    ldy #Entity::_ang_ticks
+    lda (active_entity), y
+    clc
+    adc #1
+    sta (active_entity), y
+    cmp #30 ; Rotate every this many ticks
+    bne @skip_auto_rotate
+    lda #0
+    sta (active_entity), y ; Set ticks back to 0
+    ldy #Entity::_ang ; Time to rotate, inc the angle
+    lda (active_entity), y
+    clc
+    adc #1
+    cmp #16 ; Wrap back to 0 at 16
+    bne @skip_back_to_zero
+    lda #0
+@skip_back_to_zero:
+    sta (active_entity), y ; The updated ang
+@skip_auto_rotate:
     ldy #Entity::_ang ; Entity's angle (0-15)
     lda (active_entity), y
     sta us_ang
     tax
-update_ang_frame:
+@update_ang_frame:
     lda ship_frame_ang, x ; Sprite frame based on angle (0-4)
     sta us_frame ; us_frame now has the sprite frame number
     ldy #Entity::_visible ; Entity visibility

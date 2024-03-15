@@ -24,6 +24,7 @@ GEM_TYPE = 4
     _collision .byte
     _type .byte ; 0=ship, 1=laser, 2=ufo, 3=gate
     _size .byte
+    _ang_ticks .byte
 .endstruct
 
 .endif
