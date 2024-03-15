@@ -1,8 +1,8 @@
 .ifndef GEM_S
 GEM_S = 1
 
-gem_start_x: .word 100<<5, 200<<5, 300<<5, 400<<5, 500<<5
-gem_start_y: .word 350<<5, 350<<5, 350<<5, 350<<5, 350<<5
+gem_start_x: .word 100<<5, 200<<5, 300<<5, 400<<5, 500<<5, 150<<5, 250<<5, 350<<5, 450<<5, 550<<5
+gem_start_y: .word 200<<5, 120<<5, 50<<5,  150<<5, 180<<5, 300<<5, 400<<5, 350<<5, 200<<5, 440<<5
 
 create_gem_sprites:
     lda #<GEM_LOAD_ADDR
@@ -81,20 +81,27 @@ next_gem:
     adc #0
     sta sp_offset+1
     ; Increase the GEM img once we have more than 1 image
-    ; ; Increase the GEM img addr
-    ; clc
-    ; lda us_img_addr
-    ; adc #<GEM_SPRITE_FRAME_SIZE
-    ; sta us_img_addr
-    ; lda us_img_addr+1
-    ; adc #>GEM_SPRITE_FRAME_SIZE
-    ; sta us_img_addr+1
+    ; Increase the GEM img addr
+    clc
+    lda us_img_addr
+    adc #<GEM_SPRITE_FRAME_SIZE
+    sta us_img_addr
+    lda us_img_addr+1
+    adc #>GEM_SPRITE_FRAME_SIZE
+    sta us_img_addr+1
     lda sp_num
     inc
     sta sp_num
     lda sp_entity_count
     inc
     sta sp_entity_count
+    cmp #8 ; Only 8 gem types, go back to 0
+    bne @check_max
+    ldx #<GEM_LOAD_ADDR
+    stx us_img_addr
+    ldx #>GEM_LOAD_ADDR
+    stx us_img_addr+1
+@check_max:
     cmp #GEM_COUNT
     beq @done
     jmp next_gem
@@ -103,11 +110,14 @@ next_gem:
 
 
 launch_gems:
+    ldx #0
+@next_gem:
+    phx
     jsr launch_gem
-    jsr launch_gem
-    jsr launch_gem
-    jsr launch_gem
-    jsr launch_gem
+    plx
+    inx
+    cpx #GEM_COUNT
+    bne @next_gem
     rts
 
 

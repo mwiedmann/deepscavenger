@@ -43,6 +43,7 @@ accelwait: .byte 0
 joy_a: .byte 0
 
 score: .byte 0,0
+storm_count: .word 0
 
 .include "config.s"
 .include "tiles.s"
@@ -69,7 +70,7 @@ start:
     jsr create_gate_sprite
     jsr create_ufo_sprites
     jsr create_gem_sprites
-    jsr launch_ufos
+    ; jsr launch_ufos
     jsr launch_gems
     ; Reset our counters now that we are ready to accept input
     lda #0
@@ -78,6 +79,7 @@ start:
     sta firewait
     sta accelwait
 @move:
+    jsr check_storm
     jsr move_ship
     jsr move_entities
 @waiting:

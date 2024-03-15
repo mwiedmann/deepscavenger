@@ -1,8 +1,9 @@
 .ifndef UFO_S
 UFO_S = 1
 
-ufo_start_x: .word 200<<5, 480<<5, 200<<5, 480<<5, 200<<5
-ufo_start_y: .word 0<<5,   32<<5,  64<<5,  96<<5,  200<<5
+ufo_start_x: .word   160<<5, 320<<5, 480<<5, 60<<5,  220<<5, 380<<5, 0<<5, 0<<5,  608<<5, 608<<5
+ufo_start_y: .word   0<<5,   0<<5,   0<<5,  448<<5, 448<<5, 448<<5, 60<<5, 220<<5, 160<<5, 320<<5
+ufo_start_ang: .word 8,      10,     11,     15,     3,      14,      4,     5,      15,     13
 
 create_ufo_sprites:
     lda #<UFO_LOAD_ADDR
@@ -43,6 +44,9 @@ next_ufo:
     sta (active_entity), y
     lda ufo_start_y+1, x
     ldy #Entity::_y+1
+    sta (active_entity), y
+    lda ufo_start_ang, x
+    ldy #Entity::_ang
     sta (active_entity), y
     jsr move_entity ; Update the pixel positions
     lda us_img_addr ; Img addr
@@ -100,21 +104,15 @@ next_ufo:
 
 
 launch_ufos:
-    lda #4
-    sta param1
+    ldx #0
+@next_ufo:
+    stx param1 ; Currently doesn't do anything but maybe later
+    phx
     jsr launch_ufo
-    lda #4
-    sta param1
-    jsr launch_ufo
-    lda #4
-    sta param1
-    jsr launch_ufo
-    lda #4
-    sta param1
-    jsr launch_ufo
-    lda #4
-    sta param1
-    jsr launch_ufo
+    plx
+    inx
+    cpx #UFO_COUNT
+    bne @next_ufo
     rts
 
 ; param1 - ang
@@ -139,21 +137,16 @@ launch_ufo:
     cmp #0
     bne @skip_entity
     ; Found a free ufo
-    lda param1
-    ldy #Entity::_ang
-    sta (active_entity), y
+    ; lda param1
+    ; ldy #Entity::_ang
+    ; sta (active_entity), y
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
     ldx #0
 @initial_accel:
     ; Accelerate the ufo a few times to get it started moving
-    phx
     jsr accel_entity
-    plx
-    inx
-    cpx #5
-    bne @initial_accel
     bra @done
 @skip_entity:
     clc
@@ -171,4 +164,25 @@ launch_ufo:
 @done:
     rts
 
+
+check_storm:
+    clc
+    lda storm_count
+    adc #1
+    sta storm_count
+    lda storm_count+1
+    adc #0
+    sta storm_count+1
+    lda storm_count+1
+    cmp #>STORM_COUNT ; compare the hi bytes
+    bne @no_storm
+    lda storm_count
+    cmp #<STORM_COUNT
+    bne @no_storm
+    ; lda #0 ; Reset storm to 0
+    ; sta storm_count
+    ; sta storm_count+1
+    jsr launch_ufos
+@no_storm:
+    rts
 .endif
