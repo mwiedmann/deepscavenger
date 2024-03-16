@@ -6,6 +6,7 @@ LASER_TYPE = 1
 UFO_TYPE = 2
 GATE_TYPE = 3
 GEM_TYPE = 4
+WARP_TYPE = 5
 
 .struct Entity
     _x .word

@@ -55,6 +55,7 @@ storm_count: .word 0
 .include "ufo.s"
 .include "gem.s"
 .include "gate.s"
+.include "warp.s"
 .include "pal.s"
 .include "score.s"
 
@@ -70,6 +71,7 @@ start:
     jsr create_gate_sprite
     jsr create_ufo_sprites
     jsr create_gem_sprites
+    jsr create_warp_sprite
     ; jsr launch_ufos
     jsr launch_gems
     ; Reset our counters now that we are ready to accept input
