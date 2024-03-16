@@ -95,6 +95,26 @@ update_sprite:
     lda (active_entity), y
     cmp #0
     beq @update_ang_frame
+    cmp #3
+    bne @check_auto_rotate
+    ldy #Entity::_ang_ticks
+    lda (active_entity), y
+    clc
+    adc #1
+    sta (active_entity), y
+    cmp #6 ; Rotate every this many ticks
+    bne @skip_update_ang_frame
+    lda #0
+    sta (active_entity), y ; Set ticks back to 0
+    ldy #Entity::_ang ; Time to rotate, inc the angle
+    lda (active_entity), y
+    clc
+    adc #1
+    cmp #3 ; Wrap back to 0 at 16
+    bne @skip_back_to_zero
+    lda #0
+    bra @skip_back_to_zero
+@check_auto_rotate:
     cmp #2 ; Auto rotate
     bne @skip_auto_rotate
     ldy #Entity::_ang ; Entity's angle (0-15)
