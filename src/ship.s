@@ -36,7 +36,8 @@ create_ship:
     sta cs_sprite_num
     lda #%10100000 ; 32x32
     sta cs_size
-    lda #%10000000
+    ldy #Entity::_collision
+    lda (active_entity), y
     sta cs_czf
     jsr create_sprite
     jsr create_laser_sprites
@@ -152,7 +153,8 @@ create_laser_sprites:
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
     lda #%10100000
     sta cs_size ; 32x32
-    lda #%01000000
+    ldy #Entity::_collision
+    lda (active_entity), y
     sta cs_czf
     jsr create_sprite
     lda sp_offset
