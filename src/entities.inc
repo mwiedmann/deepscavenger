@@ -17,7 +17,7 @@ WARP_TYPE = 5
     _vel_y .word
     _ang .byte ;0=0, 1=22.5, 2=45, 3=67.5, 4=90, 5=112.5, etc.
     _sprite_num .byte
-    _image_addr .word
+    _image_addr .dword
     _visible .byte
     _has_accel .byte
     _has_ang .byte

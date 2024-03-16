@@ -8,7 +8,7 @@ sp_offset: .word 0
 sp_num: .byte 0
 sp_entity_count: .byte 0
 
-us_img_addr: .word 0
+us_img_addr: .dword 0
 us_frame: .byte 0
 us_ang: .byte 0
 us_visible: .byte 0
@@ -90,13 +90,17 @@ update_sprite:
     jsr point_to_sprite
     ldx #0
     stx us_ang
-    stx us_frame ; We have full 16 frames for these
+    stx us_frame
     ldy #Entity::_has_ang ; Does sprite change based on angle?
     lda (active_entity), y
-    cmp #0
+    cmp #0 ; Yes, frame based on angle
     beq @update_ang_frame
     cmp #3
     bne @check_auto_rotate
+    ; If here, then _has_ang=3 and we auto-rotate through 3 frames (warp)
+    ldy #Entity::_ang
+    lda (active_entity), y
+    sta us_frame
     ldy #Entity::_ang_ticks
     lda (active_entity), y
     clc
@@ -110,17 +114,21 @@ update_sprite:
     lda (active_entity), y
     clc
     adc #1
-    cmp #3 ; Wrap back to 0 at 16
-    bne @skip_back_to_zero
+    sta us_frame
+    sta (active_entity), y
+    cmp #3 ; Wrap back to 0 at 3
+    bne @skip_update_ang_frame
     lda #0
-    bra @skip_back_to_zero
+    sta (active_entity), y
+    sta us_frame
+    bra @skip_update_ang_frame
 @check_auto_rotate:
-    cmp #2 ; Auto rotate
+    cmp #2 ; Auto rotate through 16 frames
     bne @skip_auto_rotate
     ldy #Entity::_ang ; Entity's angle (0-15)
     lda (active_entity), y
     sta us_ang
-    sta us_frame ; We have full 16 frames for these
+    sta us_frame
     lda #1
     sta us_skip_flip
     ldy #Entity::_ang_ticks
@@ -164,10 +172,17 @@ update_sprite:
     ldy #Entity::_image_addr+1
     lda (active_entity), y
     sta us_img_addr+1
+    ldy #Entity::_image_addr+2
+    lda (active_entity), y
+    sta us_img_addr+2
     ldx #0
 @move_frame:
     cpx us_frame
     beq @frame_slide_done
+    ldy #Entity::_size
+    lda (active_entity), y
+    cmp #32
+    bne @size_64
     clc
     lda us_img_addr
     adc #<DEFAULT_FRAME_SIZE
@@ -175,12 +190,31 @@ update_sprite:
     lda us_img_addr+1
     adc #>DEFAULT_FRAME_SIZE
     sta us_img_addr+1
+    lda us_img_addr+2
+    adc #0
+    sta us_img_addr+2
+    bra @size_done
+@size_64:
+    clc
+    lda us_img_addr
+    adc #<GATE_SPRITE_FRAME_SIZE
+    sta us_img_addr
+    lda us_img_addr+1
+    adc #>GATE_SPRITE_FRAME_SIZE
+    sta us_img_addr+1
+    lda us_img_addr+2
+    adc #0
+    sta us_img_addr+2
+@size_done:
     inx
     bra @move_frame
 @frame_slide_done:
     ldx #0
 @start_shift: ; Shift the image addr bits as sprites use bits 12:5 and 16:13 (we default 16 to 0)
     clc
+    lda us_img_addr+2
+    ror
+    sta us_img_addr+2
     lda us_img_addr+1
     ror
     sta us_img_addr+1

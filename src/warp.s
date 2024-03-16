@@ -41,7 +41,7 @@ create_warp_sprite:
     lda #0
     ldy #Entity::_ang
     sta (active_entity), y
-    lda #0
+    lda #3
     ldy #Entity::_has_ang
     sta (active_entity), y
     lda #<((320-32)<<5)
