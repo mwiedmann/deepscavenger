@@ -3,7 +3,7 @@ ENTITIES_H=1
 
 SHIP_TYPE = 0
 LASER_TYPE = 1
-UFO_TYPE = 2
+ASTBIG_TYPE = 2
 GATE_TYPE = 3
 GEM_TYPE = 4
 WARP_TYPE = 5
@@ -23,7 +23,7 @@ WARP_TYPE = 5
     _has_ang .byte
     _ob_behavior .byte ; 0=dead, 1=reset, 2=wrap
     _collision .byte
-    _type .byte ; 0=ship, 1=laser, 2=ufo, 3=gate
+    _type .byte ; 0=ship, 1=laser, 2=astbig, 3=gate
     _size .byte
     _ang_ticks .byte
 .endstruct

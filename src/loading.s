@@ -3,7 +3,7 @@ LOADING_S = 1
 
 ship_filename: .asciiz "ship.bin"
 laser_filename: .asciiz "laser.bin"
-ufo_filename: .asciiz "ufo.bin"
+astbig_filename: .asciiz "astbig.bin"
 gate_filename: .asciiz "gate.bin"
 gem_filename: .asciiz "gem.bin"
 font_filename: .asciiz "font.bin"
@@ -12,7 +12,7 @@ warp_filename: .asciiz "warp.bin"
 load_sprites:
     jsr load_ship
     jsr load_laser
-    jsr load_ufo
+    jsr load_astbig
     jsr load_gem
     jsr load_gate
     jsr load_font
@@ -51,10 +51,10 @@ load_laser:
     jsr LOAD
     rts
 
-load_ufo:
-    lda #$07
-    ldx #<ufo_filename
-    ldy #>ufo_filename
+load_astbig:
+    lda #$A
+    ldx #<astbig_filename
+    ldy #>astbig_filename
     jsr SETNAM
     ; 0,8,2
     lda #0
@@ -62,8 +62,8 @@ load_ufo:
     ldy #2
     jsr SETLFS
     lda #2 ; VRAM 1st bank
-    ldx #<UFO_LOAD_ADDR 
-    ldy #>UFO_LOAD_ADDR
+    ldx #<ASTBIG_LOAD_ADDR 
+    ldy #>ASTBIG_LOAD_ADDR
     jsr LOAD
     rts
 

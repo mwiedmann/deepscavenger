@@ -1,24 +1,24 @@
-.ifndef UFO_S
-UFO_S = 1
+.ifndef ASTBIG_S
+ASTBIG_S = 1
 
-ufo_start_x: .word   160<<5, 320<<5, 480<<5, 60<<5,  220<<5, 380<<5, 0<<5, 0<<5,  608<<5, 608<<5
-ufo_start_y: .word   0<<5,   0<<5,   0<<5,  448<<5, 448<<5, 448<<5, 60<<5, 220<<5, 160<<5, 320<<5
-ufo_start_ang: .word 8,      10,     11,     15,     3,      14,      4,     5,      15,     13
+astbig_start_x: .word   160<<5, 320<<5, 480<<5, 60<<5,  220<<5, 380<<5, 0<<5, 0<<5,  608<<5, 608<<5
+astbig_start_y: .word   0<<5,   0<<5,   0<<5,  448<<5, 448<<5, 448<<5, 60<<5, 220<<5, 160<<5, 320<<5
+astbig_start_ang: .word 8,      10,     11,     15,     3,      14,      4,     5,      15,     13
 
-create_ufo_sprites:
-    lda #<UFO_LOAD_ADDR
+create_astbig_sprites:
+    lda #<ASTBIG_LOAD_ADDR
     sta us_img_addr
-    lda #>UFO_LOAD_ADDR
+    lda #>ASTBIG_LOAD_ADDR
     sta us_img_addr+1
     ldx #0
     stx sp_entity_count
-    ldx #UFO_SPRITE_NUM_START
+    ldx #ASTBIG_SPRITE_NUM_START
     stx sp_num
-    ldx #<(.sizeof(Entity)*UFO_ENTITY_NUM_START)
+    ldx #<(.sizeof(Entity)*ASTBIG_ENTITY_NUM_START)
     stx sp_offset
-    ldx #>(.sizeof(Entity)*UFO_ENTITY_NUM_START)
+    ldx #>(.sizeof(Entity)*ASTBIG_ENTITY_NUM_START)
     stx sp_offset+1
-next_ufo:
+next_astbig:
     clc
     lda #<entities
     adc sp_offset
@@ -30,22 +30,22 @@ next_ufo:
     sta param1 ; Not visible
     jsr reset_active_entity
     clc
-    lda sp_entity_count ; Use this to get an index into ufo_start_?
+    lda sp_entity_count ; Use this to get an index into astbig_start_?
     rol
     tax
-    lda ufo_start_x, x
+    lda astbig_start_x, x
     ldy #Entity::_x
     sta (active_entity), y
-    lda ufo_start_x+1, x
+    lda astbig_start_x+1, x
     ldy #Entity::_x+1
     sta (active_entity), y
-    lda ufo_start_y, x
+    lda astbig_start_y, x
     ldy #Entity::_y
     sta (active_entity), y
-    lda ufo_start_y+1, x
+    lda astbig_start_y+1, x
     ldy #Entity::_y+1
     sta (active_entity), y
-    lda ufo_start_ang, x
+    lda astbig_start_ang, x
     ldy #Entity::_ang
     sta (active_entity), y
     jsr move_entity ; Update the pixel positions
@@ -55,7 +55,7 @@ next_ufo:
     lda us_img_addr+1 ; Img addr
     ldy #Entity::_image_addr+1
     sta (active_entity), y
-    lda #UFO_TYPE
+    lda #ASTBIG_TYPE
     ldy #Entity::_type
     sta (active_entity), y
     lda #2
@@ -89,7 +89,7 @@ next_ufo:
     lda sp_offset+1
     adc #0
     sta sp_offset+1
-    ; Increase the UFO img addr
+    ; Increase the ASTBIG img addr
     clc
     lda sp_num
     inc
@@ -97,33 +97,33 @@ next_ufo:
     lda sp_entity_count
     inc
     sta sp_entity_count
-    cmp #UFO_COUNT
+    cmp #ASTBIG_COUNT
     beq @done
-    jmp next_ufo
+    jmp next_astbig
 @done:
     rts
 
 
-launch_ufos:
+launch_astbigs:
     ldx #0
-@next_ufo:
+@next_astbig:
     stx param1 ; Currently doesn't do anything but maybe later
     phx
-    jsr launch_ufo
+    jsr launch_astbig
     plx
     inx
-    cpx #UFO_COUNT
-    bne @next_ufo
+    cpx #ASTBIG_COUNT
+    bne @next_astbig
     rts
 
 ; param1 - ang
 ; param2 - img offset
-launch_ufo:
+launch_astbig:
     ldx #0
     stx sp_entity_count
-    ldx #<(.sizeof(Entity)*UFO_ENTITY_NUM_START)
+    ldx #<(.sizeof(Entity)*ASTBIG_ENTITY_NUM_START)
     stx sp_offset
-    ldx #>(.sizeof(Entity)*UFO_ENTITY_NUM_START)
+    ldx #>(.sizeof(Entity)*ASTBIG_ENTITY_NUM_START)
     stx sp_offset+1
 @next_entity:
     clc
@@ -137,7 +137,7 @@ launch_ufo:
     lda (active_entity), y
     cmp #0
     bne @skip_entity
-    ; Found a free ufo
+    ; Found a free astbig
     ; lda param1
     ; ldy #Entity::_ang
     ; sta (active_entity), y
@@ -146,7 +146,7 @@ launch_ufo:
     sta (active_entity), y
     ldx #0
 @initial_accel:
-    ; Accelerate the ufo a few times to get it started moving
+    ; Accelerate the astbig a few times to get it started moving
     jsr accel_entity
     bra @done
 @skip_entity:
@@ -160,7 +160,7 @@ launch_ufo:
     lda sp_entity_count
     inc
     sta sp_entity_count
-    cmp #UFO_COUNT
+    cmp #ASTBIG_COUNT
     bne @next_entity
 @done:
     rts
@@ -183,7 +183,7 @@ check_storm:
     ; lda #0 ; Reset storm to 0
     ; sta storm_count
     ; sta storm_count+1
-    jsr launch_ufos
+    jsr launch_astbigs
 @no_storm:
     rts
 .endif

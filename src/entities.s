@@ -259,8 +259,8 @@ handle_collision_sprites:
     lda (comp_entity1), y
     cmp #LASER_TYPE
     beq @laser
-    cmp #UFO_TYPE
-    beq @ufo
+    cmp #ASTBIG_TYPE
+    beq @astbig
     cmp #GEM_TYPE
     beq @gem
     cmp #GATE_TYPE
@@ -269,36 +269,36 @@ handle_collision_sprites:
     beq @warp
     jmp @destroy_1 ; Catch all, shouldn't get here
     ; Cases
-    ; Laser - UFO - Gem - Gate - Warp - Ship
+    ; Laser - ASTBIG - Gem - Gate - Warp - Ship
 @laser:
     ldy #Entity::_type
     lda (comp_entity2), y
-    cmp #UFO_TYPE
-    beq @laser_ufo
+    cmp #ASTBIG_TYPE
+    beq @laser_astbig
     bra @destroy_1 ; Laser hitting anything else just destroys the laser
-@laser_ufo:
+@laser_astbig:
     ; Destroy both - score points
     lda #$25
     sta amount_to_add
     jsr add_points
     bra @destroy_both
-@ufo:
+@astbig:
     ldy #Entity::_type
     lda (comp_entity2), y
     cmp #GEM_TYPE
-    beq @ufo_gem
+    beq @astbig_gem
     cmp #GATE_TYPE
-    beq @ufo_gate
+    beq @astbig_gate
     cmp #SHIP_TYPE
-    beq @ufo_ship
+    beq @astbig_ship
     bra @destroy_1
-@ufo_gem:
+@astbig_gem:
     ; Destroy Gem
     bra @destroy_2
-@ufo_gate:
-    ; Destroy ufo
+@astbig_gate:
+    ; Destroy astbig
     bra @destroy_1
-@ufo_ship:
+@astbig_ship:
     ; Both die
     bra @destroy_both
 @gem:

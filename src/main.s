@@ -53,7 +53,7 @@ hit_warp: .byte 0
 .include "sprites.s"
 .include "entities.s"
 .include "ship.s"
-.include "ufo.s"
+.include "astbig.s"
 .include "gem.s"
 .include "gate.s"
 .include "warp.s"
@@ -71,7 +71,7 @@ start:
 @restart_game:
     jsr create_ship
     jsr create_gate_sprite
-    jsr create_ufo_sprites
+    jsr create_astbig_sprites
     jsr create_gem_sprites
     jsr create_warp_sprite
     jsr launch_gems
