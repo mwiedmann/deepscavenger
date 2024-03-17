@@ -17,7 +17,7 @@ create_warp_sprite:
     lda #>entities
     adc sp_offset+1
     sta active_entity+1
-    lda #1
+    lda #0
     sta param1 ;visible
     jsr reset_active_entity
     lda us_img_addr ; Img addr
@@ -29,7 +29,7 @@ create_warp_sprite:
     lda #WARP_TYPE
     ldy #Entity::_type
     sta (active_entity), y
-    lda #%11100000
+    lda #%00010000
     ldy #Entity::_collision
     sta (active_entity), y
     lda #64
@@ -38,7 +38,6 @@ create_warp_sprite:
     lda #0
     ldy #Entity::_has_accel
     sta (active_entity), y
-    lda #0
     ldy #Entity::_ang
     sta (active_entity), y
     lda #3
@@ -68,4 +67,21 @@ create_warp_sprite:
     jsr create_sprite
     rts
 
+
+show_warp:
+    ldx #<(.sizeof(Entity)*WARP_ENTITY_NUM)
+    stx sp_offset
+    ldx #>(.sizeof(Entity)*WARP_ENTITY_NUM)
+    stx sp_offset+1
+    clc
+    lda #<entities
+    adc sp_offset
+    sta active_entity
+    lda #>entities
+    adc sp_offset+1
+    sta active_entity+1
+    lda #1
+    ldy #Entity::_visible
+    sta (active_entity), y
+    rts
 .endif

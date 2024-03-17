@@ -265,9 +265,11 @@ handle_collision_sprites:
     beq @gem
     cmp #GATE_TYPE
     beq @gate
+    cmp #WARP_TYPE
+    beq @warp
     jmp @destroy_1 ; Catch all, shouldn't get here
     ; Cases
-    ; Laser - UFO - Gem - Gate - Ship
+    ; Laser - UFO - Gem - Gate - Warp - Ship
 @laser:
     ldy #Entity::_type
     lda (comp_entity2), y
@@ -312,6 +314,17 @@ handle_collision_sprites:
     lda #$1
     sta amount_to_add+1
     jsr add_points
+    jsr show_warp
+    bra @destroy_1
+@warp:
+    ldy #Entity::_type
+    lda (comp_entity2), y
+    cmp #SHIP_TYPE
+    beq @warp_ship
+    bra @destroy_1
+@warp_ship:
+    lda #1
+    sta hit_warp
     bra @destroy_1
 @gate:
     ldy #Entity::_type

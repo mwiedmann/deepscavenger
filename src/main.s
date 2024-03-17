@@ -44,6 +44,7 @@ joy_a: .byte 0
 
 score: .byte 0,0
 storm_count: .word 0
+hit_warp: .byte 0
 
 .include "config.s"
 .include "tiles.s"
@@ -67,12 +68,12 @@ start:
     jsr show_header
     jsr update_score
     jsr load_sprites
+@restart_game:
     jsr create_ship
     jsr create_gate_sprite
     jsr create_ufo_sprites
     jsr create_gem_sprites
     jsr create_warp_sprite
-    ; jsr launch_ufos
     jsr launch_gems
     ; Reset our counters now that we are ready to accept input
     lda #0
@@ -84,6 +85,11 @@ start:
     jsr check_storm
     jsr move_ship
     jsr move_entities
+    lda hit_warp
+    cmp #1
+    bne @waiting
+    jsr next_level
+    bra @restart_game
 @waiting:
     lda waitflag
     cmp #0
@@ -92,6 +98,17 @@ start:
     sta waitflag
     bra @move
 
+
+next_level:
+    lda #0
+    sta hit_warp
+    sta rotatewait
+    sta thrustwait
+    sta firewait
+    sta accelwait
+    sta storm_count
+    sta storm_count+1
+    rts
 
 point_to_mapbase:
     lda #<MAPBASE_L1_ADDR

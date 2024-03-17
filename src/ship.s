@@ -15,7 +15,7 @@ create_ship:
     lda #32
     ldy #Entity::_size
     sta (active_entity), y
-    lda #%10000000
+    lda #%10010000
     ldy #Entity::_collision
     sta (active_entity), y
     lda #1 ; Ship visibility on
