@@ -97,7 +97,7 @@ update_sprite:
     beq @update_ang_frame
     cmp #3
     bne @check_auto_rotate
-    ; If here, then _has_ang=3 and we auto-rotate through 3 frames (warp)
+    ; If here, then _has_ang=3 and we auto-rotate through 8 frames (warp)
     ldy #Entity::_ang
     lda (active_entity), y
     sta us_frame
@@ -116,7 +116,7 @@ update_sprite:
     adc #1
     sta us_frame
     sta (active_entity), y
-    cmp #3 ; Wrap back to 0 at 3
+    cmp #8 ; Wrap back to 0 at 8
     bne @skip_update_ang_frame
     lda #0
     sta (active_entity), y

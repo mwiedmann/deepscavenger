@@ -32,7 +32,7 @@ create_warp_sprite:
     lda #%00010000
     ldy #Entity::_collision
     sta (active_entity), y
-    lda #64
+    lda #32
     ldy #Entity::_size
     sta (active_entity), y
     lda #0
@@ -43,23 +43,23 @@ create_warp_sprite:
     lda #3
     ldy #Entity::_has_ang
     sta (active_entity), y
-    lda #<((320-32)<<5)
+    lda #<((320-16)<<5)
     ldy #Entity::_x
     sta (active_entity), y
-    lda #>((320-32)<<5)
+    lda #>((320-16)<<5)
     ldy #Entity::_x+1
     sta (active_entity), y
-    lda #<((240-32)<<5)
+    lda #<((240-16)<<5)
     ldy #Entity::_y
     sta (active_entity), y
-    lda #>((240-32)<<5)
+    lda #>((240-16)<<5)
     ldy #Entity::_y+1
     sta (active_entity), y
     lda #WARP_SPRITE_NUM
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set warp sprite num
     sta cs_sprite_num ; pass the sprite_num for the warp and create its sprite
-    lda #%11110000 ; 64x64
+    lda #%10100000 ; 32x32
     sta cs_size
     ldy #Entity::_collision
     lda (active_entity), y
