@@ -295,6 +295,18 @@ handle_collision_sprites:
     jsr update_score
     rts
 
+count_gems:
+    clc
+    lda gem_count
+    inc
+    sta gem_count
+check_gems:
+    lda gem_count
+    cmp #OPEN_WARP_GEM_COUNT
+    bcc @no_warp
+    jsr show_warp
+@no_warp:
+    rts
 
 collision_laser:
     ldy #Entity::_type
@@ -324,6 +336,7 @@ collision_laser:
     rts
 @laser_gem:
     ; Destroy both
+    jsr count_gems
     jsr destroy_both
     rts
 
@@ -347,6 +360,7 @@ collision_astsml:
     rts
 @astsml_gem:
     ; Destroy both
+    jsr count_gems
     jsr destroy_both
     rts
 @astsml_gate:
@@ -355,7 +369,8 @@ collision_astsml:
     rts
 @astsml_ship:
     ; Both die
-    jsr destroy_both
+    jsr destroy_ship
+    jsr destroy_1
     rts
 
 collision_astbig:
@@ -377,6 +392,7 @@ collision_astbig:
     rts
 @astbig_gem:
     ; Destroy Gem, split big
+    jsr count_gems
     jsr destroy_2
     jsr split_1
     rts
@@ -386,7 +402,7 @@ collision_astbig:
     rts
 @astbig_ship:
     ; Split big, destroy ship
-    jsr destroy_2
+    jsr destroy_ship
     jsr split_1
     rts
 
@@ -405,7 +421,7 @@ collision_gem:
     lda #$1
     sta amount_to_add+1
     jsr add_points
-    jsr show_warp
+    jsr count_gems
     jsr destroy_1
     rts
 
@@ -419,6 +435,7 @@ collision_warp:
 @warp_ship:
     lda #1
     sta hit_warp
+    jsr destroy_2 ; Just hide the ship, doesn't count as a death
     jsr destroy_1
     rts
 
@@ -431,7 +448,7 @@ collision_gate:
     rts
 @gate_ship:
     ; Ship crashes
-    jsr destroy_2
+    jsr destroy_ship
     rts
 
 
@@ -462,6 +479,17 @@ destroy_both:
     lda comp_entity2+1
     sta active_entity+1
     jsr destroy_active_entity
+    rts
+
+destroy_ship:
+    ; Ship is always entity2 in this case
+    lda comp_entity2
+    sta active_entity
+    lda comp_entity2+1
+    sta active_entity+1
+    jsr destroy_active_entity
+    lda #DEAD_SHIP_TIME
+    sta ship_dead
     rts
 
 split_index_1: .byte 9

@@ -45,6 +45,8 @@ joy_a: .byte 0
 score: .byte 0,0
 storm_count: .word 0
 hit_warp: .byte 0
+gem_count: .byte 0
+ship_dead: .byte 0
 
 .include "config.s"
 .include "tiles.s"
@@ -70,22 +72,50 @@ start:
     jsr update_score
     jsr load_sprites
 @restart_game:
-    jsr create_ship
     jsr create_gate_sprite
     jsr create_astsml_sprites
     jsr create_astbig_sprites
     jsr create_gem_sprites
     jsr create_warp_sprite
-    ; jsr launch_gems
+    jsr launch_gems
     ; Reset our counters now that we are ready to accept input
     lda #0
     sta rotatewait
     sta thrustwait
     sta firewait
     sta accelwait
+    sta gem_count
+    lda #120 ; Ship will warp in after a few seconds
+    sta ship_dead
 @move:
     jsr check_storm
+    lda ship_dead
+    cmp #0
+    beq @ship_ok
+    ; Ship dead, see if can come back yet
+    sec
+    sbc #1
+    sta ship_dead
+    cmp #30 ; Flash the warp for a moment before bringing in the ship
+    bne @skip_show_warp
+    pha
+    jsr show_warp
+    pla
+@skip_show_warp:
+    cmp #1 ; Hide the warp just before bringing in the ship
+    bne @skip_hide_warp
+    pha
+    jsr create_warp_sprite
+    jsr check_gems ; Warp may need to stay on
+    pla
+@skip_hide_warp:
+    cmp #0
+    bne @skip_ship
+    ; Bring ship back
+    jsr create_ship
+@ship_ok:
     jsr move_ship
+@skip_ship:
     jsr move_entities
     lda hit_warp
     cmp #1

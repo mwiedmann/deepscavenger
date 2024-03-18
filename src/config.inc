@@ -83,6 +83,8 @@ SHIP_ENTITY_NUM = GATE_ENTITY_NUM + GATE_COUNT
 
 ENTITY_COUNT = LASER_COUNT + ASTBIG_COUNT + ASTSML_COUNT + GEM_COUNT + WARP_COUNT + GATE_COUNT + 1 ; +1 for ship at the end
 
-STORM_COUNT = 60 ; 360 ; 6 seconds
+STORM_COUNT = 360 ; 6 seconds
+OPEN_WARP_GEM_COUNT = GEM_COUNT-2 ; Allow player to escape and leave a few?
+DEAD_SHIP_TIME = 180 ; 3 seconds
 
 .endif
