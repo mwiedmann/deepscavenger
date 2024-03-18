@@ -6,6 +6,8 @@ create_gate_sprite:
     sta us_img_addr
     lda #>GATE_LOAD_ADDR
     sta us_img_addr+1
+    lda #<(GATE_LOAD_ADDR>>16)
+    sta us_img_addr+2
     ldx #<(.sizeof(Entity)*GATE_ENTITY_NUM)
     stx sp_offset
     ldx #>(.sizeof(Entity)*GATE_ENTITY_NUM)
@@ -25,6 +27,9 @@ create_gate_sprite:
     sta (active_entity), y
     lda us_img_addr+1 ; Img addr
     ldy #Entity::_image_addr+1
+    sta (active_entity), y
+    lda us_img_addr+2 ; Img addr
+    ldy #Entity::_image_addr+2
     sta (active_entity), y
     lda #GATE_TYPE
     ldy #Entity::_type

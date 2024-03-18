@@ -9,6 +9,8 @@ create_gem_sprites:
     sta us_img_addr
     lda #>GEM_LOAD_ADDR
     sta us_img_addr+1
+    lda #<(GEM_LOAD_ADDR>>16)
+    sta us_img_addr+2
     ldx #0
     stx sp_entity_count
     ldx #GEM_SPRITE_NUM_START
@@ -51,6 +53,9 @@ next_gem:
     lda us_img_addr+1 ; Img addr
     ldy #Entity::_image_addr+1
     sta (active_entity), y
+    lda us_img_addr+2 ; Img addr
+    ldy #Entity::_image_addr+2
+    sta (active_entity), y
     lda #GEM_TYPE
     ldy #Entity::_type
     sta (active_entity), y
@@ -90,6 +95,9 @@ next_gem:
     lda us_img_addr+1
     adc #>GEM_SPRITE_FRAME_SIZE
     sta us_img_addr+1
+    lda us_img_addr+2
+    adc #0
+    sta us_img_addr+2
     lda sp_num
     inc
     sta sp_num
@@ -102,6 +110,8 @@ next_gem:
     stx us_img_addr
     ldx #>GEM_LOAD_ADDR
     stx us_img_addr+1
+    ldx #<(GEM_LOAD_ADDR>>16)
+    stx us_img_addr+2
 @check_max:
     cmp #GEM_COUNT
     beq @done

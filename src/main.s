@@ -53,6 +53,7 @@ hit_warp: .byte 0
 .include "sprites.s"
 .include "entities.s"
 .include "ship.s"
+.include "astsml.s"
 .include "astbig.s"
 .include "gem.s"
 .include "gate.s"
@@ -71,6 +72,7 @@ start:
 @restart_game:
     jsr create_ship
     jsr create_gate_sprite
+    jsr create_astsml_sprites
     jsr create_astbig_sprites
     jsr create_gem_sprites
     jsr create_warp_sprite

@@ -31,6 +31,9 @@ create_ship:
     lda #>SHIP_LOAD_ADDR ; Ship img addr
     ldy #Entity::_image_addr+1
     sta (active_entity), y
+    lda #<(SHIP_LOAD_ADDR>>16) ; Ship img addr
+    ldy #Entity::_image_addr+2
+    sta (active_entity), y
     ; pass the sprite_num for the ship and create its sprite
     lda ship+Entity::_sprite_num
     sta cs_sprite_num
@@ -132,6 +135,9 @@ create_laser_sprites:
     sta (active_entity), y
     lda #>LASER_LOAD_ADDR ; Img addr
     ldy #Entity::_image_addr+1
+    sta (active_entity), y
+    lda #<(LASER_LOAD_ADDR>>16) ; Img addr
+    ldy #Entity::_image_addr+2
     sta (active_entity), y
     lda #LASER_TYPE
     ldy #Entity::_type

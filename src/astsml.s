@@ -1,26 +1,22 @@
-.ifndef ASTBIG_S
-ASTBIG_S = 1
+.ifndef ASTSML_S
+ASTSML_S = 1
 
-astbig_start_x: .word   160<<5, 320<<5, 480<<5, 60<<5,  220<<5, 380<<5, 0<<5, 0<<5,  608<<5, 608<<5
-astbig_start_y: .word   0<<5,   0<<5,   0<<5,  448<<5, 448<<5, 448<<5, 60<<5, 220<<5, 160<<5, 320<<5
-astbig_start_ang: .word 8,      10,     11,     15,     3,      14,      4,     5,      15,     13
-
-create_astbig_sprites:
-    lda #<ASTBIG_LOAD_ADDR
+create_astsml_sprites:
+    lda #<ASTSML_LOAD_ADDR
     sta us_img_addr
-    lda #>ASTBIG_LOAD_ADDR
+    lda #>ASTSML_LOAD_ADDR
     sta us_img_addr+1
-    lda #<(ASTBIG_LOAD_ADDR>>16)
+    lda #<(ASTSML_LOAD_ADDR>>16)
     sta us_img_addr+2
     ldx #0
     stx sp_entity_count
-    ldx #ASTBIG_SPRITE_NUM_START
+    ldx #ASTSML_SPRITE_NUM_START
     stx sp_num
-    ldx #<(.sizeof(Entity)*ASTBIG_ENTITY_NUM_START)
+    ldx #<(.sizeof(Entity)*ASTSML_ENTITY_NUM_START)
     stx sp_offset
-    ldx #>(.sizeof(Entity)*ASTBIG_ENTITY_NUM_START)
+    ldx #>(.sizeof(Entity)*ASTSML_ENTITY_NUM_START)
     stx sp_offset+1
-next_astbig:
+next_astsml:
     clc
     lda #<entities
     adc sp_offset
@@ -32,22 +28,18 @@ next_astbig:
     sta param1 ; Not visible
     jsr reset_active_entity
     clc
-    lda sp_entity_count ; Use this to get an index into astbig_start_?
+    lda sp_entity_count
     rol
     tax
-    lda astbig_start_x, x
+    lda #0
     ldy #Entity::_x
     sta (active_entity), y
-    lda astbig_start_x+1, x
     ldy #Entity::_x+1
     sta (active_entity), y
-    lda astbig_start_y, x
     ldy #Entity::_y
     sta (active_entity), y
-    lda astbig_start_y+1, x
     ldy #Entity::_y+1
     sta (active_entity), y
-    lda astbig_start_ang, x
     ldy #Entity::_ang
     sta (active_entity), y
     jsr move_entity ; Update the pixel positions
@@ -60,7 +52,7 @@ next_astbig:
     lda us_img_addr+2 ; Img addr
     ldy #Entity::_image_addr+2
     sta (active_entity), y
-    lda #ASTBIG_TYPE
+    lda #ASTSML_TYPE
     ldy #Entity::_type
     sta (active_entity), y
     lda #2
@@ -69,7 +61,7 @@ next_astbig:
     lda #1
     ldy #Entity::_ob_behavior
     sta (active_entity), y
-    lda #32
+    lda #16
     ldy #Entity::_size
     sta (active_entity), y
     lda #%11000000
@@ -82,8 +74,8 @@ next_astbig:
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set enemy sprite num
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
-    lda #%10100000
-    sta cs_size ; 32x32
+    lda #%01010000
+    sta cs_size ; 16x16
     ldy #Entity::_collision
     lda (active_entity), y
     sta cs_czf
@@ -94,7 +86,7 @@ next_astbig:
     lda sp_offset+1
     adc #0
     sta sp_offset+1
-    ; Increase the ASTBIG img addr
+    ; Increase the ASTSML img addr
     clc
     lda sp_num
     inc
@@ -102,33 +94,33 @@ next_astbig:
     lda sp_entity_count
     inc
     sta sp_entity_count
-    cmp #ASTBIG_COUNT
+    cmp #ASTSML_COUNT
     beq @done
-    jmp next_astbig
+    jmp next_astsml
 @done:
     rts
 
 
-launch_astbigs:
+launch_astsmls:
     ldx #0
-@next_astbig:
+@next_astsml:
     stx param1 ; Currently doesn't do anything but maybe later
     phx
-    jsr launch_astbig
+    jsr launch_astsml
     plx
     inx
-    cpx #ASTBIG_COUNT
-    bne @next_astbig
+    cpx #ASTSML_COUNT
+    bne @next_astsml
     rts
 
 ; param1 - ang
 ; param2 - img offset
-launch_astbig:
+launch_astsml:
     ldx #0
     stx sp_entity_count
-    ldx #<(.sizeof(Entity)*ASTBIG_ENTITY_NUM_START)
+    ldx #<(.sizeof(Entity)*ASTSML_ENTITY_NUM_START)
     stx sp_offset
-    ldx #>(.sizeof(Entity)*ASTBIG_ENTITY_NUM_START)
+    ldx #>(.sizeof(Entity)*ASTSML_ENTITY_NUM_START)
     stx sp_offset+1
 @next_entity:
     clc
@@ -142,7 +134,7 @@ launch_astbig:
     lda (active_entity), y
     cmp #0
     bne @skip_entity
-    ; Found a free astbig
+    ; Found a free astsml
     ; lda param1
     ; ldy #Entity::_ang
     ; sta (active_entity), y
@@ -151,7 +143,7 @@ launch_astbig:
     sta (active_entity), y
     ldx #0
 @initial_accel:
-    ; Accelerate the astbig a few times to get it started moving
+    ; Accelerate the astsml a few times to get it started moving
     jsr accel_entity
     bra @done
 @skip_entity:
@@ -165,30 +157,9 @@ launch_astbig:
     lda sp_entity_count
     inc
     sta sp_entity_count
-    cmp #ASTBIG_COUNT
+    cmp #ASTSML_COUNT
     bne @next_entity
 @done:
     rts
 
-
-check_storm:
-    clc
-    lda storm_count
-    adc #1
-    sta storm_count
-    lda storm_count+1
-    adc #0
-    sta storm_count+1
-    lda storm_count+1
-    cmp #>STORM_COUNT ; compare the hi bytes
-    bne @no_storm
-    lda storm_count
-    cmp #<STORM_COUNT
-    bne @no_storm
-    ; lda #0 ; Reset storm to 0
-    ; sta storm_count
-    ; sta storm_count+1
-    jsr launch_astbigs
-@no_storm:
-    rts
 .endif

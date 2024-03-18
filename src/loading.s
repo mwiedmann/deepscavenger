@@ -20,7 +20,7 @@ load_sprites:
     rts
 
 load_ship:
-    lda #$08
+    lda #8
     ldx #<ship_filename
     ldy #>ship_filename
     jsr SETNAM
@@ -36,7 +36,7 @@ load_ship:
     rts
 
 load_laser:
-    lda #$09
+    lda #9
     ldx #<laser_filename
     ldy #>laser_filename
     jsr SETNAM
@@ -52,7 +52,7 @@ load_laser:
     rts
 
 load_astbig:
-    lda #$A
+    lda #10
     ldx #<astbig_filename
     ldy #>astbig_filename
     jsr SETNAM
@@ -68,7 +68,7 @@ load_astbig:
     rts
 
 load_gem:
-    lda #$07
+    lda #7
     ldx #<gem_filename
     ldy #>gem_filename
     jsr SETNAM
@@ -83,24 +83,8 @@ load_gem:
     jsr LOAD
     rts
 
-load_gate:
-    lda #$08
-    ldx #<gate_filename
-    ldy #>gate_filename
-    jsr SETNAM
-    ; 0,8,2
-    lda #0
-    ldx #8
-    ldy #2
-    jsr SETLFS
-    lda #2 ; VRAM 1st bank
-    ldx #<GATE_LOAD_ADDR 
-    ldy #>GATE_LOAD_ADDR
-    jsr LOAD
-    rts
-
 load_font:
-    lda #$08
+    lda #8
     ldx #<font_filename
     ldy #>font_filename
     jsr SETNAM
@@ -115,8 +99,24 @@ load_font:
     jsr LOAD
     rts
 
+load_gate:
+    lda #8
+    ldx #<gate_filename
+    ldy #>gate_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #3 ; VRAM 2nd bank
+    ldx #<GATE_LOAD_ADDR 
+    ldy #>GATE_LOAD_ADDR
+    jsr LOAD
+    rts
+
 load_warp:
-    lda #$08
+    lda #8
     ldx #<warp_filename
     ldy #>warp_filename
     jsr SETNAM
@@ -125,7 +125,7 @@ load_warp:
     ldx #8
     ldy #2
     jsr SETLFS
-    lda #2 ; VRAM 1st bank
+    lda #3 ; VRAM 2nd bank
     ldx #<WARP_LOAD_ADDR 
     ldy #>WARP_LOAD_ADDR
     jsr LOAD

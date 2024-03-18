@@ -22,15 +22,18 @@ point_to_sprite:
     sta active_sprite+1
     lda pts_sprite_num
     ldx #0
+    stx sprite_offset+1 ; Clear it out for some shifting
 @mult_8: ; Mult sprite num by 8 to get the memory offset of that sprite
     clc
     rol
+    sta sprite_offset
+    lda sprite_offset+1
+    rol
+    sta sprite_offset+1
+    lda sprite_offset
     inx
     cpx #3
     bne @mult_8
-    sta sprite_offset
-    lda #0
-    sta sprite_offset+1
     ; sprite_offset now ready to add to the active_sprite
     clc
     lda active_sprite
