@@ -319,8 +319,8 @@ collision_laser:
     lda #$25
     sta amount_to_add
     jsr add_points
-    jsr split_2
     jsr destroy_1
+    jsr split_2
     rts
 @laser_gem:
     ; Destroy both
@@ -342,8 +342,8 @@ collision_astsml:
     rts
 @astsml_astbig:
     ; Split the big, destroy sml
-    jsr split_2
     jsr destroy_1
+    jsr split_2
     rts
 @astsml_gem:
     ; Destroy both
@@ -373,13 +373,12 @@ collision_astbig:
     rts
 @astbig_astbig:
     ; Split both
-    jsr split_1
-    jsr split_2
+    jsr split_both
     rts
 @astbig_gem:
     ; Destroy Gem, split big
-    jsr split_1
     jsr destroy_2
+    jsr split_1
     rts
 @astbig_gate:
     ; Split astbig
@@ -387,8 +386,8 @@ collision_astbig:
     rts
 @astbig_ship:
     ; Split big, destroy ship
-    jsr split_1
     jsr destroy_2
+    jsr split_1
     rts
 
 collision_gem:
@@ -469,85 +468,95 @@ split_index_1: .byte 9
 split_index_2: .byte 3
 
 split_1:
-    ldy #Entity::_x
-    lda (comp_entity1), y
-    sta astsml_x
-    ldy #Entity::_x+1
-    lda (comp_entity1), y
-    sta astsml_x+1
-    ldy #Entity::_y
-    lda (comp_entity1), y
-    sta astsml_y
-    ldy #Entity::_y+1
-    lda (comp_entity1), y
-    sta astsml_y+1
-    ; Both asteroids need to fly in slightly different directions
     lda comp_entity1
     sta active_entity
     lda comp_entity1+1
     sta active_entity+1
-    jsr destroy_active_entity
-    lda split_index_1
-    sta astsml_ang_index
-    inc; stays between 9-15
-    cmp #16
-    bne @no_wrap_1
-    lda #9
-@no_wrap_1:
-    sta split_index_1
-    jsr launch_astsml
-    ; 2nd astsml
-    ldy #Entity::_x
-    lda (comp_entity1), y
-    sta astsml_x
-    ldy #Entity::_x+1
-    lda (comp_entity1), y
-    clc
-    adc #>(16<<5)
-    sta astsml_x+1
-    ldy #Entity::_y
-    lda (comp_entity1), y
-    sta astsml_y
-    ldy #Entity::_y+1
-    lda (comp_entity1), y
-    sta astsml_y+1
-    ; Both asteroids need to fly in slightly different directions
-    lda comp_entity1
-    sta active_entity
-    lda comp_entity1+1
-    sta active_entity+1
-    jsr destroy_active_entity
-    lda split_index_2
-    sta astsml_ang_index
-    inc; stays between 1-7
-    cmp #8
-    bne @no_wrap_2
-    lda #1
-@no_wrap_2:
-    sta split_index_2
-    jsr launch_astsml
+    jsr split_active_entity
     rts
-
 
 split_2:
-    ldy #Entity::_x
-    lda (comp_entity2), y
-    sta astsml_x
-    ldy #Entity::_x+1
-    lda (comp_entity2), y
-    sta astsml_x+1
-    ldy #Entity::_y
-    lda (comp_entity2), y
-    sta astsml_y
-    ldy #Entity::_y+1
-    lda (comp_entity2), y
-    sta astsml_y+1
-    ; Both asteroids need to fly in slightly different directions
     lda comp_entity2
     sta active_entity
     lda comp_entity2+1
     sta active_entity+1
+    jsr split_active_entity
+    rts
+
+split_both_x: .word 0
+split_both_y: .word 0
+
+split_both:
+    ; Start by removing them both
+    jsr destroy_1
+    jsr destroy_2
+    ; Get the base x/y for the 4 astsml we will create
+    ldy #Entity::_x
+    lda (active_entity), y
+    sta split_both_x
+    ldy #Entity::_x+1
+    lda (active_entity), y
+    sta split_both_x+1
+    ldy #Entity::_y
+    lda (active_entity), y
+    sta split_both_y
+    ldy #Entity::_y+1
+    lda (active_entity), y
+    sta split_both_y+1
+    ; astsml 1
+    lda split_both_x
+    sta astsml_x
+    lda split_both_x+1
+    sta astsml_x+1
+    lda split_both_y
+    sta astsml_y
+    lda split_both_y+1
+    sta astsml_y+1
+    lda #15
+    sta astsml_ang_index
+    jsr launch_astsml
+    ; astsml 2
+    lda astsml_x+1
+    clc
+    adc #>(16<<5)
+    sta astsml_x+1
+    lda #3
+    sta astsml_ang_index
+    jsr launch_astsml
+    ; astsml 3
+    lda astsml_y+1
+    clc
+    adc #>(16<<5)
+    sta astsml_y+1
+    lda #6
+    sta astsml_ang_index
+    jsr launch_astsml
+    ; astsml 4
+    lda split_both_x
+    sta astsml_x
+    lda split_both_x+1
+    sta astsml_x+1
+    lda #11
+    sta astsml_ang_index
+    jsr launch_astsml
+    rts
+
+
+split_active_entity:
     jsr destroy_active_entity
+    ldy #Entity::_x
+    lda (active_entity), y
+    sta astsml_x
+    ldy #Entity::_x+1
+    lda (active_entity), y
+    sta astsml_x+1
+    ldy #Entity::_y
+    lda (active_entity), y
+    sta astsml_y
+    ldy #Entity::_y+1
+    lda (active_entity), y
+    sta astsml_y+1
+    ; Both asteroids need to fly in slightly different directions
     lda split_index_1
     sta astsml_ang_index
     inc; stays between 9-15
@@ -557,27 +566,21 @@ split_2:
 @no_wrap_1:
     sta split_index_1
     jsr launch_astsml
-    ; 2nd astsml
+    ; 2nd astsml, active_entity now the astsml that was just launched
     ldy #Entity::_x
-    lda (comp_entity2), y
+    lda (active_entity), y
     sta astsml_x
     ldy #Entity::_x+1
-    lda (comp_entity2), y
+    lda (active_entity), y
     clc
     adc #>(16<<5)
     sta astsml_x+1
     ldy #Entity::_y
-    lda (comp_entity2), y
+    lda (active_entity), y
     sta astsml_y
     ldy #Entity::_y+1
-    lda (comp_entity2), y
+    lda (active_entity), y
     sta astsml_y+1
-    ; Both asteroids need to fly in slightly different directions
-    lda comp_entity2
-    sta active_entity
-    lda comp_entity2+1
-    sta active_entity+1
-    jsr destroy_active_entity
     lda split_index_2
     sta astsml_ang_index
     inc; stays between 1-7
@@ -588,6 +591,7 @@ split_2:
     sta split_index_2
     jsr launch_astsml
     rts
+
 
 destroy_active_entity:
     ldy #Entity::_type
