@@ -101,21 +101,10 @@ next_astsml:
     rts
 
 
-launch_astsmls:
-    ldx #0
-@next_astsml:
-    stx param1 ; Currently doesn't do anything but maybe later
-    phx
-    jsr launch_astsml
-    plx
-    inx
-    cpx #ASTSML_COUNT
-    bne @next_astsml
-    rts
-
 astsml_x: .word 0
 astsml_y: .word 0
-astsml_ang: .byte 0
+astsml_vel_x: .word 0
+astsml_vel_y: .word 0
 
 launch_astsml:
     ldx #0
@@ -140,6 +129,18 @@ launch_astsml:
     ; lda param1
     ; ldy #Entity::_ang
     ; sta (active_entity), y
+    lda astsml_vel_x
+    ldy #Entity::_vel_x
+    sta (active_entity), y
+    lda astsml_vel_x+1
+    ldy #Entity::_vel_x+1
+    sta (active_entity), y
+    lda astsml_vel_y
+    ldy #Entity::_vel_y
+    sta (active_entity), y
+    lda astsml_vel_y+1
+    ldy #Entity::_vel_y+1
+    sta (active_entity), y
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
@@ -155,12 +156,9 @@ launch_astsml:
     lda astsml_y+1
     ldy #Entity::_y+1
     sta (active_entity), y
-    lda astsml_ang
-    ldy #Entity::_ang
-    sta (active_entity), y
 @initial_accel:
     ; Accelerate the astsml a few times to get it started moving
-    jsr accel_entity
+    ; jsr accel_entity
     bra @done
 @skip_entity:
     clc

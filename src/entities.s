@@ -315,7 +315,7 @@ collision_laser:
     jsr destroy_both
     rts
 @laser_astbig:
-    ; Destroy both - score points
+    ; Split astbig, destroy laser - score points
     lda #$25
     sta amount_to_add
     jsr add_points
@@ -323,8 +323,8 @@ collision_laser:
     jsr destroy_1
     rts
 @laser_gem:
-    ; Destroy Gem
-    jsr destroy_2
+    ; Destroy both
+    jsr destroy_both
     rts
 
 collision_astsml:
@@ -346,8 +346,8 @@ collision_astsml:
     jsr destroy_1
     rts
 @astsml_gem:
-    ; Destroy Gem
-    jsr destroy_2
+    ; Destroy both
+    jsr destroy_both
     rts
 @astsml_gate:
     ; Destroy astsml
@@ -361,6 +361,8 @@ collision_astsml:
 collision_astbig:
     ldy #Entity::_type
     lda (comp_entity2), y
+    cmp #ASTBIG_TYPE
+    beq @astbig_astbig
     cmp #GEM_TYPE
     beq @astbig_gem
     cmp #GATE_TYPE
@@ -369,20 +371,28 @@ collision_astbig:
     beq @astbig_ship
     jsr destroy_1
     rts
+@astbig_astbig:
+    ; Split both
+    jsr split_1
+    jsr split_2
+    rts
 @astbig_gem:
-    ; Destroy Gem
+    ; Destroy Gem, split big
+    jsr split_1
     jsr destroy_2
     rts
 @astbig_gate:
-    ; Destroy astbig
-    jsr destroy_1
+    ; Split astbig
+    jsr split_1
     rts
 @astbig_ship:
-    ; Both die
-    jsr destroy_both
+    ; Split big, destroy ship
+    jsr split_1
+    jsr destroy_2
     rts
 
 collision_gem:
+    ; Gems don't move (for now)
     ldy #Entity::_type
     lda (comp_entity2), y
     cmp #SHIP_TYPE
@@ -455,10 +465,6 @@ destroy_both:
     jsr destroy_active_entity
     rts
 
-
-split_ang_1: .byte 0
-split_ang_2: .byte 0
-
 split_1:
     ldy #Entity::_x
     lda (comp_entity1), y
@@ -472,22 +478,19 @@ split_1:
     ldy #Entity::_y+1
     lda (comp_entity1), y
     sta astsml_y+1
-    ; Rotate to opposite side (almost)
-    ; Both asteroids will fly the other in slightly different directions
-    ldy #Entity::_ang
+    ; Both asteroids need to fly in slightly different directions
+    ldy #Entity::_vel_x
     lda (comp_entity1), y
-    ldx #0
-    clc
-@next_ang:
-    inc
-    cmp #16
-    bne @skip_back_to_zero
-    lda #0
-@skip_back_to_zero:
-    sta split_ang_1
-    inx
-    cpx #6
-    bne @next_ang
+    sta astsml_vel_y ; Copy x to y vel
+    ldy #Entity::_vel_x+1
+    lda (comp_entity1), y
+    sta astsml_vel_y+1 ; Copy x to y vel
+    ldy #Entity::_vel_y
+    lda (comp_entity1), y
+    sta astsml_vel_x ; Copy y to y vel
+    ldy #Entity::_vel_y+1
+    lda (comp_entity1), y
+    sta astsml_vel_x+1 ; Copy y to y vel
     lda comp_entity1
     sta active_entity
     lda comp_entity1+1
@@ -510,22 +513,19 @@ split_2:
     ldy #Entity::_y+1
     lda (comp_entity2), y
     sta astsml_y+1
-    ; Rotate to opposite side (almost)
-    ; Both asteroids will fly the other in slightly different directions
-    ldy #Entity::_ang
+    ; Both asteroids need to fly in slightly different directions
+    ldy #Entity::_vel_x
     lda (comp_entity2), y
-    ldx #0
-    clc
-@next_ang:
-    inc
-    cmp #16
-    bne @skip_back_to_zero
-    lda #0
-@skip_back_to_zero:
-    sta split_ang_1
-    inx
-    cpx #10
-    bne @next_ang
+    sta astsml_vel_y ; Copy x to y vel
+    ldy #Entity::_vel_x+1
+    lda (comp_entity2), y
+    sta astsml_vel_y+1 ; Copy x to y vel
+    ldy #Entity::_vel_y
+    lda (comp_entity2), y
+    sta astsml_vel_x ; Copy y to y vel
+    ldy #Entity::_vel_y+1
+    lda (comp_entity2), y
+    sta astsml_vel_x+1 ; Copy y to y vel
     lda comp_entity2
     sta active_entity
     lda comp_entity2+1
