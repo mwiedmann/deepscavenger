@@ -101,10 +101,9 @@ next_astsml:
     rts
 
 
+astsml_ang_index: .byte 0
 astsml_x: .word 0
 astsml_y: .word 0
-astsml_vel_x: .word 0
-astsml_vel_y: .word 0
 
 launch_astsml:
     ldx #0
@@ -125,20 +124,34 @@ launch_astsml:
     lda (active_entity), y
     cmp #0
     bne @skip_entity
-    ; Found a free astsml
-    ; lda param1
-    ; ldy #Entity::_ang
-    ; sta (active_entity), y
-    lda astsml_vel_x
+    jsr found_free_astsml
+    bra @done
+@skip_entity:
+    clc
+    lda sp_offset
+    adc #.sizeof(Entity)
+    sta sp_offset
+    lda sp_offset+1
+    adc #0
+    sta sp_offset+1
+    lda sp_entity_count
+    inc
+    sta sp_entity_count
+    cmp #ASTSML_COUNT
+    bne @next_entity
+@done:
+    rts
+
+
+found_free_astsml:
+    ; Clear any existing velocity
+    lda #0
     ldy #Entity::_vel_x
     sta (active_entity), y
-    lda astsml_vel_x+1
     ldy #Entity::_vel_x+1
     sta (active_entity), y
-    lda astsml_vel_y
     ldy #Entity::_vel_y
     sta (active_entity), y
-    lda astsml_vel_y+1
     ldy #Entity::_vel_y+1
     sta (active_entity), y
     lda #1
@@ -156,24 +169,13 @@ launch_astsml:
     lda astsml_y+1
     ldy #Entity::_y+1
     sta (active_entity), y
-@initial_accel:
-    ; Accelerate the astsml a few times to get it started moving
-    ; jsr accel_entity
-    bra @done
-@skip_entity:
-    clc
-    lda sp_offset
-    adc #.sizeof(Entity)
-    sta sp_offset
-    lda sp_offset+1
-    adc #0
-    sta sp_offset+1
-    lda sp_entity_count
-    inc
-    sta sp_entity_count
-    cmp #ASTSML_COUNT
-    bne @next_entity
-@done:
+    ; Set its angle and accel once to get it going
+    ; astsml_ang_index
+    lda astsml_ang_index
+    ldy #Entity::_ang
+    sta (active_entity), y
+    ; Accelerate the astsml to get it started moving
+    jsr accel_entity
     rts
 
 .endif

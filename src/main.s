@@ -76,7 +76,7 @@ start:
     jsr create_astbig_sprites
     jsr create_gem_sprites
     jsr create_warp_sprite
-    jsr launch_gems
+    ; jsr launch_gems
     ; Reset our counters now that we are ready to accept input
     lda #0
     sta rotatewait

@@ -2,8 +2,8 @@
 ASTBIG_S = 1
 
 astbig_start_x: .word   160<<5, 320<<5, 480<<5, 60<<5,  220<<5, 380<<5, 0<<5, 0<<5,  608<<5, 608<<5
-astbig_start_y: .word   0<<5,   0<<5,   0<<5,  448<<5, 448<<5, 448<<5, 60<<5, 220<<5, 160<<5, 320<<5
-astbig_start_ang: .word 8,      10,     11,     15,     3,      14,      4,     5,      15,     13
+astbig_start_y: .word   24<<5,   32<<5,   0<<5,  448<<5, 448<<5, 448<<5, 60<<5, 220<<5, 160<<5, 320<<5
+astbig_start_ang: .word 4,      12,     11,     15,     3,      14,      4,     5,      15,     13
 
 create_astbig_sprites:
     lda #<ASTBIG_LOAD_ADDR
