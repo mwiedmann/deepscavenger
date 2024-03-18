@@ -258,31 +258,107 @@ handle_collision_sprites:
     ldy #Entity::_type
     lda (comp_entity1), y
     cmp #LASER_TYPE
-    beq @laser
+    bne @check_astsml
+    jsr collision_laser
+    bra @done
+@check_astsml:
+    cmp #ASTSML_TYPE
+    bne @check_astbig
+    jsr collision_astsml
+    bra @done
+@check_astbig:
     cmp #ASTBIG_TYPE
-    beq @astbig
+    bne @check_gem
+    jsr collision_astbig
+    bra @done
+@check_gem:
     cmp #GEM_TYPE
-    beq @gem
+    bne @check_gate
+    jsr collision_gem
+    bra @done
+@check_gate:
     cmp #GATE_TYPE
-    beq @gate
+    bne @check_warp
+    jsr collision_gate
+    bra @done
+@check_warp:
     cmp #WARP_TYPE
-    beq @warp
-    jmp @destroy_1 ; Catch all, shouldn't get here
+    bne @catch_all
+    jsr collision_warp
+    bra @done
+@catch_all:
+    jsr destroy_1 ; Catch all, shouldn't get here
+    bra @done
     ; Cases
-    ; Laser - ASTBIG - Gem - Gate - Warp - Ship
-@laser:
+    ; Laser - ASTSML - ASTBIG - Gem - Gate - Warp - Ship
+@done:
+    jsr update_score
+    rts
+
+
+collision_laser:
     ldy #Entity::_type
     lda (comp_entity2), y
+    cmp #ASTSML_TYPE
+    beq @laser_astsml
     cmp #ASTBIG_TYPE
     beq @laser_astbig
-    bra @destroy_1 ; Laser hitting anything else just destroys the laser
+    cmp #GEM_TYPE
+    beq @laser_gem
+    jsr destroy_1 ; Laser hitting anything else just destroys the laser
+    rts
+@laser_astsml:
+    ; Destroy both - score points
+    lda #$10
+    sta amount_to_add
+    jsr add_points
+    jsr destroy_both
+    rts
 @laser_astbig:
     ; Destroy both - score points
     lda #$25
     sta amount_to_add
     jsr add_points
-    bra @destroy_both
-@astbig:
+    jsr split_2
+    jsr destroy_1
+    rts
+@laser_gem:
+    ; Destroy Gem
+    jsr destroy_2
+    rts
+
+collision_astsml:
+    ldy #Entity::_type
+    lda (comp_entity2), y
+    cmp #ASTBIG_TYPE
+    beq @astsml_astbig
+    cmp #GEM_TYPE
+    beq @astsml_gem
+    cmp #GATE_TYPE
+    beq @astsml_gate
+    cmp #SHIP_TYPE
+    beq @astsml_ship
+    jsr destroy_1 ; If sml hits sml, only 1 will be destroyed
+    rts
+@astsml_astbig:
+    ; Split the big, destroy sml
+    jsr split_2
+    jsr destroy_1
+    rts
+@astsml_gem:
+    ; Destroy Gem
+    jsr destroy_2
+    rts
+@astsml_gate:
+    ; Destroy astsml
+    jsr destroy_1
+    rts
+@astsml_ship:
+    ; Both die
+    jsr destroy_both
+    rts
+
+collision_astbig:
     ldy #Entity::_type
     lda (comp_entity2), y
     cmp #GEM_TYPE
@@ -291,22 +367,28 @@ handle_collision_sprites:
     beq @astbig_gate
     cmp #SHIP_TYPE
     beq @astbig_ship
-    bra @destroy_1
+    jsr destroy_1
+    rts
 @astbig_gem:
     ; Destroy Gem
-    bra @destroy_2
+    jsr destroy_2
+    rts
 @astbig_gate:
     ; Destroy astbig
-    bra @destroy_1
+    jsr destroy_1
+    rts
 @astbig_ship:
     ; Both die
-    bra @destroy_both
-@gem:
+    jsr destroy_both
+    rts
+
+collision_gem:
     ldy #Entity::_type
     lda (comp_entity2), y
     cmp #SHIP_TYPE
     beq @gem_ship
-    bra @destroy_1
+    jsr destroy_1
+    rts
 @gem_ship:
     ; Ship gets gem and points
     lda #$50
@@ -315,55 +397,142 @@ handle_collision_sprites:
     sta amount_to_add+1
     jsr add_points
     jsr show_warp
-    bra @destroy_1
-@warp:
+    jsr destroy_1
+    rts
+
+collision_warp:
     ldy #Entity::_type
     lda (comp_entity2), y
     cmp #SHIP_TYPE
     beq @warp_ship
-    bra @destroy_1
+    jsr destroy_1
+    rts
 @warp_ship:
     lda #1
     sta hit_warp
-    bra @destroy_1
-@gate:
+    jsr destroy_1
+    rts
+
+collision_gate:
     ldy #Entity::_type
     lda (comp_entity2), y
     cmp #SHIP_TYPE
     beq @gate_ship
-    bra @destroy_2 ; Not sure what else this would be, but gate is indestructable
+    jsr destroy_2 ; Not sure what else this would be, but gate is indestructable
+    rts
 @gate_ship:
     ; Ship crashes
-    bra @destroy_2
-@destroy_1:
-    lda comp_entity1
-    sta active_entity
-    lda comp_entity1+1
-    sta active_entity+1
-    jsr destroy_active_entity
-    bra @done
-@destroy_2:
-    lda comp_entity2
-    sta active_entity
-    lda comp_entity2+1
-    sta active_entity+1
-    jsr destroy_active_entity
-    bra @done
-@destroy_both:
-    lda comp_entity1
-    sta active_entity
-    lda comp_entity1+1
-    sta active_entity+1
-    jsr destroy_active_entity
-    lda comp_entity2
-    sta active_entity
-    lda comp_entity2+1
-    sta active_entity+1
-    jsr destroy_active_entity
-@done:
-    jsr update_score
+    jsr destroy_2
     rts
 
+
+destroy_1:
+    lda comp_entity1
+    sta active_entity
+    lda comp_entity1+1
+    sta active_entity+1
+    jsr destroy_active_entity
+    rts
+
+destroy_2:
+    lda comp_entity2
+    sta active_entity
+    lda comp_entity2+1
+    sta active_entity+1
+    jsr destroy_active_entity
+    rts
+
+destroy_both:
+    lda comp_entity1
+    sta active_entity
+    lda comp_entity1+1
+    sta active_entity+1
+    jsr destroy_active_entity
+    lda comp_entity2
+    sta active_entity
+    lda comp_entity2+1
+    sta active_entity+1
+    jsr destroy_active_entity
+    rts
+
+
+split_ang_1: .byte 0
+split_ang_2: .byte 0
+
+split_1:
+    ldy #Entity::_x
+    lda (comp_entity1), y
+    sta astsml_x
+    ldy #Entity::_x+1
+    lda (comp_entity1), y
+    sta astsml_x+1
+    ldy #Entity::_y
+    lda (comp_entity1), y
+    sta astsml_y
+    ldy #Entity::_y+1
+    lda (comp_entity1), y
+    sta astsml_y+1
+    ; Rotate to opposite side (almost)
+    ; Both asteroids will fly the other in slightly different directions
+    ldy #Entity::_ang
+    lda (comp_entity1), y
+    ldx #0
+    clc
+@next_ang:
+    inc
+    cmp #16
+    bne @skip_back_to_zero
+    lda #0
+@skip_back_to_zero:
+    sta split_ang_1
+    inx
+    cpx #6
+    bne @next_ang
+    lda comp_entity1
+    sta active_entity
+    lda comp_entity1+1
+    sta active_entity+1
+    jsr destroy_active_entity
+    jsr launch_astsml
+    rts
+
+
+split_2:
+    ldy #Entity::_x
+    lda (comp_entity2), y
+    sta astsml_x
+    ldy #Entity::_x+1
+    lda (comp_entity2), y
+    sta astsml_x+1
+    ldy #Entity::_y
+    lda (comp_entity2), y
+    sta astsml_y
+    ldy #Entity::_y+1
+    lda (comp_entity2), y
+    sta astsml_y+1
+    ; Rotate to opposite side (almost)
+    ; Both asteroids will fly the other in slightly different directions
+    ldy #Entity::_ang
+    lda (comp_entity2), y
+    ldx #0
+    clc
+@next_ang:
+    inc
+    cmp #16
+    bne @skip_back_to_zero
+    lda #0
+@skip_back_to_zero:
+    sta split_ang_1
+    inx
+    cpx #10
+    bne @next_ang
+    lda comp_entity2
+    sta active_entity
+    lda comp_entity2+1
+    sta active_entity+1
+    jsr destroy_active_entity
+    jsr launch_astsml
+    rts
 
 destroy_active_entity:
     ldy #Entity::_type

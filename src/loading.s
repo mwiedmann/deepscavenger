@@ -4,6 +4,7 @@ LOADING_S = 1
 ship_filename: .asciiz "ship.bin"
 laser_filename: .asciiz "laser.bin"
 astbig_filename: .asciiz "astbig.bin"
+astsml_filename: .asciiz "astsml.bin"
 gate_filename: .asciiz "gate.bin"
 gem_filename: .asciiz "gem.bin"
 font_filename: .asciiz "font.bin"
@@ -13,6 +14,7 @@ load_sprites:
     jsr load_ship
     jsr load_laser
     jsr load_astbig
+    jsr load_astsml
     jsr load_gem
     jsr load_gate
     jsr load_font
@@ -64,6 +66,22 @@ load_astbig:
     lda #2 ; VRAM 1st bank
     ldx #<ASTBIG_LOAD_ADDR 
     ldy #>ASTBIG_LOAD_ADDR
+    jsr LOAD
+    rts
+
+load_astsml:
+    lda #10
+    ldx #<astsml_filename
+    ldy #>astsml_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #2 ; VRAM 1st bank
+    ldx #<ASTSML_LOAD_ADDR 
+    ldy #>ASTSML_LOAD_ADDR
     jsr LOAD
     rts
 

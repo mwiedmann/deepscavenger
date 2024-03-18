@@ -184,8 +184,23 @@ update_sprite:
     beq @frame_slide_done
     ldy #Entity::_size
     lda (active_entity), y
+    cmp #64
+    beq @size_64
     cmp #32
-    bne @size_64
+    beq @size_32
+@size_16:
+    clc
+    lda us_img_addr
+    adc #<ASTSML_SPRITE_FRAME_SIZE
+    sta us_img_addr
+    lda us_img_addr+1
+    adc #>ASTSML_SPRITE_FRAME_SIZE
+    sta us_img_addr+1
+    lda us_img_addr+2
+    adc #0
+    sta us_img_addr+2
+    bra @size_done
+@size_32:
     clc
     lda us_img_addr
     adc #<DEFAULT_FRAME_SIZE

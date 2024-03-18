@@ -113,8 +113,10 @@ launch_astsmls:
     bne @next_astsml
     rts
 
-; param1 - ang
-; param2 - img offset
+astsml_x: .word 0
+astsml_y: .word 0
+astsml_ang: .byte 0
+
 launch_astsml:
     ldx #0
     stx sp_entity_count
@@ -141,7 +143,21 @@ launch_astsml:
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
-    ldx #0
+    lda astsml_x
+    ldy #Entity::_x
+    sta (active_entity), y
+    lda astsml_x+1
+    ldy #Entity::_x+1
+    sta (active_entity), y
+    lda astsml_y
+    ldy #Entity::_y
+    sta (active_entity), y
+    lda astsml_y+1
+    ldy #Entity::_y+1
+    sta (active_entity), y
+    lda astsml_ang
+    ldy #Entity::_ang
+    sta (active_entity), y
 @initial_accel:
     ; Accelerate the astsml a few times to get it started moving
     jsr accel_entity
