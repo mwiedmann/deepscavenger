@@ -50,9 +50,9 @@ convo_table: .word convo_1, convo_2
 convo_index: .byte 0
 
 inc_param1:
-    lda param1
     clc
-    inc
+    lda param1
+    adc #1
     sta param1
     lda param1+1
     adc #0
@@ -109,14 +109,14 @@ show_convo_msg:
     lda #CONVO_TEXT_X
     sta mb_x
     jsr point_to_convo_mapbase
-    ; lda #CONVO_TEXT_WAIT_AMOUNT
-    ; sta wc
+    lda #CONVO_TEXT_WAIT_AMOUNT
+    sta wc
 @next_char:
-    ; jsr wait_count
-    ; lda #0
-    ; jsr JOYGET
-    ; cmp #255
-    ; bne @found_null
+    jsr wait_count
+    lda #0
+    jsr JOYGET
+    cmp #255
+    bne @found_null
     jsr inc_param1
     lda (param1)
     cmp #0 ; Looking for null
@@ -162,13 +162,13 @@ show_test_convo:
     lda #1
     sta stc_y
 @next_por:
-    ; lda #CONVO_WAIT_BETWEEN_PORTRAITS
-    ; sta wc
-    ; jsr wait_count
-    ; lda #0
-    ; jsr JOYGET
-    ; cmp #255
-    ; bne @done
+    lda #CONVO_WAIT_BETWEEN_PORTRAITS
+    sta wc
+    jsr wait_count
+    lda #0
+    jsr JOYGET
+    cmp #255
+    bne @done
     lda (param1)
     sta ccs_pornum
     jsr create_convo_sprite
@@ -197,10 +197,10 @@ show_test_convo:
     bne @next_por
     ; End of convo
 @done:
-    ; lda #2
-    ; sta wc
+    lda #1
+    sta wc
 @loop:
-    ; jsr wait_count
+    jsr wait_count
     lda #0
     jsr JOYGET
     cmp #255

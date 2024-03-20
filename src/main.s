@@ -53,7 +53,7 @@ ship_dead: .byte 0
 .include "irq.s"
 .include "loading.s"
 .include "sprites.s"
-; .include "wait.s"
+.include "wait.s"
 .include "convo.s"
 .include "entities.s"
 .include "ship.s"
