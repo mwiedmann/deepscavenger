@@ -71,7 +71,7 @@ start:
     jsr load_sprites
     jsr clear_tiles
     ; TESTING CONVO
-    ; jsr show_test_convo
+    jsr show_test_convo
     ; --------------
     jsr show_header
     jsr update_score

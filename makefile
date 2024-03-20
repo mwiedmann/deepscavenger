@@ -22,7 +22,6 @@ debug:
 
 pal:
 	node tools/gimp-pal-convert.js gfx/sprites.data.pal build/MAINPAL.BIN
-	node tools/gimp-pal-convert.js gfx/portraits.data.pal build/PORPAL.BIN
 
 img:
 	node tools/gimp-img-convert.js gfx/sprites.data build/SHIP.BIN 32 32 8 0 5 1
@@ -33,15 +32,13 @@ img:
 	node tools/gimp-img-convert.js gfx/sprites.data build/WARP.BIN 32 32 8 72 8 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/GATE.BIN 64 64 4 20 1 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/FONT.BIN 16 16 16 224 16 4
-
-por:
-	node tools/gimp-img-convert.js gfx/portraits.data build/MGL.BIN 64 64 4 4 4 1
-	node tools/gimp-img-convert.js gfx/portraits.data build/EGY.BIN 64 64 4 8 4 1
-	node tools/gimp-img-convert.js gfx/portraits.data build/CGL.BIN 64 64 4 12 4 1
-	node tools/gimp-img-convert.js gfx/portraits.data build/MGY.BIN 64 64 4 16 4 1
-	node tools/gimp-img-convert.js gfx/portraits.data build/CGY.BIN 64 64 4 20 4 1
-	node tools/gimp-img-convert.js gfx/portraits.data build/SGL.BIN 64 64 4 24 4 1
-	node tools/gimp-img-convert.js gfx/portraits.data build/EGL.BIN 64 64 4 28 4 1
-	node tools/gimp-img-convert.js gfx/portraits.data build/SGY.BIN 64 64 4 32 4 1
-	node tools/gimp-img-convert.js gfx/portraits.data build/DAU.BIN 64 64 4 36 4 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/MGL.BIN 64 64 4 28 4 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/EGY.BIN 64 64 4 32 4 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/CGL.BIN 64 64 4 36 4 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/MGY.BIN 64 64 4 40 4 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/CGY.BIN 64 64 4 44 4 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/SGL.BIN 64 64 4 48 4 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/EGL.BIN 64 64 4 52 4 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/SGY.BIN 64 64 4 56 4 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/DAU.BIN 64 64 4 60 4 1
 
