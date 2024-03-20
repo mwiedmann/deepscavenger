@@ -53,6 +53,7 @@ ship_dead: .byte 0
 .include "irq.s"
 .include "loading.s"
 .include "sprites.s"
+; .include "wait.s"
 .include "convo.s"
 .include "entities.s"
 .include "ship.s"
@@ -65,14 +66,14 @@ ship_dead: .byte 0
 .include "score.s"
 
 start:
-    jsr irq_config
     jsr config
     jsr load_mainpal
     jsr load_sprites
-    jsr clear_tiles
+    jsr irq_config
     ; TESTING CONVO
     jsr show_test_convo
     ; --------------
+    jsr clear_tiles
     jsr show_header
     jsr update_score
 @restart_game:

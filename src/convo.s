@@ -24,7 +24,7 @@ potrait_filename_table: .word mainguy_filename, maingirl_filename, corpguy_filen
 convo_1:
     .byte 0, 1 ; What 2 portraits to load
     .byte 1 ; Potrait to show
-    .asciiz "HELLO" ; Text for that portrait
+    .asciiz "HELLO.|2ND LINE." ; Text for that portrait
     .byte 0 ; Next potrait to show
     .asciiz "HOW ARE YOU?" ; Text for that portrait
     .byte 1
@@ -34,7 +34,7 @@ convo_1:
     .byte 1
     .asciiz "NICE WEATHER WE ARE HAVING."
     .byte 0
-    .asciiz "YES, I LOVE THE RAIN"
+    .asciiz "YES, I LOVE THE RAIN."
     .byte 255
 
 convo_2: 
@@ -106,14 +106,23 @@ point_to_convo_mapbase:
 
 ; param1 has text
 show_convo_msg:
-    lda #10
+    lda #CONVO_TEXT_X
     sta mb_x
     jsr point_to_convo_mapbase
+    ; lda #CONVO_TEXT_WAIT_AMOUNT
+    ; sta wc
 @next_char:
+    ; jsr wait_count
+    ; lda #0
+    ; jsr JOYGET
+    ; cmp #255
+    ; bne @found_null
     jsr inc_param1
     lda (param1)
     cmp #0 ; Looking for null
     beq @found_null
+    cmp #$DD ; Pipe char for CR
+    beq @CR
     ; Write the char
     jsr get_font_char
     sta VERA_DATA0
@@ -121,6 +130,14 @@ show_convo_msg:
     sta VERA_DATA0
     ; We can continue writing but need to go to next line at some points
     ; Just reset the mapbase pointer each character. We don't care about speed.
+    bra @next_char
+@CR:
+    lda #CONVO_TEXT_X
+    sta mb_x
+    lda mb_y
+    inc
+    sta mb_y
+    jsr point_to_convo_mapbase
     bra @next_char
 @found_null:
     rts
@@ -145,6 +162,13 @@ show_test_convo:
     lda #1
     sta stc_y
 @next_por:
+    ; lda #CONVO_WAIT_BETWEEN_PORTRAITS
+    ; sta wc
+    ; jsr wait_count
+    ; lda #0
+    ; jsr JOYGET
+    ; cmp #255
+    ; bne @done
     lda (param1)
     sta ccs_pornum
     jsr create_convo_sprite
@@ -172,8 +196,42 @@ show_test_convo:
     cmp #255
     bne @next_por
     ; End of convo
-@block:
-    bra @block
+@done:
+    ; lda #2
+    ; sta wc
+@loop:
+    ; jsr wait_count
+    lda #0
+    jsr JOYGET
+    cmp #255
+    beq @loop
+    jsr cleanup_convo
+    rts
+
+cleanup_convo:
+    ldx #0
+    ldy #PORTRAIT_SPRITE_NUM_START
+@next_sprite:
+    phx
+    phy
+    sty pts_sprite_num
+    jsr point_to_sprite
+    lda #0
+    ; Wipe out the sprite settings
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    ply
+    plx
+    inx
+    iny
+    cpx #6
+    bne @next_sprite
     rts
 
 lcs_filename: .word 0
