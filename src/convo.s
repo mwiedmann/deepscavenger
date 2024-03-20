@@ -41,7 +41,7 @@ convo_2:
     .asciiz "WHO DIS?" ; Text for that portrait
     .byte 255
 
-convo_table: .word convo_1
+convo_table: .word convo_1, convo_2
 
 convo_index: .byte 0
 
@@ -62,6 +62,7 @@ mb_y: .byte 0 ; 64x32
 point_to_convo_mapbase:
     lda #0
     sta mb_offset
+    sta mb_offset+1
     ldy #0
 @next_y:
     cpy mb_y
@@ -116,14 +117,15 @@ show_convo_msg:
     sta VERA_DATA0
     ; We can continue writing but need to go to next line at some points
     ; Just reset the mapbase pointer each character. We don't care about speed.
-    lda mb_x
-    inx
-    sta mb_x
     bra @next_char
 @found_null:
     rts
 
+stc_y: .byte 0
+
 show_test_convo:
+    lda #PORTRAIT_SPRITE_NUM_START
+    sta ccs_sprite_num
     jsr clear_tiles
     lda #<convo_1
     sta param1 ; Convo to show
@@ -132,24 +134,34 @@ show_test_convo:
     jsr load_convo_images
     jsr inc_param1
     jsr inc_param1 ; Jump to 1st por/convo
-    lda #0
+    lda #16
     sta ccs_y
+    lda #0
     sta ccs_y+1
-    lda #5
-    sta mb_y
+    lda #1
+    sta stc_y
 @next_por:
     lda (param1)
     sta ccs_pornum
+    jsr create_convo_sprite
     lda ccs_y
     clc
-    adc #70
+    adc #80
     sta ccs_y
     lda ccs_y+1
     adc #0
     sta ccs_y+1
-    jsr create_convo_sprite
+    lda ccs_sprite_num ; Next sprite num
+    inc
+    sta ccs_sprite_num
     ; Show text now
+    lda stc_y
+    sta mb_y
     jsr show_convo_msg
+    lda stc_y
+    clc
+    adc #5
+    sta stc_y
     jsr inc_param1
     lda (param1)
     ; Next byte is either a new portrait, or 255: End of convo
@@ -213,6 +225,7 @@ load_convo_images:
 
 ccs_y: .word 0
 ccs_pornum: .byte 0
+ccs_sprite_num: .byte 0
 
 create_convo_sprite:
     lda ccs_pornum
@@ -224,7 +237,6 @@ create_convo_sprite:
     sta us_img_addr+1
     lda #<(PORTRAIT1_LOAD_ADDR>>16)
     sta us_img_addr+2
-    lda #PORTRAIT1_SPRITE_NUM
     bra @addr_done
 @load2:
     lda #<PORTRAIT2_LOAD_ADDR
@@ -233,16 +245,18 @@ create_convo_sprite:
     sta us_img_addr+1
     lda #<(PORTRAIT2_LOAD_ADDR>>16)
     sta us_img_addr+2
-    lda #PORTRAIT2_SPRITE_NUM
 @addr_done:
+    lda ccs_sprite_num
     sta pts_sprite_num
     jsr point_to_sprite
     lda ccs_y
     sta cps_y
+    lda ccs_y+1
+    sta cps_y+1
     jsr create_portrait_sprite
     rts
 
-cps_y: .byte 0
+cps_y: .word 0
 
 create_portrait_sprite:
     ldx #0
@@ -272,7 +286,7 @@ create_portrait_sprite:
     sta VERA_DATA0
     lda cps_y
     sta VERA_DATA0
-    lda #0
+    lda cps_y+1
     sta VERA_DATA0
     lda #%00001100 ; In front of layer 1
     sta VERA_DATA0
