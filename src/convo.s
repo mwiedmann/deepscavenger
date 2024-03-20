@@ -21,19 +21,21 @@ daughter_filename: .asciiz "dau.bin"
 potrait_filename_table: .word mainguy_filename, maingirl_filename, corpguy_filename, corpgirl_filename, evilguy_filename, evilgirl_filename, sideguy_filename, sidegrl_filename, daughter_filename
 
 
-convo_1: .byte 0, 1 ; What 2 portraits to load
-convo_1_p1: .byte 1 ; Potrait to show
-convo_1_t1: .asciiz "HELLO" ; Text for that portrait
-convo_1_p2: .byte 0 ; Next potrait to show
-convo_1_t2: .asciiz "HOW ARE YOU?" ; Text for that portrait
-convo_1_end: .byte 255
+convo_1:
+    .byte 0, 1 ; What 2 portraits to load
+    .byte 1 ; Potrait to show
+    .asciiz "HELLO" ; Text for that portrait
+    .byte 0 ; Next potrait to show
+    .asciiz "HOW ARE YOU?" ; Text for that portrait
+    .byte 255
 
-convo_2: .byte 2, 3 ; What 2 portraits to load
-convo_2_p1: .byte 0 ; Potrait to show
-convo_2_t1: .asciiz "SUP DOG!" ; Text for that portrait
-convo_2_p2: .byte 1 ; Next potrait to show
-convo_2_t2: .asciiz "WHO DIS?" ; Text for that portrait
-convo_2_end: .byte 255
+convo_2: 
+    .byte 2, 3 ; What 2 portraits to load
+    .byte 0 ; Potrait to show
+    .asciiz "SUP DOG!" ; Text for that portrait
+    .byte 1 ; Next potrait to show
+    .asciiz "WHO DIS?" ; Text for that portrait
+    .byte 255
 
 convo_table: .word convo_1
 
