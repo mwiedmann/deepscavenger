@@ -24,4 +24,18 @@ wait_count:
 @done:
     rts
     
+watch_for_joystick_press:
+@loop:
+    lda #0
+    jsr JOYGET
+    cmp #255
+    bne @release
+    bra @loop ; Wait for press
+@release:
+    lda #0
+    jsr JOYGET
+    cmp #255 ; Wait for release
+    bne @release
+    rts
+
 .endif

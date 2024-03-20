@@ -20,21 +20,38 @@ daughter_filename: .asciiz "dau.bin"
 
 potrait_filename_table: .word mainguy_filename, maingirl_filename, corpguy_filename, corpgirl_filename, evilguy_filename, evilgirl_filename, sideguy_filename, sidegrl_filename, daughter_filename
 
+.define GUY_FIRST "JOHN"
+.define GUY_LAST "SMITH"
+
+; 34 max chars per convo row
 
 convo_1:
-    .byte 0, 1 ; What 2 portraits to load
-    .byte 1 ; Potrait to show
-    .asciiz "HELLO.|2ND LINE." ; Text for that portrait
-    .byte 0 ; Next potrait to show
-    .asciiz "HOW ARE YOU?" ; Text for that portrait
-    .byte 1
-    .asciiz "DOING FINE. AND YOU?"
+    .byte 2, 0 ; What 2 portraits to load
+    .byte 0 ; Potrait to show
+    .asciiz "HELLO MR. ", GUY_LAST, ". I'M GLAD YOU HAVE CHOSEN TO JOIN US." ; Text for that portrait
+    .byte 1 ; Next potrait to show
+    .asciiz "DIDN'T SEEM LIKE MUCH OF A CHOICE." ; Text for that portrait
     .byte 0
-    .asciiz "BETTER NOW THAT YOU ARE HERE."
+    .asciiz "WE ALL MAKE CHOICES MR. ", GUY_LAST, ". YOU CHOSE TO STEAL FROM THE CORPORATION. BUT, I'D GUESS YOU DIDN'T CHOOSE TO GET CAUGHT."
     .byte 1
-    .asciiz "NICE WEATHER WE ARE HAVING."
+    .asciiz "DECISION MAKING WAS NEVER MY STRONG SUIT."
     .byte 0
-    .asciiz "YES, I LOVE THE RAIN."
+    .asciiz "WELL, LET'S HOPE THAT TURNS AROUND. SEE, THE JUDGE HAS CHOOSEN TO ASSIGN YOU TO WORK FOR ME UNTIL YOUR DEBT IS PAID."
+    .byte 1
+    .asciiz "DID HE CHOSE THAT BEFORE OR AFTER YOU PAID FOR HIS LAST VACATION?"
+    .byte 254
+    .byte 0
+    .asciiz "NO NEED FOR ACCUSATIONS MR. ", GUY_LAST, ". WOULD YOU RATHER THE ALTERNATIVE AND SERVE 20 YEARS OF HARD LABOR?"
+    .byte 1
+    .asciiz "WELL, I HEAR THE PENAL COLONIES ARE NICE THIS TIME OF YEAR."
+    .byte 0
+    .asciiz "HMM, THE LAST PILOT WHO TURNED US DOWN DIDN'T LAST 1 WEEK AT THE COLONIES. I HEAR IT CAN BE QUITE BRUTAL."
+    .byte 1
+    .asciiz "PERHAPS MY SUNNY DISPOSITION WOULD MAKE ME POPULAR THERE?"
+    .byte 0
+    .asciiz "LET'S CUT TO THE CHASE MR. ", GUY_LAST, ". YOU BELONG TO ME NOW. DO WELL AND YOU MAY PAY OFF YOUR DEBT."
+    .byte 1
+    .asciiz "I CAN ONLY IMAGINE WHAT HAPPENS IF I DON'T DO WELL."
     .byte 255
 
 convo_2: 
@@ -105,10 +122,14 @@ point_to_convo_mapbase:
     rts
 
 ; param1 has text
+scm_count: .byte 0
+
 show_convo_msg:
     lda #CONVO_TEXT_X
     sta mb_x
     jsr point_to_convo_mapbase
+    lda #0
+    sta scm_count
     lda #CONVO_TEXT_WAIT_AMOUNT
     sta wc
 @next_char:
@@ -119,6 +140,13 @@ show_convo_msg:
     bne @found_null
     jsr inc_param1
     lda (param1)
+    cmp #32
+    bne @skip_space_check
+    lda scm_count
+    cmp #28 ; If we are close to the EOL and its a space, just go to a new line
+    bcs @CR
+    lda #32 ; put the space back, we will show it
+@skip_space_check:
     cmp #0 ; Looking for null
     beq @found_null
     cmp #$DD ; Pipe char for CR
@@ -130,8 +158,14 @@ show_convo_msg:
     sta VERA_DATA0
     ; We can continue writing but need to go to next line at some points
     ; Just reset the mapbase pointer each character. We don't care about speed.
+    inc scm_count
+    lda scm_count
+    cmp #34 ; Hard limit
+    beq @CR
     bra @next_char
 @CR:
+    lda #0
+    sta scm_count
     lda #CONVO_TEXT_X
     sta mb_x
     lda mb_y
@@ -145,8 +179,6 @@ show_convo_msg:
 stc_y: .byte 0
 
 show_test_convo:
-    lda #PORTRAIT_SPRITE_NUM_START
-    sta ccs_sprite_num
     jsr clear_tiles
     lda #<convo_1
     sta param1 ; Convo to show
@@ -154,6 +186,9 @@ show_test_convo:
     sta param1+1 ; Convo to show
     jsr load_convo_images
     jsr inc_param1
+@new_screen:
+    lda #PORTRAIT_SPRITE_NUM_START
+    sta ccs_sprite_num
     jsr inc_param1 ; Jump to 1st por/convo
     lda #8
     sta ccs_y
@@ -192,23 +227,23 @@ show_test_convo:
     sta stc_y
     jsr inc_param1
     lda (param1)
-    ; Next byte is either a new portrait, or 255: End of convo
-    cmp #255
-    bne @next_por
+    ; Next byte is either a new portrait, 254: Next page, or 255: End of convo
+    cmp #254
+    bcc @next_por
     ; End of convo
 @done:
     lda #1
     sta wc
 @loop:
-    jsr wait_count
-    lda #0
-    jsr JOYGET
-    cmp #255
-    beq @loop
+    jsr watch_for_joystick_press
     jsr cleanup_convo
+    lda (param1)
+    cmp #254
+    beq @new_screen
     rts
 
 cleanup_convo:
+    jsr clear_tiles
     ldx #0
     ldy #PORTRAIT_SPRITE_NUM_START
 @next_sprite:
@@ -342,7 +377,7 @@ create_portrait_sprite:
     lda us_img_addr+1
     ora #%10000000
     sta VERA_DATA0
-    lda #100
+    lda #16
     sta VERA_DATA0
     lda #0
     sta VERA_DATA0
