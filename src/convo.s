@@ -27,10 +27,14 @@ convo_1:
     .asciiz "HELLO" ; Text for that portrait
     .byte 0 ; Next potrait to show
     .asciiz "HOW ARE YOU?" ; Text for that portrait
-    .byte 1 ; Potrait to show
-    .asciiz "DOING FINE. AND YOU?" ; Text for that portrait
-    .byte 0 ; Next potrait to show
-    .asciiz "BETTER NOW THAT YOU ARE HERE." ; Text for that portrait
+    .byte 1
+    .asciiz "DOING FINE. AND YOU?"
+    .byte 0
+    .asciiz "BETTER NOW THAT YOU ARE HERE."
+    .byte 1
+    .asciiz "NICE WEATHER WE ARE HAVING."
+    .byte 0
+    .asciiz "YES, I LOVE THE RAIN"
     .byte 255
 
 convo_2: 
@@ -134,7 +138,7 @@ show_test_convo:
     jsr load_convo_images
     jsr inc_param1
     jsr inc_param1 ; Jump to 1st por/convo
-    lda #16
+    lda #8
     sta ccs_y
     lda #0
     sta ccs_y+1
