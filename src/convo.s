@@ -27,6 +27,10 @@ convo_1:
     .asciiz "HELLO" ; Text for that portrait
     .byte 0 ; Next potrait to show
     .asciiz "HOW ARE YOU?" ; Text for that portrait
+    .byte 1 ; Potrait to show
+    .asciiz "DOING FINE. AND YOU?" ; Text for that portrait
+    .byte 0 ; Next potrait to show
+    .asciiz "BETTER NOW THAT YOU ARE HERE." ; Text for that portrait
     .byte 255
 
 convo_2: 
@@ -121,8 +125,6 @@ show_convo_msg:
 
 show_test_convo:
     jsr clear_tiles
-    ; WEIRD - We shouldn't need to load the PAL again, but if we don't the 2nd portrait is garbage!
-    jsr load_mainpal
     lda #<convo_1
     sta param1 ; Convo to show
     lda #>convo_1
@@ -163,6 +165,7 @@ lcs_filename: .word 0
 ; param1 - Address of the convo
 load_convo_images:
     ; 1st portrait
+    clc
     lda (param1)
     rol
     tax
