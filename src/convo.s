@@ -27,42 +27,73 @@ potrait_filename_table: .word mainguy_filename, maingirl_filename, corpguy_filen
 
 convo_1:
     .byte 2, 0 ; What 2 portraits to load
-    .byte 0 ; Potrait to show
+    .byte 0, 0 ; Potrait to show and frame
     .asciiz "HELLO MR. ", GUY_LAST, ". I'M GLAD YOU HAVE CHOSEN TO JOIN US." ; Text for that portrait
-    .byte 1 ; Next potrait to show
+    .byte 1, 0 ; Next potrait to show
     .asciiz "DIDN'T SEEM LIKE MUCH OF A CHOICE." ; Text for that portrait
-    .byte 0
-    .asciiz "WE ALL MAKE CHOICES MR. ", GUY_LAST, ". YOU CHOSE TO STEAL FROM THE CORPORATION. BUT, I'D GUESS YOU DIDN'T CHOOSE TO GET CAUGHT."
-    .byte 1
+    .byte 0, 0
+    .asciiz "WE ALL MAKE CHOICES MR. ", GUY_LAST, ". YOU CHOSE TO STEAL FROM THE|CORPORATION. BUT, I'D GUESS YOU DIDN'T CHOOSE TO GET CAUGHT."
+    .byte 1, 1
     .asciiz "DECISION MAKING WAS NEVER MY STRONG SUIT."
-    .byte 0
-    .asciiz "WELL, LET'S HOPE THAT TURNS AROUND. SEE, THE JUDGE HAS CHOOSEN TO ASSIGN YOU TO WORK FOR ME UNTIL YOUR DEBT IS PAID."
-    .byte 1
+    .byte 0, 0
+    .asciiz "WELL, LET'S HOPE THAT TURNS|AROUND. SEE, THE JUDGE HAS CHOOSEN TO ASSIGN YOU TO WORK FOR ME UNTIL YOUR DEBT IS PAID."
+    .byte 1, 2
     .asciiz "DID HE CHOSE THAT BEFORE OR AFTER YOU PAID FOR HIS LAST VACATION?"
     .byte 254
-    .byte 0
+    .byte 0, 2
     .asciiz "NO NEED FOR ACCUSATIONS MR. ", GUY_LAST, ". WOULD YOU RATHER THE ALTERNATIVE AND SERVE 20 YEARS OF HARD LABOR?"
-    .byte 1
+    .byte 1, 1
     .asciiz "WELL, I HEAR THE PENAL COLONIES ARE NICE THIS TIME OF YEAR."
-    .byte 0
-    .asciiz "HMM, THE LAST PILOT WHO TURNED US DOWN DIDN'T LAST 1 WEEK AT THE COLONIES. I HEAR IT CAN BE QUITE BRUTAL."
-    .byte 1
+    .byte 0, 0
+    .asciiz "HMM, THE LAST PILOT WHO TURNED US DOWN DIDN'T LAST A WEEK AT THE COLONIES. I HEAR IT CAN BE QUITE BRUTAL."
+    .byte 1, 1
     .asciiz "PERHAPS MY SUNNY DISPOSITION WOULD MAKE ME POPULAR THERE?"
-    .byte 0
+    .byte 0, 2
     .asciiz "LET'S CUT TO THE CHASE MR. ", GUY_LAST, ". YOU BELONG TO ME NOW. DO WELL AND YOU MAY PAY OFF YOUR DEBT."
-    .byte 1
-    .asciiz "I CAN ONLY IMAGINE WHAT HAPPENS IF I DON'T DO WELL."
+    .byte 1, 1
+    .asciiz "AND IF I DON'T DO WELL IS THERE SOME KIND OF PAYMENT PLAN?"
+    .byte 254
+    .byte 0, 2
+    .asciiz "I SUGGEST YOU START TAKING THIS SERIOUSLY MR. ", GUY_LAST, ". MY PLANS FOR YOU ARE VERY LUCRATIVE...BUT QUITE DANGEROUS."
+    .byte 1, 1
+    .asciiz "SO, A 50-50 SPLIT OF THE PROFITS THEN?"
+    .byte 0, 0
+    .asciiz "OH MR. ", GUY_LAST, ", YOUR FIRST CONCERN SHOULD BE STAYING ALIVE. DEEP SCAVENGING IS A RISKY BUSINESS."
+    .byte 0, 2
+    .asciiz "EVEN FOR A LEGENDARY PILOT SUCH AS YOURSELF, YOUR SKILLS WILL BE PUSHED TO THEIR LIMITS. PERHAPS YOU ARE NOT CUT OUT FOR THIS?"
+    .byte 1, 2
+    .asciiz "SAVE YOUR MOTIVATIONAL SPEECH. I'M IN. JUST TELL ME HOW THIS WORKS EXACTLY?"
+    .byte 0, 0
+    .asciiz "GOOD...GOOD...(LAUGHS)"
+    .byte 254
+    .byte 0, 2
+    .asciiz "USING OUR WARP GATE TECHNOLOGY, WE WILL TRANSPORT YOU AND YOUR SHIP INTO THE MIDDLE OF DEEP SPACE ASTEROID FIELDS."
+    .byte 1, 0
+    .asciiz "I HATE THIS PLAN ALREADY."
+    .byte 0, 2
+    .asciiz "THESE FIELDS ALSO CONTAIN SOME OF THE GALAXY'S MOST VALUABLE CRYSTALS AND MINERALS. YOU WILL HARVEST THEM."
+    .byte 0, 2
+    .asciiz "USE YOUR SHIP TO GRAB AS MANY AS YOU CAN WHILE AVOIDING THE ASTEROIDS AND OTHER, UM 'HAZARDS'."
+    .byte 1, 2
+    .asciiz "HAZARDS? WHAT EXACTLY AM I LOOKING AT?"
+    .byte 0, 2
+    .asciiz "WELL, SOME OF THE CRYSTALS ARE EXPLOSIVE. I'D SKIP THOSE. AND YOU MAY NOT BE ALONE OUT THERE."
+    .byte 254
+    .byte 1, 0
+    .asciiz "LET'S ASSUME I CAN GRAB ALL THE LOOT AND STAY ALIVE. WHAT THEN?"
+    .byte 0, 2
+    .asciiz "ONCE THE WARP GATE SENSES THAT THE AREA HAS BEEN ADEQUATELY HARVESTED, IT WILL REOPEN FOR YOU TO FLY BACK IN."
+    .byte 0, 2
+    .asciiz "BE CAREFUL AROUND THE WARP GATE. CRASHING INTO IT WILL DESTROY YOUR SHIP. SPEAKING OF DEATH, I DO HAVE SOME GOOD NEWS."
+    .byte 0, 2
+    .asciiz "USING SHORT-RANGED INSTANT WARP TECHNOLOGY, THE GATE WILL BE ABLE TO SAVE YOU FROM DEATH A FEW TIMES. DON'T ABUSE IT."
+    .byte 1, 0
+    .asciiz "VERY REASSURING."
+    .byte 0, 2
+    .asciiz "WELL THAT'S IT. IF THERE ARE NO QUESTIONS, I SAY WE GET STARTED...3...2...1..."
     .byte 255
 
-convo_2: 
-    .byte 2, 3 ; What 2 portraits to load
-    .byte 0 ; Potrait to show
-    .asciiz "SUP DOG!" ; Text for that portrait
-    .byte 1 ; Next potrait to show
-    .asciiz "WHO DIS?" ; Text for that portrait
-    .byte 255
-
-convo_table: .word convo_1, convo_2
+convo_table: .word convo_1
 
 convo_index: .byte 0
 
@@ -133,11 +164,12 @@ show_convo_msg:
     lda #CONVO_TEXT_WAIT_AMOUNT
     sta wc
 @next_char:
-    jsr wait_count
     lda #0
     jsr JOYGET
     cmp #255
-    bne @found_null
+    bne @skip_wait
+    jsr wait_count
+@skip_wait:
     jsr inc_param1
     lda (param1)
     cmp #32
@@ -197,15 +229,19 @@ show_test_convo:
     lda #1
     sta stc_y
 @next_por:
-    lda #CONVO_WAIT_BETWEEN_PORTRAITS
-    sta wc
-    jsr wait_count
     lda #0
     jsr JOYGET
     cmp #255
-    bne @done
+    bne @skip_wait
+    lda #CONVO_WAIT_BETWEEN_PORTRAITS
+    sta wc
+    jsr wait_count
+@skip_wait:
     lda (param1)
     sta ccs_pornum
+    jsr inc_param1
+    lda (param1)
+    sta css_framenum
     jsr create_convo_sprite
     lda ccs_y
     clc
@@ -322,6 +358,7 @@ load_convo_images:
 
 ccs_y: .word 0
 ccs_pornum: .byte 0
+css_framenum: .byte 0
 ccs_sprite_num: .byte 0
 
 create_convo_sprite:
@@ -343,6 +380,25 @@ create_convo_sprite:
     lda #<(PORTRAIT2_LOAD_ADDR>>16)
     sta us_img_addr+2
 @addr_done:
+    lda css_framenum
+    cmp #0
+    beq @frame_done
+    clc
+    lda us_img_addr
+    adc #<PORTRAIT_SPRITE_FRAME_SIZE
+    sta us_img_addr
+    lda us_img_addr+1
+    adc #>PORTRAIT_SPRITE_FRAME_SIZE
+    sta us_img_addr+1
+    lda us_img_addr+2
+    adc #0
+    sta us_img_addr+2
+    lda css_framenum
+    sec
+    sbc #1
+    sta css_framenum
+    bra @addr_done
+@frame_done:
     lda ccs_sprite_num
     sta pts_sprite_num
     jsr point_to_sprite
