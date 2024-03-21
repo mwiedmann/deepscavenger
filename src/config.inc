@@ -94,7 +94,7 @@ ENTITY_COUNT = LASER_COUNT + ASTBIG_COUNT + ASTSML_COUNT + GEM_COUNT + WARP_COUN
 PORTRAIT_SPRITE_NUM_START = SHIP_SPRITE_NUM + 1
 
 STORM_COUNT = 360 ; 6 seconds
-OPEN_WARP_GEM_COUNT = GEM_COUNT-2 ; Allow player to escape and leave a few?
+OPEN_WARP_GEM_COUNT = 2; GEM_COUNT-2 ; Allow player to escape and leave a few?
 DEAD_SHIP_TIME = 180 ; 3 seconds
 
 CONVO_TEXT_X = 5

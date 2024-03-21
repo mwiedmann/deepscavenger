@@ -47,13 +47,16 @@ storm_count: .word 0
 hit_warp: .byte 0
 gem_count: .byte 0
 ship_dead: .byte 0
+level: .byte 0
 
+.include "helpers.s"
 .include "config.s"
 .include "tiles.s"
 .include "irq.s"
 .include "loading.s"
 .include "sprites.s"
 .include "wait.s"
+.include "convodata.s"
 .include "convo.s"
 .include "entities.s"
 .include "ship.s"
@@ -70,18 +73,16 @@ start:
     jsr load_mainpal
     jsr load_sprites
     jsr irq_config
-    ; TESTING CONVO
-    jsr show_test_convo
-    ; --------------
+@restart_game:
     jsr clear_tiles
     jsr show_header
     jsr update_score
-@restart_game:
     jsr create_gate_sprite
     jsr create_astsml_sprites
     jsr create_astbig_sprites
     jsr create_gem_sprites
     jsr create_warp_sprite
+    jsr show_next_convo
     jsr launch_gems
     ; Reset our counters now that we are ready to accept input
     lda #0
@@ -137,6 +138,7 @@ start:
 
 
 next_level:
+    inc level
     lda #0
     sta hit_warp
     sta rotatewait
