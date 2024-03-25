@@ -9,6 +9,7 @@ gate_filename: .asciiz "gate.bin"
 gem_filename: .asciiz "gem.bin"
 font_filename: .asciiz "font.bin"
 warp_filename: .asciiz "warp.bin"
+exp_filename: .asciiz "exp.bin"
 
 load_sprites:
     jsr load_ship
@@ -19,6 +20,7 @@ load_sprites:
     jsr load_gate
     jsr load_font
     jsr load_warp
+    jsr load_exp
     rts
 
 load_ship:
@@ -146,6 +148,22 @@ load_warp:
     lda #3 ; VRAM 2nd bank
     ldx #<WARP_LOAD_ADDR 
     ldy #>WARP_LOAD_ADDR
+    jsr LOAD
+    rts
+
+load_exp:
+    lda #7
+    ldx #<exp_filename
+    ldy #>exp_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #3 ; VRAM 2nd bank
+    ldx #<EXPLOSION_LOAD_ADDR 
+    ldy #>EXPLOSION_LOAD_ADDR
     jsr LOAD
     rts
 

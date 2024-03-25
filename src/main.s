@@ -1,5 +1,6 @@
 .zeropage
     active_entity: .res 2
+    active_exp: .res 2
     comp_entity1: .res 2
     comp_entity2: .res 2
     param1: .res 2
@@ -11,6 +12,7 @@
 .include "x16.inc"
 .include "config.inc"
 .include "entities.inc"
+.include "oneshot.inc"
 
     jmp start
 
@@ -32,6 +34,8 @@ ship_flip_ang: .byte   %00001000, %00001000, %00001000, %00001000, %00001000, %0
 ; These are the V/H-Flip bits we use for each angle
 ; VFLip 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0
 ; HFlip 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1
+
+oneshots: .res .sizeof(Oneshot) * ONESHOT_SPRITE_COUNT
 
 default_irq: .word 0
 waitflag: .byte 0
@@ -67,12 +71,14 @@ level: .byte 0
 .include "warp.s"
 .include "pal.s"
 .include "score.s"
+.include "oneshot.s"
 
 start:
     jsr config
     jsr load_mainpal
     jsr load_sprites
     jsr irq_config
+    jsr init_oneshots
 @restart_game:
     jsr clear_tiles
     jsr show_header
@@ -82,7 +88,7 @@ start:
     jsr create_astbig_sprites
     jsr create_gem_sprites
     jsr create_warp_sprite
-    jsr show_next_convo
+    ; jsr show_next_convo
     jsr launch_gems
     ; Reset our counters now that we are ready to accept input
     lda #0
@@ -123,6 +129,7 @@ start:
     jsr move_ship
 @skip_ship:
     jsr move_entities
+    jsr update_oneshots
     lda hit_warp
     cmp #1
     bne @waiting

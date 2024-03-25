@@ -451,12 +451,28 @@ collision_gate:
     jsr destroy_ship
     rts
 
+create_explosion_active_entity:
+    ldy #Entity::_pixel_x
+    lda (active_entity), y
+    sta os_x
+    ldy #Entity::_pixel_x+1
+    lda (active_entity), y
+    sta os_x+1
+    ldy #Entity::_pixel_y
+    lda (active_entity), y
+    sta os_y
+    ldy #Entity::_pixel_y+1
+    lda (active_entity), y
+    sta os_y+1
+    jsr create_oneshot
+    rts
 
 destroy_1:
     lda comp_entity1
     sta active_entity
     lda comp_entity1+1
     sta active_entity+1
+    jsr create_explosion_active_entity
     jsr destroy_active_entity
     rts
 
@@ -465,6 +481,7 @@ destroy_2:
     sta active_entity
     lda comp_entity2+1
     sta active_entity+1
+    jsr create_explosion_active_entity
     jsr destroy_active_entity
     rts
 
@@ -473,11 +490,13 @@ destroy_both:
     sta active_entity
     lda comp_entity1+1
     sta active_entity+1
+    jsr create_explosion_active_entity
     jsr destroy_active_entity
     lda comp_entity2
     sta active_entity
     lda comp_entity2+1
     sta active_entity+1
+    jsr create_explosion_active_entity
     jsr destroy_active_entity
     rts
 
@@ -500,6 +519,7 @@ split_1:
     sta active_entity
     lda comp_entity1+1
     sta active_entity+1
+    jsr create_explosion_active_entity
     jsr split_active_entity
     rts
 
@@ -508,6 +528,7 @@ split_2:
     sta active_entity
     lda comp_entity2+1
     sta active_entity+1
+    jsr create_explosion_active_entity
     jsr split_active_entity
     rts
 
