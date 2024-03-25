@@ -318,6 +318,7 @@ collision_laser:
     cmp #GEM_TYPE
     beq @laser_gem
     jsr destroy_1 ; Laser hitting anything else just destroys the laser
+    jsr create_explosion_active_entity
     rts
 @laser_astsml:
     ; Destroy both - score points
@@ -366,6 +367,7 @@ collision_astsml:
 @astsml_gate:
     ; Destroy astsml
     jsr destroy_1
+    jsr create_explosion_active_entity
     rts
 @astsml_ship:
     ; Both die
@@ -394,6 +396,7 @@ collision_astbig:
     ; Destroy Gem, split big
     jsr count_gems
     jsr destroy_2
+    jsr create_explosion_active_entity
     jsr split_1
     rts
 @astbig_gate:
@@ -413,6 +416,7 @@ collision_gem:
     cmp #SHIP_TYPE
     beq @gem_ship
     jsr destroy_1
+    jsr create_explosion_active_entity
     rts
 @gem_ship:
     ; Ship gets gem and points
@@ -472,7 +476,6 @@ destroy_1:
     sta active_entity
     lda comp_entity1+1
     sta active_entity+1
-    jsr create_explosion_active_entity
     jsr destroy_active_entity
     rts
 
@@ -481,7 +484,6 @@ destroy_2:
     sta active_entity
     lda comp_entity2+1
     sta active_entity+1
-    jsr create_explosion_active_entity
     jsr destroy_active_entity
     rts
 
@@ -490,14 +492,13 @@ destroy_both:
     sta active_entity
     lda comp_entity1+1
     sta active_entity+1
-    jsr create_explosion_active_entity
     jsr destroy_active_entity
     lda comp_entity2
     sta active_entity
     lda comp_entity2+1
     sta active_entity+1
-    jsr create_explosion_active_entity
     jsr destroy_active_entity
+    jsr create_explosion_active_entity
     rts
 
 destroy_ship:
@@ -506,6 +507,7 @@ destroy_ship:
     sta active_entity
     lda comp_entity2+1
     sta active_entity+1
+    jsr create_explosion_active_entity
     jsr destroy_active_entity
     lda #DEAD_SHIP_TIME
     sta ship_dead
@@ -519,7 +521,6 @@ split_1:
     sta active_entity
     lda comp_entity1+1
     sta active_entity+1
-    jsr create_explosion_active_entity
     jsr split_active_entity
     rts
 
@@ -528,7 +529,6 @@ split_2:
     sta active_entity
     lda comp_entity2+1
     sta active_entity+1
-    jsr create_explosion_active_entity
     jsr split_active_entity
     rts
 
@@ -538,7 +538,9 @@ split_both_y: .word 0
 split_both:
     ; Start by removing them both
     jsr destroy_1
+    jsr create_explosion_active_entity
     jsr destroy_2
+    jsr create_explosion_active_entity
     ; Get the base x/y for the 4 astsml we will create
     ldy #Entity::_x
     lda (active_entity), y
@@ -592,6 +594,7 @@ split_both:
 
 
 split_active_entity:
+    jsr create_explosion_active_entity
     jsr destroy_active_entity
     ldy #Entity::_x
     lda (active_entity), y

@@ -87,7 +87,6 @@ create_oneshot:
     lda #0
     ldy #Oneshot::_frame
     sta (active_exp), y
-    lda #ONESHOT_TICKS
     ldy #Oneshot::_ticks
     sta (active_exp), y
 @done:
@@ -134,6 +133,44 @@ update_oneshot:
     ldy #Oneshot::_image_addr+2
     lda (active_exp), y
     sta us_img_addr+2
+    ; See if time to advance frame
+    ldy #Oneshot::_ticks
+    lda (active_exp), y
+    inc
+    sta (active_exp), y
+    cmp #ONESHOT_TICKS
+    bne @not_next_frame
+    lda #0
+    sta (active_exp), y ; Reset the ticks
+    ldy #Oneshot::_frame
+    lda (active_exp), y
+    inc ; Increase the frame count
+    sta (active_exp), y
+    cmp #EXPLOSION_FRAME_COUNT
+    bne @adv_frame_image
+    ; End of animation
+    ldy #Oneshot::_visible
+    lda #0
+    sta (active_exp), y
+    bra @not_next_frame
+@adv_frame_image:
+    clc ; Inc the frame image
+    lda us_img_addr
+    adc #<EXPLOSION_SPRITE_FRAME_SIZE
+    ldy #Oneshot::_image_addr
+    sta (active_exp), y
+    sta us_img_addr
+    lda us_img_addr+1
+    adc #>EXPLOSION_SPRITE_FRAME_SIZE
+    ldy #Oneshot::_image_addr+1
+    sta (active_exp), y
+    sta us_img_addr+1
+    lda us_img_addr+2
+    adc #<(EXPLOSION_SPRITE_FRAME_SIZE>>16)
+    ldy #Oneshot::_image_addr+2
+    sta (active_exp), y
+    sta us_img_addr+2
+@not_next_frame:
     ldx #0
 @start_shift: ; Shift the image addr bits as sprites use bits 12:5 and 16:13 (we default 16 to 0)
     clc
@@ -170,6 +207,14 @@ update_oneshot:
     ldy #Oneshot::_pixel_y+1
     lda (active_exp), y
     sta VERA_DATA0
+    ldy #Oneshot::_visible
+    lda (active_exp), y
+    cmp #1
+    beq @show_sprite
+    lda #%00000000 ; Not visible
+    sta VERA_DATA0
+    bra @done
+@show_sprite:
     lda #%00001100 ; In front of all layers
     sta VERA_DATA0
     lda #%10100000 ; 32x32
