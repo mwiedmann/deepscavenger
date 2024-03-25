@@ -63,6 +63,7 @@ fire_laser:
     lda (active_entity), y
     cmp #0
     bne @skip_entity
+    jsr sound_shoot
     ; Found a free laser
     ; Move it to the ship position and launch it!
     ldy #0 ; copy bytes 0-12

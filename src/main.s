@@ -6,15 +6,16 @@
     param1: .res 2
     param2: .res 2
 
-.org $080D
+.segment "STARTUP"
+    jmp start
+
 .segment "ONCE"
 
 .include "x16.inc"
 .include "config.inc"
 .include "entities.inc"
 .include "oneshot.inc"
-
-    jmp start
+.include "zsmkit.inc"
 
 timebyte: .byte 0
 
@@ -53,7 +54,10 @@ gem_count: .byte 0
 ship_dead: .byte 0
 level: .byte 0
 
+.segment "CODE"
+
 .include "helpers.s"
+.include "sound.s"
 .include "config.s"
 .include "tiles.s"
 .include "irq.s"
@@ -74,9 +78,11 @@ level: .byte 0
 .include "oneshot.s"
 
 start:
+    jsr sound_init
     jsr config
     jsr load_mainpal
     jsr load_sprites
+    jsr load_sounds
     jsr irq_config
     jsr init_oneshots
 @restart_game:

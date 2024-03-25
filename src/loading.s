@@ -11,6 +11,8 @@ font_filename: .asciiz "font.bin"
 warp_filename: .asciiz "warp.bin"
 exp_filename: .asciiz "exp.bin"
 
+testsound_filename: .asciiz "testsnd.zsm"
+
 load_sprites:
     jsr load_ship
     jsr load_laser
@@ -164,6 +166,22 @@ load_exp:
     lda #3 ; VRAM 2nd bank
     ldx #<EXPLOSION_LOAD_ADDR 
     ldy #>EXPLOSION_LOAD_ADDR
+    jsr LOAD
+    rts
+
+load_sounds:
+    lda #11
+    ldx #<testsound_filename
+    ldy #>testsound_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #0 ; RAM
+    ldx #<HIRAM 
+    ldy #>HIRAM
     jsr LOAD
     rts
 

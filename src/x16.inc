@@ -27,4 +27,6 @@ PALETTE_ADDR = $FA00 ; Also 1 for 2nd bank of VRAM
 
 VERA_ADDR_HI_INC_BITS = %00010000 ; Addr increment 1
 
+HIRAM = $A000
+
 .endif

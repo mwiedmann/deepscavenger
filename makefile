@@ -1,8 +1,8 @@
 CC=cl65
 
 make:
-	$(CC) --cpu 65C02 -Or -Cl -o ./build/DEEP.PRG -t cx16 -l DEEP.list \
-	src/main.s
+	$(CC) --cpu 65C02 -Or -Cl -C cx16-zsm-bank.cfg -o ./build/DEEP.PRG -t cx16 -l DEEP.list \
+	src/main.s src/zsmkit.lib
 
 test:
 	$(CC) --cpu 65C02 -Or -Cl -o ./build/TEST.PRG -t cx16 -l TEST.list \
