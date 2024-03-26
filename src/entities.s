@@ -360,6 +360,7 @@ collision_astsml:
     cmp #SHIP_TYPE
     beq @astsml_ship
     jsr destroy_1 ; If sml hits sml, only 1 will be destroyed
+    jsr create_explosion_active_entity
     rts
 @astsml_astbig:
     ; Split the big, destroy sml
@@ -422,6 +423,7 @@ collision_gem:
     lda (comp_entity2), y
     cmp #SHIP_TYPE
     beq @gem_ship
+    jsr count_gems
     jsr destroy_1
     jsr create_explosion_active_entity
     rts

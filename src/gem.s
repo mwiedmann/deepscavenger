@@ -112,13 +112,14 @@ drop_gem_from_active_entity:
     clc
     adc #>(8<<5)
     sta dg_x+1
+    clc
     ldy #Entity::_y
     lda (active_entity), y
+    adc #<(20<<5)
     sta dg_y
     ldy #Entity::_y+1
     lda (active_entity), y
-    clc
-    adc #>(16<<5)
+    adc #>(20<<5)
     sta dg_y+1
     ldx #0
     stx sp_entity_count
@@ -154,6 +155,7 @@ drop_gem_from_active_entity:
     lda dg_y+1
     ldy #Entity::_y+1
     sta (active_entity), y
+    jsr set_gem_vel
     ldx #0
     bra @done
 @skip_entity:
@@ -171,5 +173,50 @@ drop_gem_from_active_entity:
     bne @next_entity
 @done:
     rts
+
+
+set_gem_vel:
+    ; We will set the x vel somewhat "randomly" (based on x pos)
+    lda dg_x
+    and #1
+    cmp #1
+    beq @odd_x
+    ldy #Entity::_vel_x 
+    lda #<(65535-1)
+    sta (active_entity), y
+    ldy #Entity::_vel_x+1
+    lda #>(65535-1)
+    sta (active_entity), y
+    bra @x_done
+@odd_x:
+    ldy #Entity::_vel_x
+    lda #1
+    sta (active_entity), y
+    ldy #Entity::_vel_x+1
+    lda #0
+    sta (active_entity), y
+@x_done:
+    ; We will set the y vel somewhat "randomly" (based on y pos)
+    lda dg_y
+    and #1
+    cmp #1
+    beq @odd_y
+    ldy #Entity::_vel_y 
+    lda #<(65535-1)
+    sta (active_entity), y
+    ldy #Entity::_vel_y+1
+    lda #>(65535-1)
+    sta (active_entity), y
+    bra @y_done
+@odd_y:
+    ldy #Entity::_vel_y
+    lda #1
+    sta (active_entity), y
+    ldy #Entity::_vel_y+1
+    lda #0
+    sta (active_entity), y
+@y_done:
+    rts
+
 
 .endif

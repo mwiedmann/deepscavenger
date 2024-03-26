@@ -176,6 +176,7 @@ found_free_astsml:
     sta (active_entity), y
     ; Accelerate the astsml to get it started moving
     jsr accel_entity
+    jsr accel_entity
     rts
 
 .endif
