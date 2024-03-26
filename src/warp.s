@@ -34,7 +34,7 @@ create_warp_sprite:
     lda #WARP_TYPE
     ldy #Entity::_type
     sta (active_entity), y
-    lda #%00010000
+    lda #%10000000
     ldy #Entity::_collision
     sta (active_entity), y
     lda #32

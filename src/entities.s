@@ -61,6 +61,8 @@ hc_outer_entity_count: .byte 0
 hc_inner_entity_count: .byte 0
 hc_comp_val1: .word 0
 hc_comp_val2: .word 0
+hc_mask: .byte 0
+hc_overlap: .byte 0
 
 handle_collision:
     ldx #0
@@ -92,7 +94,12 @@ check_entities:
     ldy #Entity::_collision
     lda (comp_entity1), y
     and (comp_entity2), y
-    bne @check_actual_collisions
+    cmp #0
+    beq @jump_to_no_collision
+    sta hc_overlap
+    and hc_mask ; Make sure A is contained in the ISR collisions flags (not exact match, just contained in)
+    cmp hc_overlap
+    beq @check_actual_collisions
 @jump_to_no_collision:
     jmp no_collision
     ; Now check if they overlap

@@ -72,7 +72,7 @@ next_astbig:
     lda #32
     ldy #Entity::_size
     sta (active_entity), y
-    lda #%11000000
+    lda #%10110000
     ldy #Entity::_collision
     sta (active_entity), y
     lda #0

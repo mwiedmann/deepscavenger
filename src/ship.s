@@ -15,7 +15,7 @@ create_ship:
     lda #32
     ldy #Entity::_size
     sta (active_entity), y
-    lda #%10010000
+    lda #%11100000
     ldy #Entity::_collision
     sta (active_entity), y
     lda #1 ; Ship visibility on
@@ -146,7 +146,7 @@ create_laser_sprites:
     lda #32
     ldy #Entity::_size
     sta (active_entity), y
-    lda #%01000000
+    lda #%00010000
     ldy #Entity::_collision
     sta (active_entity), y
     lda #1

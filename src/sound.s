@@ -11,6 +11,7 @@ sound_init:
     rts
 
 sound_shoot:
+    rts
     ldx #SOUND_PRIORITY_SFX
 	jsr zsm_stop
 

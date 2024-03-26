@@ -62,7 +62,7 @@ next_gem:
     lda #32
     ldy #Entity::_size
     sta (active_entity), y
-    lda #%11100000
+    lda #%11110000
     ldy #Entity::_collision
     sta (active_entity), y
     lda #0

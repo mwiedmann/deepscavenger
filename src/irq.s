@@ -3,6 +3,9 @@ IRQ_S = 1
 
 irq_routine:
     lda VERA_ISR
+    and #%11110000 ; We just need the collision flags
+    sta hc_mask ; Save in case this is a collision
+    lda VERA_ISR
     and #%100
     beq @check_vsync
     ; Collision

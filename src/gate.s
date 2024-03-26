@@ -34,7 +34,7 @@ create_gate_sprite:
     lda #GATE_TYPE
     ldy #Entity::_type
     sta (active_entity), y
-    lda #%11100000
+    lda #%01110000
     ldy #Entity::_collision
     sta (active_entity), y
     lda #64
