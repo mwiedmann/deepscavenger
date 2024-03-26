@@ -5,6 +5,7 @@
     comp_entity2: .res 2
     param1: .res 2
     param2: .res 2
+    hold: .res 2
 
 .segment "STARTUP"
     jmp start
@@ -87,15 +88,14 @@ start:
     jsr init_oneshots
 @restart_game:
     jsr clear_tiles
-    jsr show_header
     jsr update_score
     jsr create_gate_sprite
     jsr create_astsml_sprites
     jsr create_astbig_sprites
     jsr create_gem_sprites
     jsr create_warp_sprite
-    jsr show_next_convo
-    jsr launch_gems
+    ; jsr show_next_convo
+    jsr show_header
     ; Reset our counters now that we are ready to accept input
     lda #0
     sta rotatewait

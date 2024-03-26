@@ -1,9 +1,6 @@
 .ifndef GEM_S
 GEM_S = 1
 
-gem_start_x: .word 100<<5, 200<<5, 300<<5, 400<<5, 500<<5, 150<<5, 250<<5, 350<<5, 450<<5, 550<<5
-gem_start_y: .word 200<<5, 120<<5, 50<<5,  150<<5, 180<<5, 300<<5, 400<<5, 350<<5, 200<<5, 440<<5
-
 create_gem_sprites:
     lda #<GEM_LOAD_ADDR
     sta us_img_addr
@@ -30,23 +27,6 @@ next_gem:
     lda #0
     sta param1 ; Not visible
     jsr reset_active_entity
-    clc
-    lda sp_entity_count ; Use this to get an index into gem_start_?
-    rol
-    tax
-    lda gem_start_x, x
-    ldy #Entity::_x
-    sta (active_entity), y
-    lda gem_start_x+1, x
-    ldy #Entity::_x+1
-    sta (active_entity), y
-    lda gem_start_y, x
-    ldy #Entity::_y
-    sta (active_entity), y
-    lda gem_start_y+1, x
-    ldy #Entity::_y+1
-    sta (active_entity), y
-    jsr move_entity ; Update the pixel positions
     lda us_img_addr ; Img addr
     ldy #Entity::_image_addr
     sta (active_entity), y
@@ -59,7 +39,7 @@ next_gem:
     lda #GEM_TYPE
     ldy #Entity::_type
     sta (active_entity), y
-    lda #32
+    lda #16
     ldy #Entity::_size
     sta (active_entity), y
     lda #%11110000
@@ -74,8 +54,8 @@ next_gem:
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set enemy sprite num
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
-    lda #%10100000
-    sta cs_size ; 32x32
+    lda #%01010000
+    sta cs_size ; 16x16
     ldy #Entity::_collision
     lda (active_entity), y
     sta cs_czf
@@ -120,19 +100,26 @@ next_gem:
     rts
 
 
-launch_gems:
-    ldx #0
-@next_gem:
-    phx
-    jsr launch_gem
-    plx
-    inx
-    cpx #GEM_COUNT
-    bne @next_gem
-    rts
+dg_x: .word 0
+dg_y: .word 0
 
-
-launch_gem:
+drop_gem_from_active_entity:
+    ldy #Entity::_x
+    lda (active_entity), y
+    sta dg_x
+    ldy #Entity::_x+1
+    lda (active_entity), y
+    clc
+    adc #>(8<<5)
+    sta dg_x+1
+    ldy #Entity::_y
+    lda (active_entity), y
+    sta dg_y
+    ldy #Entity::_y+1
+    lda (active_entity), y
+    clc
+    adc #>(16<<5)
+    sta dg_y+1
     ldx #0
     stx sp_entity_count
     ldx #<(.sizeof(Entity)*GEM_ENTITY_NUM_START)
@@ -154,6 +141,18 @@ launch_gem:
     ; Found a free gem
     lda #1
     ldy #Entity::_visible
+    sta (active_entity), y
+    lda dg_x
+    ldy #Entity::_x
+    sta (active_entity), y
+    lda dg_x+1
+    ldy #Entity::_x+1
+    sta (active_entity), y
+    lda dg_y
+    ldy #Entity::_y
+    sta (active_entity), y
+    lda dg_y+1
+    ldy #Entity::_y+1
     sta (active_entity), y
     ldx #0
     bra @done

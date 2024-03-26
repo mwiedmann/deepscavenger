@@ -599,10 +599,18 @@ split_both:
     jsr launch_astsml
     rts
 
-
 split_active_entity:
     jsr create_explosion_active_entity
     jsr destroy_active_entity
+    lda active_entity
+    sta hold
+    lda active_entity+1
+    sta hold+1
+    jsr drop_gem_from_active_entity
+    lda hold
+    sta active_entity
+    lda hold+1
+    sta active_entity+1
     ldy #Entity::_x
     lda (active_entity), y
     sta astsml_x
@@ -618,10 +626,10 @@ split_active_entity:
     ; Both asteroids need to fly in slightly different directions
     lda split_index_1
     sta astsml_ang_index
-    inc; stays between 9-15
-    cmp #16
+    inc; stays between 10-14
+    cmp #15
     bne @no_wrap_1
-    lda #9
+    lda #10
 @no_wrap_1:
     sta split_index_1
     jsr launch_astsml
@@ -642,10 +650,10 @@ split_active_entity:
     sta astsml_y+1
     lda split_index_2
     sta astsml_ang_index
-    inc; stays between 1-7
-    cmp #8
+    inc; stays between 2-6
+    cmp #7
     bne @no_wrap_2
-    lda #1
+    lda #2
 @no_wrap_2:
     sta split_index_2
     jsr launch_astsml
