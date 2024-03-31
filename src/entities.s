@@ -309,7 +309,7 @@ count_gems:
     sta gem_count
 check_gems:
     lda gem_count
-    cmp #OPEN_WARP_GEM_COUNT
+    cmp launch_amount
     bcc @no_warp
     jsr show_warp
 @no_warp:
@@ -550,6 +550,8 @@ split_both:
     jsr create_explosion_active_entity
     jsr destroy_2
     jsr create_explosion_active_entity
+    jsr drop_gem_from_active_entity
+    jsr count_gems
     ; Get the base x/y for the 4 astsml we will create
     ldy #Entity::_x
     lda (active_entity), y

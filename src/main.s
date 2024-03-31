@@ -18,6 +18,8 @@
 .include "oneshot.inc"
 .include "zsmkit.inc"
 
+.segment "CODE"
+
 timebyte: .byte 0
 
 entities: .res .sizeof(Entity)*(ENTITY_COUNT-1) ; We tack on ship after this
@@ -54,8 +56,6 @@ hit_warp: .byte 0
 gem_count: .byte 0
 ship_dead: .byte 0
 level: .byte 0
-
-.segment "CODE"
 
 .include "helpers.s"
 .include "sound.s"
@@ -160,6 +160,16 @@ next_level:
     sta accelwait
     sta storm_count
     sta storm_count+1
+    lda level
+    and #2
+    cmp #2
+    bne @no_astbig_inc ; Only increase on even levels
+    lda launch_amount
+    cmp #ASTBIG_COUNT ; Max astbig count
+    beq @no_astbig_inc
+    inc
+    sta launch_amount
+@no_astbig_inc:
     rts
 
 point_to_mapbase:
