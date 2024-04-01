@@ -182,8 +182,9 @@ point_to_mapbase:
     rts
 
 
+thrusting: .byte 0
+
 move_ship:
-    lda #0
     jsr JOYGET
     sta joy_a ; hold the joystick A state
     lda thrustwait
@@ -194,9 +195,13 @@ move_ship:
     sta thrustwait
     bra @check_rotation
 @thrust_ready:
+    lda #0
+    sta thrusting
     lda joy_a
     bit #%1000 ; See if pushing up (thrust)
     bne @check_rotation ; Skip thrust and jump to check rotation
+    ldx #1
+    stx thrusting
     ; User is pressing up
     ; Shift the ship ang (mult 2) because ship_vel_ang_x are .word
     ldx #SHIP_THRUST_TICKS

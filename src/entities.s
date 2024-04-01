@@ -425,6 +425,7 @@ collision_gem:
     beq @gem_ship
     jsr count_gems
     jsr destroy_1
+    jsr count_gems
     jsr create_explosion_active_entity
     rts
 @gem_ship:

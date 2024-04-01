@@ -110,6 +110,23 @@ set_ship_as_active:
     sta active_entity+1
     rts
 
+thrusting_ship_img:
+    lda #<SHIP_THRUST_LOAD_ADDR
+    sta us_img_addr
+    lda #>SHIP_THRUST_LOAD_ADDR
+    sta us_img_addr+1
+    lda #<(SHIP_THRUST_LOAD_ADDR>>16)
+    sta us_img_addr+2
+    rts
+
+normal_ship_img:
+    lda #<SHIP_LOAD_ADDR
+    sta us_img_addr
+    lda #>SHIP_LOAD_ADDR
+    sta us_img_addr+1
+    lda #<(SHIP_LOAD_ADDR>>16)
+    sta us_img_addr+2
+    rts
 
 create_laser_sprites:
     ldx #0
