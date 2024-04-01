@@ -76,6 +76,8 @@ show_convo_msg:
     lda scm_count
     cmp #28 ; If we are close to the EOL and its a space, just go to a new line
     bcs @CR
+    cmp #0
+    beq @skip_space ; Skip spaces at beginning of line
     lda #32 ; put the space back, we will show it
 @skip_space_check:
     cmp #0 ; Looking for null
@@ -89,6 +91,7 @@ show_convo_msg:
     sta VERA_DATA0
     ; We can continue writing but need to go to next line at some points
     ; Just reset the mapbase pointer each character. We don't care about speed.
+@skip_space:
     inc scm_count
     lda scm_count
     cmp #34 ; Hard limit
