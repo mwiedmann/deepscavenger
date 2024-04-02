@@ -190,7 +190,7 @@ found_free_enemy:
     jsr accel_entity
     plx
     inx
-    cpx #5
+    cpx #7
     bne @accel
     rts
 
