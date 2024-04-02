@@ -74,6 +74,7 @@ level: .byte 0
 .include "gem.s"
 .include "gate.s"
 .include "warp.s"
+.include "enemy.s"
 .include "pal.s"
 .include "score.s"
 .include "oneshot.s"
@@ -94,8 +95,10 @@ start:
     jsr create_astbig_sprites
     jsr create_gem_sprites
     jsr create_warp_sprite
-    jsr show_next_convo
+    jsr create_enemy_sprites
+    ; jsr show_next_convo
     jsr show_header
+    jsr launch_enemy
     ; Reset our counters now that we are ready to accept input
     lda #0
     sta rotatewait

@@ -50,6 +50,9 @@ next_gem:
     sta (active_entity), y
     ldy #Entity::_has_ang
     sta (active_entity), y
+    lda #1
+    ldy #Entity::_ob_behavior
+    sta (active_entity), y
     lda sp_num
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set enemy sprite num

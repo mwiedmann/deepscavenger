@@ -3,6 +3,7 @@ LOADING_S = 1
 
 ship_filename: .asciiz "ship.bin"
 ship_thrust_filename: .asciiz "shipthr.bin"
+enemy_filename: .asciiz "enemy.bin"
 laser_filename: .asciiz "laser.bin"
 astbig_filename: .asciiz "astbig.bin"
 astsml_filename: .asciiz "astsml.bin"
@@ -17,6 +18,7 @@ testsound_filename: .asciiz "testsnd.zsm"
 load_sprites:
     jsr load_ship
     jsr load_ship_thust
+    jsr load_enemy
     jsr load_laser
     jsr load_astbig
     jsr load_astsml
@@ -56,6 +58,22 @@ load_ship_thust:
     lda #2 ; VRAM 1st bank
     ldx #<SHIP_THRUST_LOAD_ADDR 
     ldy #>SHIP_THRUST_LOAD_ADDR
+    jsr LOAD
+    rts
+
+load_enemy:
+    lda #9
+    ldx #<enemy_filename
+    ldy #>enemy_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #2 ; VRAM 1st bank
+    ldx #<ENEMY_LOAD_ADDR 
+    ldy #>ENEMY_LOAD_ADDR
     jsr LOAD
     rts
 
