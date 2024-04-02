@@ -4,6 +4,7 @@ LOADING_S = 1
 ship_filename: .asciiz "ship.bin"
 ship_thrust_filename: .asciiz "shipthr.bin"
 enemy_filename: .asciiz "enemy.bin"
+enemy_laser_filename: .asciiz "elaser.bin"
 laser_filename: .asciiz "laser.bin"
 astbig_filename: .asciiz "astbig.bin"
 astsml_filename: .asciiz "astsml.bin"
@@ -19,6 +20,7 @@ load_sprites:
     jsr load_ship
     jsr load_ship_thust
     jsr load_enemy
+    jsr load_enemy_laser
     jsr load_laser
     jsr load_astbig
     jsr load_astsml
@@ -93,6 +95,22 @@ load_laser:
     jsr LOAD
     rts
 
+load_enemy_laser:
+    lda #10
+    ldx #<enemy_laser_filename
+    ldy #>enemy_laser_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #2 ; VRAM 1st bank
+    ldx #<ENEMY_LASER_LOAD_ADDR 
+    ldy #>ENEMY_LASER_LOAD_ADDR
+    jsr LOAD
+    rts
+
 load_astbig:
     lda #10
     ldx #<astbig_filename
@@ -103,7 +121,7 @@ load_astbig:
     ldx #8
     ldy #2
     jsr SETLFS
-    lda #2 ; VRAM 1st bank
+    lda #3 ; VRAM 2nd bank
     ldx #<ASTBIG_LOAD_ADDR 
     ldy #>ASTBIG_LOAD_ADDR
     jsr LOAD
@@ -167,7 +185,7 @@ load_gate:
     ldx #8
     ldy #2
     jsr SETLFS
-    lda #3 ; VRAM 2nd bank
+    lda #2 ; VRAM 1st bank
     ldx #<GATE_LOAD_ADDR 
     ldy #>GATE_LOAD_ADDR
     jsr LOAD
@@ -183,7 +201,7 @@ load_warp:
     ldx #8
     ldy #2
     jsr SETLFS
-    lda #3 ; VRAM 2nd bank
+    lda #2 ; VRAM 1st bank
     ldx #<WARP_LOAD_ADDR 
     ldy #>WARP_LOAD_ADDR
     jsr LOAD

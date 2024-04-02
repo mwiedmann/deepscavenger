@@ -98,7 +98,8 @@ start:
     jsr create_enemy_sprites
     ; jsr show_next_convo
     jsr show_header
-    jsr launch_enemy
+    jsr launch_enemy_top
+    jsr launch_enemy_bottom
     ; Reset our counters now that we are ready to accept input
     lda #0
     sta rotatewait

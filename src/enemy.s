@@ -48,10 +48,11 @@ next_enemy:
     lda #0
     ldy #Entity::_has_accel
     sta (active_entity), y
-    ldy #Entity::_has_ang
-    sta (active_entity), y
     lda #1
     ldy #Entity::_ob_behavior
+    sta (active_entity), y
+    lda #1
+    ldy #Entity::_has_ang
     sta (active_entity), y
     lda sp_num
     ldy #Entity::_sprite_num
@@ -81,6 +82,39 @@ next_enemy:
 enemy_ang_index: .byte 4
 enemy_x: .word 100<<5
 enemy_y: .word 100<<5
+enemy_row: .byte 0
+
+launch_enemy_top:
+    lda #4
+    sta enemy_ang_index
+    lda #<(0<<5)
+    sta enemy_x
+    lda #>(0<<5)
+    sta enemy_x+1
+    lda #<(100<<5)
+    sta enemy_y
+    lda #>(100<<5)
+    sta enemy_y+1
+    lda #0
+    sta enemy_row
+    jsr launch_enemy
+    rts
+
+launch_enemy_bottom:
+    lda #12
+    sta enemy_ang_index
+    lda #<(608<<5)
+    sta enemy_x
+    lda #>(608<<5)
+    sta enemy_x+1
+    lda #<(348<<5)
+    sta enemy_y
+    lda #>(348<<5)
+    sta enemy_y+1
+    lda #1
+    sta enemy_row
+    jsr launch_enemy
+    rts
 
 launch_enemy:
     ldx #0
@@ -97,9 +131,8 @@ launch_enemy:
     lda #>entities
     adc sp_offset+1
     sta active_entity+1
-    ldy #Entity::_visible
-    lda (active_entity), y
-    cmp #0
+    lda enemy_row
+    cmp sp_entity_count
     bne @skip_entity
     jsr found_free_enemy
     bra @done
