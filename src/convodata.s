@@ -14,8 +14,8 @@ daughter_filename: .asciiz "dau.bin"
 
 potrait_filename_table: .word mainguy_filename, maingirl_filename, corpguy_filename, corpgirl_filename, evilguy_filename, evilgirl_filename, sideguy_filename, sidegrl_filename, daughter_filename
 
-.define GUY_FIRST "JOHN"
-.define GUY_LAST "SMITH"
+.define GUY_FIRST "RICK"
+.define GUY_LAST "FROST"
 
 ; 34 max chars per convo row
 
@@ -40,6 +40,20 @@ convo_1:
     .asciiz "I WILL...(STATIC)...SUPPLIES...(STATIC)...(SIGNAL DEAD)..."
     .byte 0, 2
     .asciiz "HELLO? HELLO? ARE YOU STILL THERE!"
+    .byte 253 ; new convo
+    .byte 3, 0 ; What 2 portraits to load
+    .byte 0, 0 ; Potrait to show and frame
+    .asciiz GUY_FIRST, " ", GUY_LAST, ". YOU ARE UNDER ARREST."
+    .byte 1, 0 ; Potrait to show and frame
+    .asciiz "FUNNY, I DON'T SEE THE AUTHORITIES AROUND. I ONLY SEE A CORPORATE STOOGE. BESIDES, I'M JUST OUT FOR A JOYRIDE."
+    .byte 0, 1 ; Potrait to show and frame
+    .asciiz "HAHA, WE ARE THE AUTHORITIES OUT HERE, AND I DIDN'T REALIZE JOYRIDES INCLUDE DELIVERING STOLEN GOODS."
+    .byte 1, 1 ; Potrait to show and frame
+    .asciiz "OH, THAT WAS JUST SOME CUPCAKES I DONATED FOR A BAKE SALE. TURNS OUT SOMEONE IS BLOCKING THEIR SUPPLIES."
+    .byte 0, 0 ; Potrait to show and frame
+    .asciiz "IT'S NO USE MR. ", GUY_LAST, ". MY FRIENDS AND I HERE WILL ESCORT YOU BACK TO SEE THE JUDGE. I THINK HE HAS A DEAL FOR YOU."
+    .byte 1, 0 ; Potrait to show and frame
+    .asciiz "I ALREADY TOLD I DON'T WANT HIS TIMESHARE. BUT AS I APPEAR TO BE OUTGUNNED...LEAD THE WAY."
     .byte 253 ; new convo
     .byte 2, 0 ; What 2 portraits to load
     .byte 0, 0 ; Potrait to show and frame
@@ -71,7 +85,7 @@ convo_1:
     .byte 0, 2
     .asciiz "I SUGGEST YOU START TAKING THIS SERIOUSLY MR. ", GUY_LAST, ". MY PLANS FOR YOU ARE VERY LUCRATIVE...BUT QUITE DANGEROUS."
     .byte 1, 1
-    .asciiz "SO, A 50-50 SPLIT OF THE PROFITS THEN?"
+    .asciiz "WELL, MAYBE I WILL BE ABLE TO AFFORD THAT BEACH HOUSE AFTER ALL."
     .byte 0, 0
     .asciiz "OH MR. ", GUY_LAST, ", YOUR FIRST CONCERN SHOULD BE STAYING ALIVE. DEEP SCAVENGING IS A RISKY BUSINESS."
     .byte 0, 2
@@ -105,7 +119,20 @@ convo_1:
     .byte 1, 0
     .asciiz "VERY REASSURING."
     .byte 0, 2
-    .asciiz "WELL THAT'S IT. IF THERE ARE NO QUESTIONS, I SAY WE GET STARTED...3...2...1..."
+    .asciiz "DON'T WORRY TOO MUCH MR.", GUY_LAST, ". YOU WILL START IN SOME LOW DENSITY AREAS TO GET YOUR FEET WET."
+    .byte 254
+    .byte 1, 0
+    .asciiz "I APPRECIATE YOUR CONCERN FOR MY WELL BEING, BUT I'M HERE TO PAY MY DEBT AS QUICKLY AS|POSSIBLE."
+    .byte 0, 2
+    .asciiz "PROVE YOURSELF TO ME AND I WILL TRANSPORT YOU TO THE MOST|BOUNTIFUL, BUT DANGEROUS, AREAS."
+    .byte 0, 2
+    .asciiz "I WILL ALSO PAY FOR DESTROYING EXTRA ASTEROIDS. WE NEED THESE AREAS CLEAR FOR ADDITIONAL|HARVESTING."
+    .byte 1, 0
+    .asciiz "I GUESS THE RUMORS ABOUT YOU BEING A GREEDY CORPORATE SHILL WERE OVERSTATED."
+    .byte 0, 2
+    .asciiz "THERE IS NO NEED FOR US TO BE ADVERSARIES MR. ", GUY_LAST, ". YOU COULD BE A VALUABLE ASSET TO THE|CORPORATION."
+    .byte 0, 2
+    .asciiz "NOW, THAT'S ENOUGH CHIT-CHAT, IT'S TIME TO GET STARTED.|WARP IN 5...4...3...2...1..."
     .byte 255
 
 convo_2:
@@ -119,7 +146,7 @@ convo_2:
     .byte 0, 0
     .asciiz "I'M JUST KEEPING MY HEAD DOWN UNTIL MY TOUR IS DONE."
     .byte 1, 1
-    .byte "I HEARD ABOUT THE COLONISTS. THAT'S QUITE SOME KINDNESS FROM MR. ", 34, "IT'S EVERY MAN FOR HIMSELF", 34, ".", 0 ; need null if using .byte
+    .byte "I HEARD ABOUT THE COLONY YOU HELPED. THAT'S QUITE SOME KINDNESS FROM MR. ", 34, "IT'S EVERY MAN FOR HIMSELF", 34, ".", 0 ; need null if using .byte
     .byte 0, 0
     .asciiz "I GUESS I'M A REAL BLEEDING HEART NOW."
     .byte 254
