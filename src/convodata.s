@@ -22,7 +22,7 @@ potrait_filename_table: .word mainguy_filename, maingirl_filename, corpguy_filen
 convo_1:
     .byte 8, 0
     .byte 0, 0
-    .asciiz "THANK YOU FOR WHAT YOU ARE DOING. I KNOW YOU ARE TAKING A HUGE RISK GETTING US THESE SUPPLIES. I CAN'T ASK YOU TO DO THIS AGAIN."
+    .asciiz "THANK YOU ", GUY_FIRST, ". I KNOW YOU ARE TAKING A HUGE RISK GETTING US THESE SUPPLIES. I CAN'T ASK YOU TO DO THIS AGAIN."
     .byte 1, 0
     .asciiz "DON'T WORRY ABOUT ME. JUST LET ME KNOW WHAT ELSE YOU NEED."
     .byte 0, 0
@@ -37,7 +37,7 @@ convo_1:
     .byte 0, 2
     .asciiz "GET OUT OF THERE!"
     .byte 1, 0
-    .asciiz "I WILL...(STATIC)...SUPPLIES...(STATIC)...(SIGNAL DEAD)..."
+    .asciiz "I WILL...(STATIC)...SUPPLIES...|(STATIC)...(SIGNAL DEAD)..."
     .byte 0, 2
     .asciiz "HELLO? HELLO? ARE YOU STILL THERE!"
     .byte 253 ; new convo
@@ -53,7 +53,7 @@ convo_1:
     .byte 0, 0 ; Potrait to show and frame
     .asciiz "IT'S NO USE MR. ", GUY_LAST, ". MY FRIENDS AND I HERE WILL ESCORT YOU BACK TO SEE THE JUDGE. I THINK HE HAS A DEAL FOR YOU."
     .byte 1, 0 ; Potrait to show and frame
-    .asciiz "I ALREADY TOLD I DON'T WANT HIS TIMESHARE. BUT AS I APPEAR TO BE OUTGUNNED...LEAD THE WAY."
+    .asciiz "I ALREADY TOLD HIM DON'T WANT A TIMESHARE. BUT AS I APPEAR TO BE OUTGUNNED...LEAD THE WAY."
     .byte 253 ; new convo
     .byte 2, 0 ; What 2 portraits to load
     .byte 0, 0 ; Potrait to show and frame
@@ -67,7 +67,7 @@ convo_1:
     .byte 0, 0
     .asciiz "WELL, LET'S HOPE THAT TURNS|AROUND. SEE, THE JUDGE HAS CHOOSEN TO ASSIGN YOU TO WORK FOR ME UNTIL YOUR DEBT IS PAID."
     .byte 1, 2
-    .asciiz "DID HE CHOSE THAT BEFORE OR AFTER YOU PAID FOR HIS LAST VACATION?"
+    .asciiz "DID HE CHOSE THAT BEFORE OR AFTER YOU PAID FOR HIS NEXT VACATION?"
     .byte 254
     .byte 0, 2
     .asciiz "NO NEED FOR ACCUSATIONS MR. ", GUY_LAST, ". WOULD YOU RATHER THE ALTERNATIVE AND SERVE 20 YEARS OF HARD LABOR?"
@@ -126,7 +126,7 @@ convo_1:
     .byte 0, 2
     .asciiz "PROVE YOURSELF TO ME AND I WILL TRANSPORT YOU TO THE MOST|BOUNTIFUL, BUT DANGEROUS, AREAS."
     .byte 0, 2
-    .asciiz "I WILL ALSO PAY FOR DESTROYING EXTRA ASTEROIDS. WE NEED THESE AREAS CLEAR FOR ADDITIONAL|HARVESTING."
+    .asciiz "I WILL ALSO PAY FOR DESTROYING ASTEROIDS AND ANY VISITORS. WE NEED THESE AREAS CLEAR FOR|ADDITIONAL HARVESTING."
     .byte 1, 0
     .asciiz "I GUESS THE RUMORS ABOUT YOU BEING A GREEDY CORPORATE SHILL WERE OVERSTATED."
     .byte 0, 2

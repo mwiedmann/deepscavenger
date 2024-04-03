@@ -79,6 +79,7 @@ level: .byte 0
 .include "pal.s"
 .include "score.s"
 .include "oneshot.s"
+.include "level.s"
 
 start:
     jsr sound_init
@@ -99,6 +100,7 @@ start:
     jsr create_enemy_sprites
     jsr create_enemy_laser_sprites
     jsr show_next_convo
+    jsr show_level
     jsr show_header
     jsr launch_enemy_top
     jsr launch_enemy_bottom
