@@ -76,6 +76,25 @@ fire_laser:
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
+    ; adjust position by 8 since missiles are smaller
+    clc
+    ldy #Entity::_x
+    lda (active_entity), y
+    adc #<(8<<5)
+    sta (active_entity), y
+    ldy #Entity::_x+1
+    lda (active_entity), y
+    adc #>(8<<5)
+    sta (active_entity), y
+    clc
+    ldy #Entity::_y
+    lda (active_entity), y
+    adc #<(8<<5)
+    sta (active_entity), y
+    ldy #Entity::_y+1
+    lda (active_entity), y
+    adc #>(8<<5)
+    sta (active_entity), y
     ldx #0
 @initial_accel:
     ; Accelerate the laser a few times to get it started moving
@@ -100,6 +119,7 @@ fire_laser:
     cmp #LASER_COUNT
     bne @next_entity
 @done:
+    jsr move_entity ; Move it once to get some distance from ship
     rts
 
 
@@ -160,7 +180,7 @@ create_laser_sprites:
     lda #LASER_TYPE
     ldy #Entity::_type
     sta (active_entity), y
-    lda #32
+    lda #16
     ldy #Entity::_size
     sta (active_entity), y
     lda #%00010000
@@ -175,8 +195,8 @@ create_laser_sprites:
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set enemy sprite num
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
-    lda #%10100000
-    sta cs_size ; 32x32
+    lda #%01010000
+    sta cs_size ; 16x16
     ldy #Entity::_collision
     lda (active_entity), y
     sta cs_czf

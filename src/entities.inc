@@ -8,6 +8,7 @@ ASTBIG_TYPE = 3
 GATE_TYPE = 4
 GEM_TYPE = 5
 WARP_TYPE = 6
+ENEMY_TYPE = 7
 
 .struct Entity
     _x .word

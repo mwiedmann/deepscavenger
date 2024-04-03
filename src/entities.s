@@ -29,6 +29,7 @@ move_entities:
     jsr accel_entity
 @skip_accel:
     jsr move_entity
+    jsr check_enemy_laser
     lda #0
     sta param1 ; make entity not visible if out of bounds
     jsr check_entity_bounds
@@ -57,6 +58,35 @@ move_entities:
 @done:
     rts
 
+check_enemy_laser:
+    ldy #Entity::_type
+    lda (active_entity), y
+    cmp #ENEMY_TYPE
+    bne @done
+    inc enemywait
+    lda enemywait
+    cmp #60
+    bne @done
+    ; Fire a laser
+    ldy #Entity::_x
+    lda (active_entity), y
+    sta fel_x
+    ldy #Entity::_x+1
+    lda (active_entity), y
+    sta fel_x+1
+    ldy #Entity::_y
+    lda (active_entity), y
+    sta fel_y
+    ldy #Entity::_y+1
+    lda (active_entity), y
+    sta fel_y+1
+    ldy #Entity::_ang
+    lda (active_entity), y
+    sta fel_ang_index
+    jsr fire_enemy_laser
+@done:
+    rts
+    
 hc_outer_entity_count: .byte 0
 hc_inner_entity_count: .byte 0
 hc_comp_val1: .word 0
@@ -265,8 +295,13 @@ handle_collision_sprites:
     ldy #Entity::_type
     lda (comp_entity1), y
     cmp #LASER_TYPE
-    bne @check_astsml
+    bne @check_enemy
     jsr collision_laser
+    bra @done
+@check_enemy:
+    cmp #ENEMY_TYPE
+    bne @check_astsml
+    jsr collision_enemy ; Enemy same as astsml collisions for now
     bra @done
 @check_astsml:
     cmp #ASTSML_TYPE
@@ -318,6 +353,8 @@ check_gems:
 collision_laser:
     ldy #Entity::_type
     lda (comp_entity2), y
+    cmp #ENEMY_TYPE
+    beq @laser_enemy
     cmp #ASTSML_TYPE
     beq @laser_astsml
     cmp #ASTBIG_TYPE
@@ -326,6 +363,13 @@ collision_laser:
     beq @laser_gem
     jsr destroy_1 ; Laser hitting anything else just destroys the laser
     jsr create_explosion_active_entity
+    rts
+@laser_enemy:
+    ; Destroy both - score points
+    lda #$50
+    sta amount_to_add
+    jsr add_points
+    jsr destroy_both
     rts
 @laser_astsml:
     ; Destroy both - score points
@@ -346,6 +390,47 @@ collision_laser:
     ; Destroy both
     jsr count_gems
     jsr destroy_both
+    rts
+
+collision_enemy:
+    ldy #Entity::_type
+    lda (comp_entity2), y
+    cmp #ASTSML_TYPE
+    beq @enemy_astsml
+    cmp #ASTBIG_TYPE
+    beq @enemy_astbig
+    cmp #GEM_TYPE
+    beq @enemy_gem
+    cmp #GATE_TYPE
+    beq @enemy_gate
+    cmp #SHIP_TYPE
+    beq @enemy_ship
+    jsr destroy_1 ; If sml hits sml, only 1 will be destroyed
+    jsr create_explosion_active_entity
+    rts
+@enemy_astsml:
+    ; Destroy both
+    jsr destroy_both
+    rts
+@enemy_astbig:
+    ; Split the big, destroy enemy
+    jsr destroy_1
+    jsr split_2
+    rts
+@enemy_gem:
+    ; Destroy both
+    jsr count_gems
+    jsr destroy_both
+    rts
+@enemy_gate:
+    ; Destroy enemy
+    jsr destroy_1
+    jsr create_explosion_active_entity
+    rts
+@enemy_ship:
+    ; Both die
+    jsr destroy_ship
+    jsr destroy_1
     rts
 
 collision_astsml:

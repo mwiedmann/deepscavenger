@@ -36,7 +36,7 @@ next_enemy:
     lda us_img_addr+2 ; Img addr
     ldy #Entity::_image_addr+2
     sta (active_entity), y
-    lda #ASTSML_TYPE
+    lda #ENEMY_TYPE
     ldy #Entity::_type
     sta (active_entity), y
     lda #32
@@ -194,4 +194,103 @@ found_free_enemy:
     bne @accel
     rts
 
+fel_x: .word 0
+fel_y: .word 0
+fel_ang_index: .byte 0
+fel_offset: .word 0
+fel_entity_count: .byte 0
+fel_entity_hold: .word 0
+
+fire_enemy_laser:
+    ; Hold the active entity so we can restore it later
+    lda active_entity
+    sta fel_entity_hold
+    lda active_entity+1
+    sta fel_entity_hold+1
+    ldx #0
+    stx fel_entity_count
+    ldx #<(.sizeof(Entity)*ASTSML_ENTITY_NUM_START)
+    stx fel_offset
+    ldx #>(.sizeof(Entity)*ASTSML_ENTITY_NUM_START)
+    stx fel_offset+1
+@next_entity:
+    clc
+    lda #<entities
+    adc fel_offset
+    sta active_entity
+    lda #>entities
+    adc fel_offset+1
+    sta active_entity+1
+    ldy #Entity::_visible
+    lda (active_entity), y
+    cmp #0
+    bne @skip_entity
+    jsr found_free_enemy_laser
+    bra @done
+@skip_entity:
+    clc
+    lda fel_offset
+    adc #.sizeof(Entity)
+    sta fel_offset
+    lda fel_offset+1
+    adc #0
+    sta fel_offset+1
+    lda fel_entity_count
+    inc
+    sta fel_entity_count
+    cmp #ASTSML_COUNT
+    bne @next_entity
+@done:
+    ; Restore the active entity
+    lda fel_entity_hold
+    sta active_entity
+    lda fel_entity_hold+1
+    sta active_entity+1
+    rts
+
+
+found_free_enemy_laser:
+    ; Clear any existing velocity
+    lda #0
+    ldy #Entity::_vel_x
+    sta (active_entity), y
+    ldy #Entity::_vel_x+1
+    sta (active_entity), y
+    ldy #Entity::_vel_y
+    sta (active_entity), y
+    ldy #Entity::_vel_y+1
+    sta (active_entity), y
+    lda #1
+    ldy #Entity::_visible
+    sta (active_entity), y
+    lda fel_x
+    ldy #Entity::_x
+    sta (active_entity), y
+    lda fel_x+1
+    ldy #Entity::_x+1
+    sta (active_entity), y
+    lda fel_y
+    ldy #Entity::_y
+    sta (active_entity), y
+    lda fel_y+1
+    ldy #Entity::_y+1
+    sta (active_entity), y
+    ; Set its angle and accel once to get it going
+    ; fel_ang_index
+    lda fel_ang_index
+    ldy #Entity::_ang
+    sta (active_entity), y
+    ; Accelerate the enemy laser to get it started moving
+    ldx #0
+@accel:
+    phx
+    jsr accel_entity
+    plx
+    inx
+    cpx #10
+    bne @accel
+    jsr move_entity
+    jsr move_entity
+    jsr move_entity
+    rts
 .endif

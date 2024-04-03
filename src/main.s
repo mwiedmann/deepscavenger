@@ -47,6 +47,7 @@ rotatewait: .byte 0
 thrustwait: .byte 0
 firewait: .byte 0
 accelwait: .byte 0
+enemywait: .byte 0
 
 joy_a: .byte 0
 
@@ -105,6 +106,7 @@ start:
     sta rotatewait
     sta thrustwait
     sta firewait
+    sta enemywait
     sta accelwait
     sta gem_count
     lda #120 ; Ship will warp in after a few seconds
@@ -161,6 +163,7 @@ next_level:
     sta rotatewait
     sta thrustwait
     sta firewait
+    sta enemywait
     sta accelwait
     sta storm_count
     sta storm_count+1
