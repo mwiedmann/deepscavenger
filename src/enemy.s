@@ -79,6 +79,81 @@ next_enemy:
 @done:
     rts
 
+
+create_enemy_laser_sprites:
+    lda #<ENEMY_LASER_LOAD_ADDR
+    sta us_img_addr
+    lda #>ENEMY_LASER_LOAD_ADDR
+    sta us_img_addr+1
+    lda #<(ENEMY_LASER_LOAD_ADDR>>16)
+    sta us_img_addr+2
+    ldx #0
+    stx sp_entity_count
+    ldx #ENEMY_LASER_SPRITE_NUM_START
+    stx sp_num
+    ldx #<(.sizeof(Entity)*ENEMY_LASER_ENTITY_NUM_START)
+    stx sp_offset
+    ldx #>(.sizeof(Entity)*ENEMY_LASER_ENTITY_NUM_START)
+    stx sp_offset+1
+next_enemy_laser:
+    clc
+    lda #<entities
+    adc sp_offset
+    sta active_entity
+    lda #>entities
+    adc sp_offset+1
+    sta active_entity+1
+    lda #0
+    sta param1 ; Not visible
+    jsr reset_active_entity
+    lda us_img_addr ; Img addr
+    ldy #Entity::_image_addr
+    sta (active_entity), y
+    lda us_img_addr+1 ; Img addr
+    ldy #Entity::_image_addr+1
+    sta (active_entity), y
+    lda us_img_addr+2 ; Img addr
+    ldy #Entity::_image_addr+2
+    sta (active_entity), y
+    lda #ASTSML_TYPE
+    ldy #Entity::_type
+    sta (active_entity), y
+    lda #16
+    ldy #Entity::_size
+    sta (active_entity), y
+    lda #%10110000
+    ldy #Entity::_collision
+    sta (active_entity), y
+    lda #1
+    ldy #Entity::_has_accel
+    sta (active_entity), y
+    ldy #Entity::_has_ang
+    sta (active_entity), y
+    lda sp_num
+    ldy #Entity::_sprite_num
+    sta (active_entity), y ; Set enemy sprite num
+    sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
+    lda #%01010000
+    sta cs_size ; 16x16
+    ldy #Entity::_collision
+    lda (active_entity), y
+    sta cs_czf
+    jsr create_sprite
+    lda sp_offset
+    adc #.sizeof(Entity)
+    sta sp_offset
+    lda sp_offset+1
+    adc #0
+    sta sp_offset+1
+    inc sp_num
+    inc sp_entity_count
+    lda sp_entity_count
+    cmp #ENEMY_LASER_COUNT
+    beq @done
+    jmp next_enemy_laser
+@done:
+    rts
+
 enemy_ang_index: .byte 4
 enemy_x: .word 100<<5
 enemy_y: .word 100<<5
@@ -209,9 +284,9 @@ fire_enemy_laser:
     sta fel_entity_hold+1
     ldx #0
     stx fel_entity_count
-    ldx #<(.sizeof(Entity)*ASTSML_ENTITY_NUM_START)
+    ldx #<(.sizeof(Entity)*ENEMY_LASER_ENTITY_NUM_START)
     stx fel_offset
-    ldx #>(.sizeof(Entity)*ASTSML_ENTITY_NUM_START)
+    ldx #>(.sizeof(Entity)*ENEMY_LASER_ENTITY_NUM_START)
     stx fel_offset+1
 @next_entity:
     clc
@@ -238,7 +313,7 @@ fire_enemy_laser:
     lda fel_entity_count
     inc
     sta fel_entity_count
-    cmp #ASTSML_COUNT
+    cmp #ENEMY_LASER_COUNT
     bne @next_entity
 @done:
     ; Restore the active entity
@@ -289,6 +364,7 @@ found_free_enemy_laser:
     inx
     cpx #10
     bne @accel
+    jsr move_entity
     jsr move_entity
     jsr move_entity
     jsr move_entity

@@ -97,6 +97,7 @@ start:
     jsr create_gem_sprites
     jsr create_warp_sprite
     jsr create_enemy_sprites
+    jsr create_enemy_laser_sprites
     ; jsr show_next_convo
     jsr show_header
     jsr launch_enemy_top

@@ -56,6 +56,15 @@ move_entities:
     lda #0
     sta accelwait
 @done:
+    ; See if enemy firing should reset
+    lda enemywait
+    cmp #ENEMY_SHOOT_TIME
+    bne @skip_enemywait_reset
+    lda #0
+    sta enemywait
+    rts
+@skip_enemywait_reset:
+    inc enemywait
     rts
 
 check_enemy_laser:
@@ -63,22 +72,28 @@ check_enemy_laser:
     lda (active_entity), y
     cmp #ENEMY_TYPE
     bne @done
-    inc enemywait
     lda enemywait
-    cmp #60
+    cmp #ENEMY_SHOOT_TIME
     bne @done
     ; Fire a laser
+    ; adjust position by 8 since missiles are smaller
+    clc
     ldy #Entity::_x
     lda (active_entity), y
+    adc #<(8<<5)
     sta fel_x
     ldy #Entity::_x+1
     lda (active_entity), y
+    adc #>(8<<5)
     sta fel_x+1
+    clc
     ldy #Entity::_y
     lda (active_entity), y
+    adc #<(8<<5)
     sta fel_y
     ldy #Entity::_y+1
     lda (active_entity), y
+     adc #>(8<<5)
     sta fel_y+1
     ldy #Entity::_ang
     lda (active_entity), y
