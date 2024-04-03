@@ -56,9 +56,8 @@ move_entities:
     lda sp_offset+1
     adc #0
     sta sp_offset+1
+    inc sp_entity_count
     lda sp_entity_count
-    inc
-    sta sp_entity_count
     cmp #ENTITY_COUNT
     bne @next_entity
     ldx accelwait
@@ -281,17 +280,15 @@ no_collision:
     lda comp_entity2+1
     adc #0
     sta comp_entity2+1
+    inc hc_inner_entity_count
     lda hc_inner_entity_count
-    inc
-    sta hc_inner_entity_count
     cmp #ENTITY_COUNT
     beq last_inner_entity
     jmp check_entities
 last_inner_entity:
     ; Reached last entity
-    lda hc_outer_entity_count
-    inc
-    sta hc_outer_entity_count ; Store the incremented outer index
+    inc hc_outer_entity_count ; Update the outer index
+    lda hc_outer_entity_count 
     cmp #ENTITY_COUNT-1
     beq @something_wrong ;@done ; Reached end of list...stop
     inc ; Inc and store as the starting inner index
@@ -370,9 +367,7 @@ handle_collision_sprites:
 
 count_gems:
     clc
-    lda gem_count
-    inc
-    sta gem_count
+    inc gem_count
 check_gems:
     lda gem_count
     cmp launch_amount

@@ -116,9 +116,8 @@ fire_laser:
     lda sp_offset+1
     adc #0
     sta sp_offset+1
+    inc sp_entity_count
     lda sp_entity_count
-    inc
-    sta sp_entity_count
     cmp #LASER_COUNT
     bne @next_entity
 @done:
@@ -197,12 +196,9 @@ create_laser_sprites:
     lda sp_offset+1
     adc #0
     sta sp_offset+1
-    lda sp_num
-    inc
-    sta sp_num
+    inc sp_num
+    inc sp_entity_count
     lda sp_entity_count
-    inc
-    sta sp_entity_count
     cmp #LASER_COUNT
     bne @next_laser
     rts

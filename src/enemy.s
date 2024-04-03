@@ -222,9 +222,8 @@ launch_enemy:
     lda sp_offset+1
     adc #0
     sta sp_offset+1
+    inc sp_entity_count
     lda sp_entity_count
-    inc
-    sta sp_entity_count
     cmp #ENEMY_COUNT
     bne @next_entity
 @done:
@@ -313,9 +312,8 @@ fire_enemy_laser:
     lda fel_offset+1
     adc #0
     sta fel_offset+1
+    inc fel_entity_count
     lda fel_entity_count
-    inc
-    sta fel_entity_count
     cmp #ENEMY_LASER_COUNT
     bne @next_entity
 @done:

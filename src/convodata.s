@@ -20,6 +20,27 @@ potrait_filename_table: .word mainguy_filename, maingirl_filename, corpguy_filen
 ; 34 max chars per convo row
 
 convo_1:
+    .byte 8, 0
+    .byte 0, 0
+    .asciiz "THANK YOU FOR WHAT YOU ARE DOING. I KNOW YOU ARE TAKING A HUGE RISK GETTING US THESE SUPPLIES. I CAN'T ASK YOU TO DO THIS AGAIN."
+    .byte 1, 0
+    .asciiz "DON'T WORRY ABOUT ME. JUST LET ME KNOW WHAT ELSE YOU NEED."
+    .byte 0, 0
+    .asciiz "WELL, FOOD AND MEDICAL SUPPLIES AS ALWAYS, BUT I ALSO WORRY ABOUT THE KIDS DOWN HERE. MOST OF THEM DON'T EVEN HAVE A SINGLE TOY."
+    .byte 1, 1
+    .asciiz "SAY NO MORE. SANTA IS ON HIS WAY. SPEAKING OF KIDS, HOW IS YOUR SON FEELING?"
+    .byte 0, 1
+    .asciiz "THE MEDS YOU BROUGHT SEEM TO BE WORKING. I JUST WISH WE HAD BETTER DOCTORS HERE. I'M NOT SURE THIS COLONY WILL MAKE IT."
+    .byte 1, 0
+    .asciiz "HANG IN THERE, MORE SUPPLIES ARE #%$*&!@.01....(BUZZ). DAMN, ITS THE CORPORATION!"
+    .byte 254
+    .byte 0, 2
+    .asciiz "GET OUT OF THERE!"
+    .byte 1, 0
+    .asciiz "I WILL...(STATIC)...SUPPLIES...(STATIC)...(SIGNAL DEAD)..."
+    .byte 0, 2
+    .asciiz "HELLO? HELLO? ARE YOU STILL THERE!"
+    .byte 253 ; new convo
     .byte 2, 0 ; What 2 portraits to load
     .byte 0, 0 ; Potrait to show and frame
     .asciiz "HELLO MR. ", GUY_LAST, ". I'M GLAD YOU HAVE CHOSEN TO JOIN US." ; Text for that portrait

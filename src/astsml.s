@@ -88,12 +88,9 @@ next_astsml:
     sta sp_offset+1
     ; Increase the ASTSML img addr
     clc
-    lda sp_num
-    inc
-    sta sp_num
+    inc sp_num
+    inc sp_entity_count
     lda sp_entity_count
-    inc
-    sta sp_entity_count
     cmp #ASTSML_COUNT
     beq @done
     jmp next_astsml
@@ -134,9 +131,8 @@ launch_astsml:
     lda sp_offset+1
     adc #0
     sta sp_offset+1
+    inc sp_entity_count
     lda sp_entity_count
-    inc
-    sta sp_entity_count
     cmp #ASTSML_COUNT
     bne @next_entity
 @done:

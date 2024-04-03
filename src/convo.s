@@ -102,9 +102,7 @@ show_convo_msg:
     sta scm_count
     lda #CONVO_TEXT_X
     sta mb_x
-    lda mb_y
-    inc
-    sta mb_y
+    inc mb_y
     jsr point_to_convo_mapbase
     bra @next_char
 @found_null:
@@ -126,22 +124,12 @@ show_next_convo:
     bne @convo_valid
     rts
 @convo_valid:
-    lda convo_level_table, x
-    sta param1 ; Convo to show
-    lda convo_level_table+1, x
-    sta param1+1 ; Convo to show
+    jsr load_valid_convo
+@new_convo:
     jsr load_convo_images
     jsr inc_param1
 @new_screen:
-    lda #PORTRAIT_SPRITE_NUM_START
-    sta ccs_sprite_num
-    jsr inc_param1 ; Jump to 1st por/convo
-    lda #8
-    sta ccs_y
-    lda #0
-    sta ccs_y+1
-    lda #1
-    sta stc_y
+    jsr new_screen
 @next_por:
     lda #0
     jsr JOYGET
@@ -164,9 +152,7 @@ show_next_convo:
     lda ccs_y+1
     adc #0
     sta ccs_y+1
-    lda ccs_sprite_num ; Next sprite num
-    inc
-    sta ccs_sprite_num
+    inc ccs_sprite_num ; Next sprite num
     ; Show text now
     lda stc_y
     sta mb_y
@@ -177,8 +163,8 @@ show_next_convo:
     sta stc_y
     jsr inc_param1
     lda (param1)
-    ; Next byte is either a new portrait, 254: Next page, or 255: End of convo
-    cmp #254
+    ; Next byte is either a new portrait, 254: Next page, 253: New convo, or 255: End of convo
+    cmp #253
     bcc @next_por
     ; End of convo
 @done:
@@ -188,8 +174,32 @@ show_next_convo:
     jsr watch_for_joystick_press
     jsr cleanup_convo
     lda (param1)
+    cmp #253
+    bne @check_new_screen
+    jsr inc_param1
+    bra @new_convo
+@check_new_screen:
     cmp #254
     beq @new_screen
+    rts
+
+load_valid_convo:
+    lda convo_level_table, x
+    sta param1 ; Convo to show
+    lda convo_level_table+1, x
+    sta param1+1 ; Convo to show
+    rts
+
+new_screen:
+    lda #PORTRAIT_SPRITE_NUM_START
+    sta ccs_sprite_num
+    jsr inc_param1 ; Jump to 1st por/convo
+    lda #8
+    sta ccs_y
+    lda #0
+    sta ccs_y+1
+    lda #1
+    sta stc_y
     rts
 
 cleanup_convo:

@@ -81,12 +81,9 @@ next_gem:
     lda us_img_addr+2
     adc #0
     sta us_img_addr+2
-    lda sp_num
-    inc
-    sta sp_num
+    inc sp_num
+    inc sp_entity_count
     lda sp_entity_count
-    inc
-    sta sp_entity_count
     cmp #8 ; Only 8 gem types, go back to 0
     bne @check_max
     ldx #<GEM_LOAD_ADDR
@@ -169,9 +166,8 @@ drop_gem_from_active_entity:
     lda sp_offset+1
     adc #0
     sta sp_offset+1
+    inc sp_entity_count
     lda sp_entity_count
-    inc
-    sta sp_entity_count
     cmp #GEM_COUNT
     bne @next_entity
 @done:

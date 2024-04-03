@@ -98,20 +98,12 @@ start:
     jsr create_warp_sprite
     jsr create_enemy_sprites
     jsr create_enemy_laser_sprites
-    ; jsr show_next_convo
+    jsr show_next_convo
     jsr show_header
     jsr launch_enemy_top
     jsr launch_enemy_bottom
-    ; Reset our counters now that we are ready to accept input
-    lda #0
-    sta rotatewait
-    sta thrustwait
-    sta firewait
-    sta enemywait
-    sta accelwait
-    sta gem_count
-    lda #120 ; Ship will warp in after a few seconds
-    sta ship_dead
+    jsr reset_counters
+
 @move:
     jsr check_storm
     lda ship_dead
@@ -156,6 +148,18 @@ start:
     sta waitflag
     bra @move
 
+reset_counters:
+    ; Reset our counters now that we are ready to accept input
+    lda #0
+    sta rotatewait
+    sta thrustwait
+    sta firewait
+    sta enemywait
+    sta accelwait
+    sta gem_count
+    lda #120 ; Ship will warp in after a few seconds
+    sta ship_dead
+    rts
 
 next_level:
     inc level
