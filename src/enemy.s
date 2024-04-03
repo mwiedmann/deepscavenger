@@ -115,7 +115,7 @@ next_enemy_laser:
     lda us_img_addr+2 ; Img addr
     ldy #Entity::_image_addr+2
     sta (active_entity), y
-    lda #ASTSML_TYPE
+    lda #ENEMY_LASER_TYPE
     ldy #Entity::_type
     sta (active_entity), y
     lda #16
