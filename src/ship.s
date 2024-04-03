@@ -76,6 +76,9 @@ fire_laser:
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
+    lda #LASER_DESTROY_TICKS
+    ldy #Entity::_destroy_ticks
+    sta (active_entity), y
     ; adjust position by 8 since missiles are smaller
     clc
     ldy #Entity::_x
@@ -177,20 +180,7 @@ create_laser_sprites:
     lda #<(LASER_LOAD_ADDR>>16) ; Img addr
     ldy #Entity::_image_addr+2
     sta (active_entity), y
-    lda #LASER_TYPE
-    ldy #Entity::_type
-    sta (active_entity), y
-    lda #16
-    ldy #Entity::_size
-    sta (active_entity), y
-    lda #%00010000
-    ldy #Entity::_collision
-    sta (active_entity), y
-    lda #1
-    ldy #Entity::_has_accel
-    sta (active_entity), y
-    ldy #Entity::_has_ang
-    sta (active_entity), y
+    jsr set_laser_attr
     lda sp_num
     ldy #Entity::_sprite_num
     sta (active_entity), y ; Set enemy sprite num
@@ -217,4 +207,22 @@ create_laser_sprites:
     bne @next_laser
     rts
 
+set_laser_attr:
+    lda #LASER_TYPE
+    ldy #Entity::_type
+    sta (active_entity), y
+    lda #16
+    ldy #Entity::_size
+    sta (active_entity), y
+    lda #%00010000
+    ldy #Entity::_collision
+    sta (active_entity), y
+    lda #1
+    ldy #Entity::_has_accel
+    sta (active_entity), y
+    ldy #Entity::_has_ang
+    sta (active_entity), y
+    ldy #Entity::_ob_behavior
+    sta (active_entity), y ; Laser wraps around screen
+    rts
 .endif

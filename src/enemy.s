@@ -118,6 +118,9 @@ next_enemy_laser:
     lda #ENEMY_LASER_TYPE
     ldy #Entity::_type
     sta (active_entity), y
+    lda #1
+    ldy #Entity::_ob_behavior
+    sta (active_entity), y ; Laser wraps around screen
     lda #16
     ldy #Entity::_size
     sta (active_entity), y
@@ -337,6 +340,9 @@ found_free_enemy_laser:
     sta (active_entity), y
     lda #1
     ldy #Entity::_visible
+    sta (active_entity), y
+    lda #ENEMY_LASER_DESTROY_TICKS
+    ldy #Entity::_destroy_ticks
     sta (active_entity), y
     lda fel_x
     ldy #Entity::_x

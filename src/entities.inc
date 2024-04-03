@@ -29,6 +29,7 @@ ENEMY_LASER_TYPE = 8
     _type .byte ; 0=ship, 1=laser, 2=astbig, 3=gate
     _size .byte
     _ang_ticks .byte
+    _destroy_ticks .byte
 .endstruct
 
 .endif

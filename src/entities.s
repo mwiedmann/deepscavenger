@@ -28,6 +28,17 @@ move_entities:
     beq @skip_accel
     jsr accel_entity
 @skip_accel:
+    ldy #Entity::_destroy_ticks ; See if entity is destroyed after some time
+    lda (active_entity), y
+    cmp #0
+    beq @skip_destroy
+    dec
+    sta (active_entity), y
+    cmp #0
+    bne @skip_destroy
+    ldy #Entity::_visible
+    sta (active_entity), y
+@skip_destroy:
     jsr move_entity
     jsr check_enemy_laser
     lda #0
