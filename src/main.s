@@ -102,8 +102,8 @@ start:
     jsr show_next_convo
     jsr show_level
     jsr show_header
-    jsr launch_enemy_top
-    jsr launch_enemy_bottom
+    ; jsr launch_enemy_top
+    ; jsr launch_enemy_bottom
     jsr reset_counters
 
 @move:
@@ -453,3 +453,6 @@ check_entity_bounds:
 @final_update:
 @pixels_ok:
     rts
+
+inf_loop:
+    jmp inf_loop

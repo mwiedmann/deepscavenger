@@ -169,9 +169,9 @@ launch_enemy_top:
     sta enemy_x
     lda #>(0<<5)
     sta enemy_x+1
-    lda #<(100<<5)
+    lda #<(120<<5)
     sta enemy_y
-    lda #>(100<<5)
+    lda #>(120<<5)
     sta enemy_y+1
     lda #0
     sta enemy_row
@@ -273,6 +273,8 @@ found_free_enemy:
 
 fel_x: .word 0
 fel_y: .word 0
+fel_vel_x: .word 0
+fel_vel_y: .word 0
 fel_ang_index: .byte 0
 fel_offset: .word 0
 fel_entity_count: .byte 0
@@ -326,14 +328,17 @@ fire_enemy_laser:
 
 
 found_free_enemy_laser:
-    ; Clear any existing velocity
-    lda #0
+    ; Copy velocity
+    lda fel_vel_x
     ldy #Entity::_vel_x
     sta (active_entity), y
+    lda fel_vel_x+1
     ldy #Entity::_vel_x+1
     sta (active_entity), y
+    lda fel_vel_y
     ldy #Entity::_vel_y
     sta (active_entity), y
+    lda fel_vel_y+1
     ldy #Entity::_vel_y+1
     sta (active_entity), y
     lda #1
@@ -354,8 +359,7 @@ found_free_enemy_laser:
     lda fel_y+1
     ldy #Entity::_y+1
     sta (active_entity), y
-    ; Set its angle and accel once to get it going
-    ; fel_ang_index
+    ; Set its angle 
     lda fel_ang_index
     ldy #Entity::_ang
     sta (active_entity), y
@@ -366,7 +370,7 @@ found_free_enemy_laser:
     jsr accel_entity
     plx
     inx
-    cpx #10
+    cpx #5
     bne @accel
     jsr move_entity
     jsr move_entity

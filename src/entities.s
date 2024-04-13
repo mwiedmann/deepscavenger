@@ -40,7 +40,7 @@ move_entities:
     sta (active_entity), y
 @skip_destroy:
     jsr move_entity
-    jsr check_enemy_laser
+    jsr enemy_logic
     lda #0
     sta param1 ; make entity not visible if out of bounds
     jsr check_entity_bounds
@@ -77,11 +77,13 @@ move_entities:
     inc enemywait
     rts
 
-check_enemy_laser:
+enemy_logic:
     ldy #Entity::_type
     lda (active_entity), y
     cmp #ENEMY_TYPE
     bne @done
+    ; check if enemy should change dir
+    jsr enemy_change_dir
     lda enemywait
     cmp #ENEMY_SHOOT_TIME
     bne @done
@@ -103,15 +105,75 @@ check_enemy_laser:
     sta fel_y
     ldy #Entity::_y+1
     lda (active_entity), y
-     adc #>(8<<5)
+    adc #>(8<<5)
     sta fel_y+1
     ldy #Entity::_ang
     lda (active_entity), y
     sta fel_ang_index
+    ldy #Entity::_vel_x
+    lda (active_entity), y
+    sta fel_vel_x
+    ldy #Entity::_vel_x+1
+    lda (active_entity), y
+    sta fel_vel_x+1
+    ldy #Entity::_vel_y
+    lda (active_entity), y
+    sta fel_vel_y
+    ldy #Entity::_vel_y+1
+    lda (active_entity), y
+    sta fel_vel_y+1
     jsr fire_enemy_laser
 @done:
     rts
     
+enemy_dir: .byte 4, 3, 5, 5, 4, 3, 3, 4, 5, 3, 4
+enemy_index_x: .word 0
+
+enemy_change_dir:
+    ; kill velocity
+    lda #0
+    ldy #Entity::_vel_x
+    sta (active_entity), y
+    ldy #Entity::_vel_x+1
+    sta (active_entity), y
+    ldy #Entity::_vel_y
+    sta (active_entity), y
+    ldy #Entity::_vel_y+1
+    sta (active_entity), y
+    ldy #Entity::_pixel_x
+    lda (active_entity), y
+    sta enemy_index_x
+    ldy #Entity::_pixel_x+1
+    lda (active_entity), y
+    sta enemy_index_x+1
+    ldx #0
+@shift_x:
+    ; Shift down 6 times to get an index
+    clc
+    lda enemy_index_x+1
+    ror
+    sta enemy_index_x+1
+    lda enemy_index_x
+    ror
+    sta enemy_index_x
+    inx
+    cpx #6
+    bne @shift_x
+    ldx enemy_index_x
+    lda enemy_dir, x
+    ldy #Entity::_ang
+    sta (active_entity), y
+    ; Accelerate the enemy to get moving in correct dir
+    ldx #0
+@accel:
+    phx
+    jsr accel_entity
+    plx
+    inx
+    cpx #7
+    bne @accel
+    rts
+
 hc_outer_entity_count: .byte 0
 hc_inner_entity_count: .byte 0
 hc_comp_val1: .word 0
@@ -422,7 +484,7 @@ collision_enemy:
     ldy #Entity::_type
     lda (comp_entity2), y
     cmp #ENEMY_LASER_TYPE
-    beq @enemy_astsml
+    beq @enemy_enemy_laser
     cmp #ASTSML_TYPE
     beq @enemy_astsml
     cmp #ASTBIG_TYPE
@@ -435,6 +497,10 @@ collision_enemy:
     beq @enemy_ship
     jsr destroy_1 ; If sml hits sml, only 1 will be destroyed
     jsr create_explosion_active_entity
+    rts
+@enemy_enemy_laser:
+    ; Destroy the laser only (don't want enemy to die from own laser)
+    jsr destroy_2
     rts
 @enemy_astsml:
     ; Destroy both
