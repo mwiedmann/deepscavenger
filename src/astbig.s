@@ -168,6 +168,9 @@ launch_astbig:
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
+    lda #AST_COLLISIONS_SAFETY
+    ldy #Entity::_health
+    sta (active_entity), y
     ldx #0
 @initial_accel:
     ; Accelerate the astbig a few times to get it started moving

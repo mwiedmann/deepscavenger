@@ -150,6 +150,9 @@ found_free_astsml:
     sta (active_entity), y
     ldy #Entity::_vel_y+1
     sta (active_entity), y
+    lda #AST_COLLISIONS_SAFETY
+    ldy #Entity::_health
+    sta (active_entity), y
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y

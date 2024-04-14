@@ -3,7 +3,7 @@ TILES_S = 1
 
 TRANS_TILE = 58
 
-header_msg: .asciiz "WELCOME TO SCAVENGER        SCORE:"
+header_msg: .asciiz "WELCOME TO SCAVENGER         DEBT:"
 
 clear_tiles:
     jsr point_to_mapbase

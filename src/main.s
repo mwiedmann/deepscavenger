@@ -51,7 +51,7 @@ enemywait: .byte 0
 
 joy_a: .byte 0
 
-score: .byte 0,0
+score: .byte $99, $99
 storm_count: .word 0
 hit_warp: .byte 0
 gem_count: .byte 0
@@ -91,7 +91,6 @@ start:
     jsr init_oneshots
 @restart_game:
     jsr clear_tiles
-    jsr update_score
     jsr create_gate_sprite
     jsr create_astsml_sprites
     jsr create_astbig_sprites
@@ -105,7 +104,7 @@ start:
     ; jsr launch_enemy_top
     ; jsr launch_enemy_bottom
     jsr reset_counters
-
+    jsr update_score
 @move:
     jsr check_storm
     lda ship_dead

@@ -11,12 +11,12 @@ clear_amount_to_add:
 
 add_points:
     sed
-    clc
+    sec
     lda score
-    adc amount_to_add
+    sbc amount_to_add
     sta score
     lda score+1
-    adc amount_to_add+1
+    sbc amount_to_add+1
     sta score+1
     cld
     rts

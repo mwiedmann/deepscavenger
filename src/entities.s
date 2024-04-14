@@ -331,6 +331,9 @@ check_entities:
 @got_collision: 
     ; If we made it here, we have a collision!
     jsr handle_collision_sprites
+    lda hcs_keep_going
+    cmp #1
+    beq no_collision ; Look for more collisions or stop
     rts
     ; Need to look at the sprite type to decide what to do (player death, score points, etc.)
 no_collision:
@@ -374,8 +377,12 @@ last_inner_entity:
     rts
 @something_wrong:
     rts
-    
+
+hcs_keep_going: .byte 0
+
 handle_collision_sprites:
+    lda #0
+    sta hcs_keep_going
     jsr clear_amount_to_add ; Clear the scoring amount
     ldy #Entity::_type
     lda (comp_entity1), y
@@ -579,18 +586,32 @@ collision_astsml:
     beq @astsml_gate
     cmp #SHIP_TYPE
     beq @astsml_ship
+    ; Bounce off each other
+    jsr bounce_both
+    lda bb_destroy
+    cmp #1
+    beq @destroy_instead_1
+    rts
+@destroy_instead_1:
     jsr destroy_1 ; If sml hits sml, only 1 will be destroyed
     jsr create_explosion_active_entity
     rts
 @astsml_astbig:
+    jsr bounce_both
+    lda bb_destroy
+    cmp #1
+    beq @destroy_instead_2
+    rts
+@destroy_instead_2:
     ; Split the big, destroy sml
     jsr destroy_1
     jsr split_2
     rts
 @astsml_gem:
-    ; Destroy both
+    ; Destroy gem
     jsr count_gems
-    jsr destroy_both
+    jsr destroy_2
+    jsr create_explosion_active_entity
     rts
 @astsml_gate:
     ; Destroy astsml
@@ -598,9 +619,8 @@ collision_astsml:
     jsr create_explosion_active_entity
     rts
 @astsml_ship:
-    ; Both die
+    ; Destroy ship
     jsr destroy_ship
-    jsr destroy_1
     rts
 
 collision_astbig:
@@ -617,24 +637,28 @@ collision_astbig:
     jsr destroy_1
     rts
 @astbig_astbig:
+    jsr bounce_both
+    lda bb_destroy
+    cmp #1
+    beq @destroy_instead
+    rts
+@destroy_instead:
     ; Split both
     jsr split_both
     rts
 @astbig_gem:
-    ; Destroy Gem, split big
+    ; Destroy Gem
     jsr count_gems
     jsr destroy_2
     jsr create_explosion_active_entity
-    jsr split_1
     rts
 @astbig_gate:
     ; Split astbig
     jsr split_1
     rts
 @astbig_ship:
-    ; Split big, destroy ship
+    ; Destroy ship
     jsr destroy_ship
-    jsr split_1
     rts
 
 collision_gem:
@@ -742,6 +766,77 @@ destroy_ship:
     lda #DEAD_SHIP_TIME
     sta ship_dead
     rts
+
+bb_destroy: .byte 0
+
+bounce_both:
+    lda #0
+    sta bb_destroy
+    lda comp_entity1
+    sta active_entity
+    lda comp_entity1+1
+    sta active_entity+1
+    ; Reduce health by 1 and check if should destroy instead
+    ldy #Entity::_health
+    lda (active_entity), y
+    sec
+    sbc #1
+    sta (active_entity), y
+    cmp #1
+    bne @bounce_ok
+    lda #1
+    sta bb_destroy
+    rts
+@bounce_ok:
+    jsr bounce_active_entity
+    lda comp_entity2
+    sta active_entity
+    lda comp_entity2+1
+    sta active_entity+1
+    jsr bounce_active_entity
+    lda #1 ; Check for more collisions since these just bounced
+    sta hcs_keep_going
+    rts
+
+bounce_active_entity:
+    ; TODO: Check _health and destroy damaged
+    ; This is to prevent repeated collisions and getting stuck
+    ; We can also check the type and still split if needed
+
+    ; Flip the velocity
+    ; This works but looks a little weird
+    sec
+    lda #0
+    ldy #Entity::_vel_x
+    sbc (active_entity), y
+    sta (active_entity), y
+    lda #0
+    ldy #Entity::_vel_x+1
+    sbc (active_entity), y
+    sta (active_entity), y
+    sec
+    lda #0
+    ldy #Entity::_vel_y
+    sbc (active_entity), y
+    sta (active_entity), y
+    lda #0
+    ldy #Entity::_vel_y+1
+    sbc (active_entity), y
+    sta (active_entity), y
+    ; Move it a few times so it is out of collision range
+    jsr move_entity
+    jsr move_entity
+    jsr move_entity
+    jsr move_entity
+    jsr move_entity
+    jsr move_entity
+    ; Update the actual sprite so collision detection stops firing
+    ldy #Entity::_sprite_num
+    lda (active_entity), y
+    sta param1
+    jsr update_sprite
+    rts
+
 
 split_index_1: .byte 9
 split_index_2: .byte 3
