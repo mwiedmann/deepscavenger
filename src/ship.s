@@ -49,7 +49,9 @@ create_ship:
 fire_laser:
     ldx #0
     stx sp_entity_count
+    ldx #<(.sizeof(Entity)*LASER_ENTITY_NUM_START)
     stx sp_offset
+    ldx #>(.sizeof(Entity)*LASER_ENTITY_NUM_START)
     stx sp_offset+1
 @next_entity:
     clc

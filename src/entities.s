@@ -178,7 +178,6 @@ hc_outer_entity_count: .byte 0
 hc_inner_entity_count: .byte 0
 hc_comp_val1: .word 0
 hc_comp_val2: .word 0
-hc_mask: .byte 0
 hc_overlap: .byte 0
 
 handle_collision:
@@ -208,15 +207,17 @@ check_entities:
     beq @check_collision_flags
     jmp no_collision ; Inner entity isn't visible
 @check_collision_flags:
-    ldy #Entity::_collision
-    lda (comp_entity1), y
-    and (comp_entity2), y
-    cmp #0
-    beq @jump_to_no_collision
-    sta hc_overlap
-    and hc_mask ; Make sure A is contained in the ISR collisions flags (not exact match, just contained in)
-    cmp hc_overlap
-    beq @check_actual_collisions
+    ; ldy #Entity::_type ; Same types can't collide
+    ; lda (comp_entity1), y
+    ; cmp (comp_entity2), y
+    ; beq @jump_to_no_collision
+    ; ; Different types, see if they can collide
+    ; ldy #Entity::_collision
+    ; lda (comp_entity1), y
+    ; and (comp_entity2), y
+    ; cmp #0
+    ; beq @jump_to_no_collision
+    jmp @check_actual_collisions
 @jump_to_no_collision:
     jmp no_collision
     ; Now check if they overlap
@@ -226,10 +227,13 @@ check_entities:
     clc
     ldy #Entity::_pixel_x
     lda (comp_entity1), y
+    ;adc #<HITBOX_SHRINK ; Shrink the hit box down a tad
     sta hc_comp_val1
     ldy #Entity::_pixel_x+1
     lda (comp_entity1), y
+    ;adc #0
     sta hc_comp_val1+1
+    ;clc
     ldy #Entity::_pixel_x
     lda (comp_entity2), y
     ldy #Entity::_size
@@ -260,16 +264,19 @@ check_entities:
     lda (comp_entity1), y
     adc #0
     sta hc_comp_val1+1
+    ;clc
     ldy #Entity::_pixel_x
     lda (comp_entity2), y
+    ;adc #<HITBOX_SHRINK ; Shrink the hit box down a tad
     sta hc_comp_val2
     ldy #Entity::_pixel_x+1
     lda (comp_entity2), y
+    ;adc #0
     sta hc_comp_val2+1
     ; values are ready to compare
     lda hc_comp_val1+1
     cmp hc_comp_val2+1 ; compare the hi bytes
-    bcc no_collision ; If hi bytes are not equal, they are too far apart to collide
+    bcc @jump_to_no_collision ; If hi bytes are not equal, they are too far apart to collide
     bne @y1_check
     lda hc_comp_val1
     cmp hc_comp_val2 ; compare the lo bytes
@@ -280,10 +287,13 @@ check_entities:
     clc
     ldy #Entity::_pixel_y
     lda (comp_entity1), y
+    ;adc #<HITBOX_SHRINK ; Shrink the hit box down a tad
     sta hc_comp_val1
     ldy #Entity::_pixel_y+1
     lda (comp_entity1), y
+    ;adc #0
     sta hc_comp_val1+1
+    ;clc
     ldy #Entity::_pixel_y
     lda (comp_entity2), y
     ldy #Entity::_size
@@ -314,11 +324,14 @@ check_entities:
     lda (comp_entity1), y
     adc #0
     sta hc_comp_val1+1
+    ;clc
     ldy #Entity::_pixel_y
     lda (comp_entity2), y
+    ;adc #<HITBOX_SHRINK ; Shrink the hit box down a tad
     sta hc_comp_val2
     ldy #Entity::_pixel_y+1
     lda (comp_entity2), y
+    ;adc #0
     sta hc_comp_val2+1
     ; values are ready to compare
     lda hc_comp_val1+1
@@ -354,7 +367,7 @@ last_inner_entity:
     ; Reached last entity
     inc hc_outer_entity_count ; Update the outer index
     lda hc_outer_entity_count 
-    cmp #ENTITY_COUNT-1
+    cmp #ASTSML_ENTITY_NUM_START-1
     beq @something_wrong ;@done ; Reached end of list...stop
     inc ; Inc and store as the starting inner index
     sta hc_inner_entity_count 
@@ -386,6 +399,11 @@ handle_collision_sprites:
     jsr clear_amount_to_add ; Clear the scoring amount
     ldy #Entity::_type
     lda (comp_entity1), y
+    cmp #SHIP_TYPE
+    bne @check_laser
+    jsr collision_ship
+    bra @done
+@check_laser:
     cmp #LASER_TYPE
     bne @check_enemy
     jsr collision_laser
@@ -397,39 +415,12 @@ handle_collision_sprites:
     bra @done
 @check_enemy_laser:
     cmp #ENEMY_LASER_TYPE
-    bne @check_astsml
+    bne @catch_all
     jsr collision_enemy_laser
     bra @done
-@check_astsml:
-    cmp #ASTSML_TYPE
-    bne @check_astbig
-    jsr collision_astsml
-    bra @done
-@check_astbig:
-    cmp #ASTBIG_TYPE
-    bne @check_gem
-    jsr collision_astbig
-    bra @done
-@check_gem:
-    cmp #GEM_TYPE
-    bne @check_gate
-    jsr collision_gem
-    bra @done
-@check_gate:
-    cmp #GATE_TYPE
-    bne @check_warp
-    jsr collision_gate
-    bra @done
-@check_warp:
-    cmp #WARP_TYPE
-    bne @catch_all
-    jsr collision_warp
-    bra @done
 @catch_all:
-    jsr destroy_1 ; Catch all, shouldn't get here
+    ;jsr destroy_1 ; Catch all, shouldn't get here
     bra @done
-    ; Cases
-    ; Laser - ASTSML - ASTBIG - Gem - Gate - Warp - Ship
 @done:
     jsr update_score
     rts
@@ -456,8 +447,6 @@ collision_laser:
     beq @laser_astbig
     cmp #GEM_TYPE
     beq @laser_gem
-    jsr destroy_1 ; Laser hitting anything else just destroys the laser
-    jsr create_explosion_active_entity
     rts
 @laser_enemy:
     ; Destroy both - score points
@@ -487,51 +476,79 @@ collision_laser:
     jsr destroy_both
     rts
 
+collision_ship:
+    ldy #Entity::_type
+    lda (comp_entity2), y
+    cmp #ENEMY_TYPE
+    beq @ship_enemy
+    cmp #ENEMY_LASER_TYPE
+    beq @ship_enemy_laser
+    cmp #ASTSML_TYPE
+    beq @ship_astsml
+    cmp #ASTBIG_TYPE
+    beq @ship_astbig
+    cmp #GEM_TYPE
+    beq @ship_gem
+    cmp #WARP_TYPE
+    beq @ship_warp
+    rts
+@ship_enemy:
+    ; Both die
+    jsr destroy_ship
+    jsr destroy_2
+    rts
+@ship_enemy_laser:
+    ; Both die
+    jsr destroy_ship
+    jsr destroy_2
+    rts
+@ship_astsml:
+    ; Destroy ship
+    jsr destroy_ship
+    rts
+@ship_astbig:
+    ; Destroy ship
+    jsr destroy_ship
+    rts
+@ship_gem:
+    ; Ship gets gem and points
+    lda #$50
+    sta amount_to_add
+    lda #$1
+    sta amount_to_add+1
+    jsr add_points
+    jsr count_gems
+    jsr destroy_2
+    rts
+@ship_warp:
+    lda #1
+    sta hit_warp
+    jsr destroy_1 ; Just hide the ship, doesn't count as a death
+    jsr destroy_2
+    rts
+
 collision_enemy:
     ldy #Entity::_type
     lda (comp_entity2), y
-    cmp #ENEMY_LASER_TYPE
-    beq @enemy_enemy_laser
     cmp #ASTSML_TYPE
     beq @enemy_astsml
     cmp #ASTBIG_TYPE
     beq @enemy_astbig
     cmp #GEM_TYPE
     beq @enemy_gem
-    cmp #GATE_TYPE
-    beq @enemy_gate
-    cmp #SHIP_TYPE
-    beq @enemy_ship
-    jsr destroy_1 ; If sml hits sml, only 1 will be destroyed
-    jsr create_explosion_active_entity
-    rts
-@enemy_enemy_laser:
-    ; Destroy the laser only (don't want enemy to die from own laser)
-    jsr destroy_2
     rts
 @enemy_astsml:
-    ; Destroy both
-    jsr destroy_both
+    ; Destroy ast
+    jsr destroy_2
     rts
 @enemy_astbig:
-    ; Split the big, destroy enemy
-    jsr destroy_1
+    ; Split the big
     jsr split_2
     rts
 @enemy_gem:
     ; Destroy gem
     jsr count_gems
     jsr destroy_2
-    rts
-@enemy_gate:
-    ; Destroy enemy
-    jsr destroy_1
-    jsr create_explosion_active_entity
-    rts
-@enemy_ship:
-    ; Both die
-    jsr destroy_ship
-    jsr destroy_1
     rts
 
 collision_enemy_laser:
@@ -543,19 +560,13 @@ collision_enemy_laser:
     beq @enemy_astbig
     cmp #GEM_TYPE
     beq @enemy_gem
-    cmp #GATE_TYPE
-    beq @enemy_gate
-    cmp #SHIP_TYPE
-    beq @enemy_ship
-    jsr destroy_1 ; If sml hits sml, only 1 will be destroyed
-    jsr create_explosion_active_entity
     rts
 @enemy_astsml:
     ; Destroy both
     jsr destroy_both
     rts
 @enemy_astbig:
-    ; Split the big, destroy enemy
+    ; Split the big, destroy laser
     jsr destroy_1
     jsr split_2
     rts
@@ -563,150 +574,6 @@ collision_enemy_laser:
     ; Destroy both
     jsr count_gems
     jsr destroy_both
-    rts
-@enemy_gate:
-    ; Destroy enemy
-    jsr destroy_1
-    jsr create_explosion_active_entity
-    rts
-@enemy_ship:
-    ; Both die
-    jsr destroy_ship
-    jsr destroy_1
-    rts
-
-collision_astsml:
-    ldy #Entity::_type
-    lda (comp_entity2), y
-    cmp #ASTBIG_TYPE
-    beq @astsml_astbig
-    cmp #GEM_TYPE
-    beq @astsml_gem
-    cmp #GATE_TYPE
-    beq @astsml_gate
-    cmp #SHIP_TYPE
-    beq @astsml_ship
-    ; Bounce off each other
-    jsr bounce_both
-    lda bb_destroy
-    cmp #1
-    beq @destroy_instead_1
-    rts
-@destroy_instead_1:
-    jsr destroy_1 ; If sml hits sml, only 1 will be destroyed
-    jsr create_explosion_active_entity
-    rts
-@astsml_astbig:
-    jsr bounce_both
-    lda bb_destroy
-    cmp #1
-    beq @destroy_instead_2
-    rts
-@destroy_instead_2:
-    ; Split the big, destroy sml
-    jsr destroy_1
-    jsr split_2
-    rts
-@astsml_gem:
-    ; Destroy gem
-    jsr count_gems
-    jsr destroy_2
-    jsr create_explosion_active_entity
-    rts
-@astsml_gate:
-    ; Destroy astsml
-    jsr destroy_1
-    jsr create_explosion_active_entity
-    rts
-@astsml_ship:
-    ; Destroy ship
-    jsr destroy_ship
-    rts
-
-collision_astbig:
-    ldy #Entity::_type
-    lda (comp_entity2), y
-    cmp #ASTBIG_TYPE
-    beq @astbig_astbig
-    cmp #GEM_TYPE
-    beq @astbig_gem
-    cmp #GATE_TYPE
-    beq @astbig_gate
-    cmp #SHIP_TYPE
-    beq @astbig_ship
-    jsr destroy_1
-    rts
-@astbig_astbig:
-    jsr bounce_both
-    lda bb_destroy
-    cmp #1
-    beq @destroy_instead
-    rts
-@destroy_instead:
-    ; Split both
-    jsr split_both
-    rts
-@astbig_gem:
-    ; Destroy Gem
-    jsr count_gems
-    jsr destroy_2
-    jsr create_explosion_active_entity
-    rts
-@astbig_gate:
-    ; Split astbig
-    jsr split_1
-    rts
-@astbig_ship:
-    ; Destroy ship
-    jsr destroy_ship
-    rts
-
-collision_gem:
-    ; Gems don't move (for now)
-    ldy #Entity::_type
-    lda (comp_entity2), y
-    cmp #SHIP_TYPE
-    beq @gem_ship
-    jsr count_gems
-    jsr destroy_1
-    jsr count_gems
-    jsr create_explosion_active_entity
-    rts
-@gem_ship:
-    ; Ship gets gem and points
-    lda #$50
-    sta amount_to_add
-    lda #$1
-    sta amount_to_add+1
-    jsr add_points
-    jsr count_gems
-    jsr destroy_1
-    rts
-
-collision_warp:
-    ldy #Entity::_type
-    lda (comp_entity2), y
-    cmp #SHIP_TYPE
-    beq @warp_ship
-    jsr destroy_1
-    rts
-@warp_ship:
-    lda #1
-    sta hit_warp
-    jsr destroy_2 ; Just hide the ship, doesn't count as a death
-    jsr destroy_1
-    rts
-
-collision_gate:
-    ldy #Entity::_type
-    lda (comp_entity2), y
-    cmp #SHIP_TYPE
-    beq @gate_ship
-    jsr destroy_2 ; Not sure what else this would be, but gate is indestructable
-    rts
-@gate_ship:
-    ; Ship crashes
-    jsr destroy_ship
     rts
 
 create_explosion_active_entity:
@@ -756,10 +623,10 @@ destroy_both:
     rts
 
 destroy_ship:
-    ; Ship is always entity2 in this case
-    lda comp_entity2
+    ; Ship is always entity1 in this case
+    lda comp_entity1
     sta active_entity
-    lda comp_entity2+1
+    lda comp_entity1+1
     sta active_entity+1
     jsr create_explosion_active_entity
     jsr destroy_active_entity
@@ -767,79 +634,10 @@ destroy_ship:
     sta ship_dead
     rts
 
-bb_destroy: .byte 0
-
-bounce_both:
-    lda #0
-    sta bb_destroy
-    lda comp_entity1
-    sta active_entity
-    lda comp_entity1+1
-    sta active_entity+1
-    ; Reduce health by 1 and check if should destroy instead
-    ldy #Entity::_health
-    lda (active_entity), y
-    sec
-    sbc #1
-    sta (active_entity), y
-    cmp #1
-    bne @bounce_ok
-    lda #1
-    sta bb_destroy
-    rts
-@bounce_ok:
-    jsr bounce_active_entity
-    lda comp_entity2
-    sta active_entity
-    lda comp_entity2+1
-    sta active_entity+1
-    jsr bounce_active_entity
-    lda #1 ; Check for more collisions since these just bounced
-    sta hcs_keep_going
-    rts
-
-bounce_active_entity:
-    ; TODO: Check _health and destroy damaged
-    ; This is to prevent repeated collisions and getting stuck
-    ; We can also check the type and still split if needed
-
-    ; Flip the velocity
-    ; This works but looks a little weird
-    sec
-    lda #0
-    ldy #Entity::_vel_x
-    sbc (active_entity), y
-    sta (active_entity), y
-    lda #0
-    ldy #Entity::_vel_x+1
-    sbc (active_entity), y
-    sta (active_entity), y
-    sec
-    lda #0
-    ldy #Entity::_vel_y
-    sbc (active_entity), y
-    sta (active_entity), y
-    lda #0
-    ldy #Entity::_vel_y+1
-    sbc (active_entity), y
-    sta (active_entity), y
-    ; Move it a few times so it is out of collision range
-    jsr move_entity
-    jsr move_entity
-    jsr move_entity
-    jsr move_entity
-    jsr move_entity
-    jsr move_entity
-    ; Update the actual sprite so collision detection stops firing
-    ldy #Entity::_sprite_num
-    lda (active_entity), y
-    sta param1
-    jsr update_sprite
-    rts
-
-
-split_index_1: .byte 9
-split_index_2: .byte 3
+split_index_1: .byte 1
+split_index_2: .byte 5
+split_index_3: .byte 9
+split_index_4: .byte 13
 
 split_1:
     lda comp_entity1
@@ -943,13 +741,13 @@ split_active_entity:
     ldy #Entity::_y+1
     lda (active_entity), y
     sta astsml_y+1
-    ; Both asteroids need to fly in slightly different directions
+    ; All asteroids need to fly in slightly different directions
     lda split_index_1
     sta astsml_ang_index
-    inc; stays between 10-14
-    cmp #15
+    inc; stays between 1-3
+    cmp #4
     bne @no_wrap_1
-    lda #10
+    lda #1
 @no_wrap_1:
     sta split_index_1
     jsr launch_astsml
@@ -970,12 +768,60 @@ split_active_entity:
     sta astsml_y+1
     lda split_index_2
     sta astsml_ang_index
-    inc; stays between 2-6
-    cmp #7
+    inc; stays between 5-7
+    cmp #8
     bne @no_wrap_2
-    lda #2
+    lda #5
 @no_wrap_2:
     sta split_index_2
+    jsr launch_astsml
+    ; 3rd astsml, active_entity now the astsml that was just launched
+    ldy #Entity::_x
+    lda (active_entity), y
+    sta astsml_x
+    ldy #Entity::_x+1
+    lda (active_entity), y
+    clc
+    adc #>(16<<5)
+    sta astsml_x+1
+    ldy #Entity::_y
+    lda (active_entity), y
+    sta astsml_y
+    ldy #Entity::_y+1
+    lda (active_entity), y
+    sta astsml_y+1
+    lda split_index_3
+    sta astsml_ang_index
+    inc; stays between 9-11
+    cmp #12
+    bne @no_wrap_3
+    lda #9
+@no_wrap_3:
+    sta split_index_3
+    jsr launch_astsml
+    ; 4th astsml, active_entity now the astsml that was just launched
+    ldy #Entity::_x
+    lda (active_entity), y
+    sta astsml_x
+    ldy #Entity::_x+1
+    lda (active_entity), y
+    clc
+    adc #>(16<<5)
+    sta astsml_x+1
+    ldy #Entity::_y
+    lda (active_entity), y
+    sta astsml_y
+    ldy #Entity::_y+1
+    lda (active_entity), y
+    sta astsml_y+1
+    lda split_index_4
+    sta astsml_ang_index
+    inc; stays between 13-15
+    cmp #16
+    bne @no_wrap_4
+    lda #13
+@no_wrap_4:
+    sta split_index_4
     jsr launch_astsml
     rts
 
@@ -983,8 +829,6 @@ split_active_entity:
 destroy_active_entity:
     ldy #Entity::_type
     lda (active_entity), y
-    cmp #GATE_TYPE
-    beq @skip_gate
     ldy #Entity::_visible
     lda #0 ; Hide it
     sta (active_entity), y
@@ -992,7 +836,6 @@ destroy_active_entity:
     lda (active_entity), y
     sta param1
     jsr update_sprite
-@skip_gate:
     rts
 
 .endif

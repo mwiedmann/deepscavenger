@@ -22,9 +22,10 @@ ASTBIG_S = 1
 
 astbig_start_x:         .word 0<<5, 0<<5,   576<<5, 192<<5, 384<<5, 0<<5,   576<<5, 320<<5, 192<<5, 0<<5,   576<<5, 384<<5, 128<<5, 0<<5,   576<<5, 576<<5
 astbig_start_y:         .word 0<<5, 276<<5, 138<<5, 414<<5, 0<<5,   414<<5, 414<<5, 414<<5, 0<<5,   138<<5, 276<<5, 414<<5, 0<<5,   345<<5, 0<<5,   69<<5 
-astbig_start_ang:       .word 6,    6,      12,     2,      9,      1,      14,     15,     9,      5,      13,     13,     11,     2,      10,     10  
+astbig_start_ang:       .word 6,    6,      12,     2,      9,      1,      13,     14,     9,      5,      13,     13,     11,     2,      10,     10  
 
 
+ang_adj: .byte 1
 
 create_astbig_sprites:
     lda #<ASTBIG_LOAD_ADDR
@@ -70,6 +71,8 @@ next_astbig:
     sta (active_entity), y
     lda astbig_start_ang, x
     ldy #Entity::_ang
+    clc
+    adc ang_adj
     sta (active_entity), y
     jsr move_entity ; Update the pixel positions
     lda us_img_addr ; Img addr

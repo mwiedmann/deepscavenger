@@ -195,8 +195,10 @@ update_sprite:
 @move_frame:
     cpx us_frame
     beq @frame_slide_done
+    clc
     ldy #Entity::_size
     lda (active_entity), y
+    adc #0 ;HITBOX_SHRINK ; We have shrunk the size for smaller collisions. Maybe need a separate value for this or that.
     cmp #64
     beq @size_64
     cmp #32

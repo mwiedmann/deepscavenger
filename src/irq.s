@@ -3,17 +3,6 @@ IRQ_S = 1
 
 irq_routine:
     lda VERA_ISR
-    and #%11110000 ; We just need the collision flags
-    sta hc_mask ; Save in case this is a collision
-    lda VERA_ISR
-    and #%100
-    beq @check_vsync
-    ; Collision
-    sta VERA_ISR ; Clear the collision
-    jsr handle_collision
-    jmp @continue
-@check_vsync:
-    lda VERA_ISR
     and #1
     beq @continue
     ; sta VERA_ISR ; Clear the VSYNC IRQ
@@ -39,7 +28,9 @@ irq_config:
     lda #>irq_routine
     sta IRQ_FUNC_ADDR+1
     ; Turn on Sprite collisions and VSYNC
-    lda #%101
+    ; lda #%101
+    ; Just VSYNC
+    lda #%1
     sta VERA_IEN
     cli
     rts

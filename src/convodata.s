@@ -53,7 +53,7 @@ convo_1:
     .byte 0, 0 ; Potrait to show and frame
     .asciiz "IT'S NO USE MR. ", GUY_LAST, ". MY FRIENDS AND I HERE WILL ESCORT YOU BACK TO SEE THE JUDGE. I THINK HE HAS A DEAL FOR YOU."
     .byte 1, 0 ; Potrait to show and frame
-    .asciiz "I ALREADY TOLD HIM DON'T WANT A TIMESHARE. BUT AS I APPEAR TO BE OUTGUNNED...LEAD THE WAY."
+    .asciiz "I ALREADY TOLD HIM I DON'T WANT A TIMESHARE. BUT AS I APPEAR TO BE OUTGUNNED...LEAD THE WAY."
     .byte 253 ; new convo
     .byte 2, 0 ; What 2 portraits to load
     .byte 0, 0 ; Potrait to show and frame
