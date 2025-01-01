@@ -34,7 +34,6 @@ img:
 	node tools/gimp-img-convert.js gfx/sprites.data build/GEM.BIN 16 16 16 272 8 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/EXP.BIN 32 32 8 72 8 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/WARP.BIN 32 32 8 104 8 1
-	node tools/gimp-img-convert.js gfx/sprites.data build/GATE.BIN 64 64 4 28 1 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/FONT.BIN 16 16 16 352 16 4
 	node tools/gimp-img-convert.js gfx/sprites.data build/MGL.BIN 64 64 4 36 4 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/EGY.BIN 64 64 4 40 4 1

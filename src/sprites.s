@@ -199,8 +199,6 @@ update_sprite:
     ldy #Entity::_size
     lda (active_entity), y
     adc #0 ;HITBOX_SHRINK ; We have shrunk the size for smaller collisions. Maybe need a separate value for this or that.
-    cmp #64
-    beq @size_64
     cmp #32
     beq @size_32
 @size_16:
@@ -222,18 +220,6 @@ update_sprite:
     sta us_img_addr
     lda us_img_addr+1
     adc #>DEFAULT_FRAME_SIZE
-    sta us_img_addr+1
-    lda us_img_addr+2
-    adc #0
-    sta us_img_addr+2
-    bra @size_done
-@size_64:
-    clc
-    lda us_img_addr
-    adc #<GATE_SPRITE_FRAME_SIZE
-    sta us_img_addr
-    lda us_img_addr+1
-    adc #>GATE_SPRITE_FRAME_SIZE
     sta us_img_addr+1
     lda us_img_addr+2
     adc #0

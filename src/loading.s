@@ -8,7 +8,6 @@ enemy_laser_filename: .asciiz "elaser.bin"
 laser_filename: .asciiz "laser.bin"
 astbig_filename: .asciiz "astbig.bin"
 astsml_filename: .asciiz "astsml.bin"
-gate_filename: .asciiz "gate.bin"
 gem_filename: .asciiz "gem.bin"
 font_filename: .asciiz "font.bin"
 warp_filename: .asciiz "warp.bin"
@@ -25,7 +24,6 @@ load_sprites:
     jsr load_astbig
     jsr load_astsml
     jsr load_gem
-    jsr load_gate
     jsr load_font
     jsr load_warp
     jsr load_exp
@@ -172,22 +170,6 @@ load_font:
     lda #2 ; VRAM 1st bank
     ldx #<TILEBASE_L1_ADDR 
     ldy #>TILEBASE_L1_ADDR
-    jsr LOAD
-    rts
-
-load_gate:
-    lda #8
-    ldx #<gate_filename
-    ldy #>gate_filename
-    jsr SETNAM
-    ; 0,8,2
-    lda #0
-    ldx #8
-    ldy #2
-    jsr SETLFS
-    lda #2 ; VRAM 1st bank
-    ldx #<GATE_LOAD_ADDR 
-    ldy #>GATE_LOAD_ADDR
     jsr LOAD
     rts
 

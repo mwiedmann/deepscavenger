@@ -5,11 +5,10 @@ SHIP_TYPE = 0
 LASER_TYPE = 1
 ASTSML_TYPE = 2
 ASTBIG_TYPE = 3
-GATE_TYPE = 4
-GEM_TYPE = 5
-WARP_TYPE = 6
-ENEMY_TYPE = 7
-ENEMY_LASER_TYPE = 8
+GEM_TYPE = 4
+WARP_TYPE = 5
+ENEMY_TYPE = 6
+ENEMY_LASER_TYPE = 7
 
 .struct Entity
     _x .word
@@ -26,7 +25,7 @@ ENEMY_LASER_TYPE = 8
     _has_ang .byte
     _ob_behavior .byte ; 0=dead, 1=reset, 2=wrap
     _collision .byte
-    _type .byte ; 0=ship, 1=laser, 2=astbig, 3=gate
+    _type .byte
     _size .byte
     _ang_ticks .byte
     _destroy_ticks .byte

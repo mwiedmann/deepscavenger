@@ -65,6 +65,8 @@ show_convo_msg:
 @next_char:
     lda #0
     jsr JOYGET
+    cmp #%11101111
+    beq @done
     cmp #255
     bne @skip_wait
     jsr wait_count
@@ -105,6 +107,7 @@ show_convo_msg:
     inc mb_y
     jsr point_to_convo_mapbase
     bra @next_char
+@done:
 @found_null:
     rts
 
@@ -133,6 +136,8 @@ show_next_convo:
 @next_por:
     lda #0
     jsr JOYGET
+    cmp #%11101111
+    beq @quick_exit
     cmp #255
     bne @skip_wait
     lda #CONVO_WAIT_BETWEEN_PORTRAITS
@@ -181,6 +186,9 @@ show_next_convo:
 @check_new_screen:
     cmp #254
     beq @new_screen
+    rts
+@quick_exit:
+    jsr cleanup_convo
     rts
 
 load_valid_convo:
