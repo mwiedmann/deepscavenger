@@ -99,8 +99,8 @@ start:
     jsr show_next_convo
     jsr show_level
     jsr show_header
-    jsr launch_enemy_top
-    jsr launch_enemy_bottom
+    ; jsr launch_enemy_top
+    ; jsr launch_enemy_bottom
     jsr reset_counters
     jsr update_score
 @move:

@@ -112,14 +112,13 @@ drop_gem_from_active_entity:
     clc
     adc #>(8<<5)
     sta dg_x+1
-    clc
     ldy #Entity::_y
     lda (active_entity), y
-    adc #<(20<<5)
     sta dg_y
     ldy #Entity::_y+1
     lda (active_entity), y
-    adc #>(20<<5)
+    clc
+    adc #>(8<<5)
     sta dg_y+1
     ldx #0
     stx sp_entity_count

@@ -207,16 +207,16 @@ check_entities:
     beq @check_collision_flags
     jmp no_collision ; Inner entity isn't visible
 @check_collision_flags:
-    ; ldy #Entity::_type ; Same types can't collide
-    ; lda (comp_entity1), y
-    ; cmp (comp_entity2), y
-    ; beq @jump_to_no_collision
-    ; ; Different types, see if they can collide
-    ; ldy #Entity::_collision
-    ; lda (comp_entity1), y
-    ; and (comp_entity2), y
-    ; cmp #0
-    ; beq @jump_to_no_collision
+    ldy #Entity::_type ; Same types can't collide
+    lda (comp_entity1), y
+    cmp (comp_entity2), y
+    beq @jump_to_no_collision
+    ; Different types, see if they can collide
+    ldy #Entity::_collision
+    lda (comp_entity1), y
+    and (comp_entity2), y
+    cmp #0
+    beq @jump_to_no_collision
     jmp @check_actual_collisions
 @jump_to_no_collision:
     jmp no_collision
@@ -367,7 +367,7 @@ last_inner_entity:
     ; Reached last entity
     inc hc_outer_entity_count ; Update the outer index
     lda hc_outer_entity_count 
-    cmp #ASTSML_ENTITY_NUM_START-1
+    cmp #ASTSML_ENTITY_NUM_START
     beq @something_wrong ;@done ; Reached end of list...stop
     inc ; Inc and store as the starting inner index
     sta hc_inner_entity_count 
@@ -635,8 +635,8 @@ destroy_ship:
     rts
 
 split_index_1: .byte 1
-split_index_2: .byte 5
-split_index_3: .byte 9
+split_index_2: .byte 6
+split_index_3: .byte 11
 split_index_4: .byte 13
 
 split_1:
@@ -653,68 +653,6 @@ split_2:
     lda comp_entity2+1
     sta active_entity+1
     jsr split_active_entity
-    rts
-
-split_both_x: .word 0
-split_both_y: .word 0
-
-split_both:
-    ; Start by removing them both
-    jsr destroy_1
-    jsr create_explosion_active_entity
-    jsr destroy_2
-    jsr create_explosion_active_entity
-    jsr drop_gem_from_active_entity
-    jsr count_gems
-    ; Get the base x/y for the 4 astsml we will create
-    ldy #Entity::_x
-    lda (active_entity), y
-    sta split_both_x
-    ldy #Entity::_x+1
-    lda (active_entity), y
-    sta split_both_x+1
-    ldy #Entity::_y
-    lda (active_entity), y
-    sta split_both_y
-    ldy #Entity::_y+1
-    lda (active_entity), y
-    sta split_both_y+1
-    ; astsml 1
-    lda split_both_x
-    sta astsml_x
-    lda split_both_x+1
-    sta astsml_x+1
-    lda split_both_y
-    sta astsml_y
-    lda split_both_y+1
-    sta astsml_y+1
-    lda #15
-    sta astsml_ang_index
-    jsr launch_astsml
-    ; astsml 2
-    lda astsml_x+1
-    clc
-    adc #>(16<<5)
-    sta astsml_x+1
-    lda #3
-    sta astsml_ang_index
-    jsr launch_astsml
-    ; astsml 3
-    lda astsml_y+1
-    clc
-    adc #>(16<<5)
-    sta astsml_y+1
-    lda #6
-    sta astsml_ang_index
-    jsr launch_astsml
-    ; astsml 4
-    lda split_both_x
-    sta astsml_x
-    lda split_both_x+1
-    sta astsml_x+1
-    lda #11
-    sta astsml_ang_index
-    jsr launch_astsml
     rts
 
 split_active_entity:
@@ -734,38 +672,28 @@ split_active_entity:
     sta astsml_x
     ldy #Entity::_x+1
     lda (active_entity), y
+    clc
+    adc #>(8<<5)
     sta astsml_x+1
     ldy #Entity::_y
     lda (active_entity), y
     sta astsml_y
     ldy #Entity::_y+1
     lda (active_entity), y
+    clc
+    adc #>(8<<5)
     sta astsml_y+1
     ; All asteroids need to fly in slightly different directions
     lda split_index_1
     sta astsml_ang_index
-    inc; stays between 1-3
-    cmp #4
+    inc; stays between 0-4
+    cmp #5
     bne @no_wrap_1
-    lda #1
+    lda #0
 @no_wrap_1:
     sta split_index_1
     jsr launch_astsml
     ; 2nd astsml, active_entity now the astsml that was just launched
-    ldy #Entity::_x
-    lda (active_entity), y
-    sta astsml_x
-    ldy #Entity::_x+1
-    lda (active_entity), y
-    clc
-    adc #>(16<<5)
-    sta astsml_x+1
-    ldy #Entity::_y
-    lda (active_entity), y
-    sta astsml_y
-    ldy #Entity::_y+1
-    lda (active_entity), y
-    sta astsml_y+1
     lda split_index_2
     sta astsml_ang_index
     inc; stays between 5-7
@@ -776,44 +704,16 @@ split_active_entity:
     sta split_index_2
     jsr launch_astsml
     ; 3rd astsml, active_entity now the astsml that was just launched
-    ldy #Entity::_x
-    lda (active_entity), y
-    sta astsml_x
-    ldy #Entity::_x+1
-    lda (active_entity), y
-    clc
-    adc #>(16<<5)
-    sta astsml_x+1
-    ldy #Entity::_y
-    lda (active_entity), y
-    sta astsml_y
-    ldy #Entity::_y+1
-    lda (active_entity), y
-    sta astsml_y+1
     lda split_index_3
     sta astsml_ang_index
-    inc; stays between 9-11
-    cmp #12
+    inc; stays between 8-12
+    cmp #13
     bne @no_wrap_3
-    lda #9
+    lda #8
 @no_wrap_3:
     sta split_index_3
     jsr launch_astsml
     ; 4th astsml, active_entity now the astsml that was just launched
-    ldy #Entity::_x
-    lda (active_entity), y
-    sta astsml_x
-    ldy #Entity::_x+1
-    lda (active_entity), y
-    clc
-    adc #>(16<<5)
-    sta astsml_x+1
-    ldy #Entity::_y
-    lda (active_entity), y
-    sta astsml_y
-    ldy #Entity::_y+1
-    lda (active_entity), y
-    sta astsml_y+1
     lda split_index_4
     sta astsml_ang_index
     inc; stays between 13-15
