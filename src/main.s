@@ -51,7 +51,7 @@ enemywait: .byte 0
 
 joy_a: .byte 0
 
-score: .byte $99, $99
+score: .byte $00, $00, $25
 storm_count: .word 0
 hit_warp: .byte 0
 gem_count: .byte 0

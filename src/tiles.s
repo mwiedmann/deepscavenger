@@ -3,7 +3,7 @@ TILES_S = 1
 
 TRANS_TILE = 58
 
-header_msg: .asciiz "WELCOME TO SCAVENGER         DEBT:"
+header_msg: .asciiz "WELCOME TO SCAVENGER       DEBT:"
 
 clear_tiles:
     jsr point_to_mapbase
@@ -43,13 +43,13 @@ show_header:
 
 update_score:
     ; Point to the score section of mapbase
-    lda #<(MAPBASE_L1_ADDR+68)
+    lda #<(MAPBASE_L1_ADDR+64)
     sta VERA_ADDR_LO
-    lda #>(MAPBASE_L1_ADDR+68)
+    lda #>(MAPBASE_L1_ADDR+64)
     sta VERA_ADDR_MID
     lda #VERA_ADDR_HI_INC_BITS
     sta VERA_ADDR_HI_SET
-    ldx #1
+    ldx #2
 @next_num:
     lda score, x
     jsr get_font_num

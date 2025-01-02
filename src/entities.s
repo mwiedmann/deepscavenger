@@ -450,22 +450,30 @@ collision_laser:
     rts
 @laser_enemy:
     ; Destroy both - score points
-    lda #$50
-    sta amount_to_add
+    jsr clear_amount_to_add
+    ; 500
+    lda #$5
+    sta amount_to_add+1
     jsr add_points
     jsr destroy_both
     rts
 @laser_astsml:
     ; Destroy both - score points
-    lda #$10
+    jsr clear_amount_to_add
+    ; 50
+    lda #$50
     sta amount_to_add
     jsr add_points
     jsr destroy_both
     rts
 @laser_astbig:
     ; Split astbig, destroy laser - score points
+    jsr clear_amount_to_add
+    ; 125
     lda #$25
     sta amount_to_add
+    lda #$01
+    sta amount_to_add+1
     jsr add_points
     jsr destroy_1
     jsr split_2
@@ -512,9 +520,11 @@ collision_ship:
     rts
 @ship_gem:
     ; Ship gets gem and points
+    jsr clear_amount_to_add
+    ; 750
     lda #$50
     sta amount_to_add
-    lda #$1
+    lda #$07
     sta amount_to_add+1
     jsr add_points
     jsr count_gems
