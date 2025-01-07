@@ -64,6 +64,12 @@ next_astsml:
     lda #16
     ldy #Entity::_size
     sta (active_entity), y
+    lda #10
+    ldy #Entity::_coll_size
+    sta (active_entity), y
+    lda #3
+    ldy #Entity::_coll_adj
+    sta (active_entity), y
     lda #%10110000
     ldy #Entity::_collision
     sta (active_entity), y

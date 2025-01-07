@@ -96,6 +96,12 @@ next_astbig:
     lda #32
     ldy #Entity::_size
     sta (active_entity), y
+    lda #20
+    ldy #Entity::_coll_size
+    sta (active_entity), y
+    lda #6
+    ldy #Entity::_coll_adj
+    sta (active_entity), y
     lda #%10110000
     ldy #Entity::_collision
     sta (active_entity), y

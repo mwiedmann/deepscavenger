@@ -227,20 +227,29 @@ check_entities:
     clc
     ldy #Entity::_pixel_x
     lda (comp_entity1), y
-    ;adc #<HITBOX_SHRINK ; Shrink the hit box down a tad
+    ldy #Entity::_coll_adj
+    adc (comp_entity1), y ; pixel_x+coll_adj=x1
     sta hc_comp_val1
     ldy #Entity::_pixel_x+1
     lda (comp_entity1), y
-    ;adc #0
+    adc #0
     sta hc_comp_val1+1
-    ;clc
+    clc
     ldy #Entity::_pixel_x
     lda (comp_entity2), y
-    ldy #Entity::_size
-    adc (comp_entity2), y
+    ldy #Entity::_coll_adj
+    adc (comp_entity2), y ; pixel_x+coll_adj=x2
     sta hc_comp_val2
     ldy #Entity::_pixel_x+1
     lda (comp_entity2), y
+    adc #0
+    sta hc_comp_val2+1
+    clc
+    lda hc_comp_val2
+    ldy #Entity::_coll_size
+    adc (comp_entity2), y ; now add coll_size=x2+size
+    sta hc_comp_val2
+    lda hc_comp_val2+1
     adc #0
     sta hc_comp_val2+1
     ; values are ready to compare
@@ -257,50 +266,71 @@ check_entities:
     clc
     ldy #Entity::_pixel_x
     lda (comp_entity1), y
-    ldy #Entity::_size
-    adc (comp_entity1), y
+    ldy #Entity::_coll_adj
+    adc (comp_entity1), y ; pixel_x+coll_adj=x1
     sta hc_comp_val1
     ldy #Entity::_pixel_x+1
     lda (comp_entity1), y
     adc #0
     sta hc_comp_val1+1
-    ;clc
+    clc
+    lda hc_comp_val1
+    ldy #Entity::_coll_size
+    adc (comp_entity1), y ; add coll_size=x1+size
+    sta hc_comp_val1
+    lda hc_comp_val1+1
+    adc #0
+    sta hc_comp_val1+1
+    clc
     ldy #Entity::_pixel_x
     lda (comp_entity2), y
-    ;adc #<HITBOX_SHRINK ; Shrink the hit box down a tad
+    ldy #Entity::_coll_adj
+    adc (comp_entity2), y ; pixel_x+coll_adj=x2
     sta hc_comp_val2
     ldy #Entity::_pixel_x+1
     lda (comp_entity2), y
-    ;adc #0
+    adc #0
     sta hc_comp_val2+1
     ; values are ready to compare
     lda hc_comp_val1+1
     cmp hc_comp_val2+1 ; compare the hi bytes
-    bcc @jump_to_no_collision ; If hi bytes are not equal, they are too far apart to collide
+    bcc @early_no_collision ; If hi bytes are not equal, they are too far apart to collide
     bne @y1_check
     lda hc_comp_val1
     cmp hc_comp_val2 ; compare the lo bytes
-    bcc no_collision ; A < B, no possible collision 
+    bcc @early_no_collision ; A < B, no possible collision 
     ; 3rd check if y1 > y2+size (then it is to the right of the object and no collision)
     ; Load the _pixel_y into vars and increase y2 by size, then compare
+    jmp @y1_check
+@early_no_collision:
+    jmp no_collision
 @y1_check:
     clc
     ldy #Entity::_pixel_y
     lda (comp_entity1), y
-    ;adc #<HITBOX_SHRINK ; Shrink the hit box down a tad
+    ldy #Entity::_coll_adj
+    adc (comp_entity1), y ; pixel_y+coll_adj=x1
     sta hc_comp_val1
     ldy #Entity::_pixel_y+1
     lda (comp_entity1), y
-    ;adc #0
+    adc #0
     sta hc_comp_val1+1
-    ;clc
+    clc
     ldy #Entity::_pixel_y
     lda (comp_entity2), y
-    ldy #Entity::_size
-    adc (comp_entity2), y
+    ldy #Entity::_coll_adj
+    adc (comp_entity2), y ; pixel_y+coll_adj=x2
     sta hc_comp_val2
     ldy #Entity::_pixel_y+1
     lda (comp_entity2), y
+    adc #0
+    sta hc_comp_val2+1
+    clc
+    lda hc_comp_val2
+    ldy #Entity::_coll_size
+    adc (comp_entity2), y ; now add coll_size=x2+size
+    sta hc_comp_val2
+    lda hc_comp_val2+1
     adc #0
     sta hc_comp_val2+1
     ; values are ready to compare
@@ -317,21 +347,30 @@ check_entities:
     clc
     ldy #Entity::_pixel_y
     lda (comp_entity1), y
-    ldy #Entity::_size
-    adc (comp_entity1), y
+    ldy #Entity::_coll_adj
+    adc (comp_entity1), y ; pixel_y+coll_adj=x1
     sta hc_comp_val1
     ldy #Entity::_pixel_y+1
     lda (comp_entity1), y
     adc #0
     sta hc_comp_val1+1
-    ;clc
+    clc
+    lda hc_comp_val1
+    ldy #Entity::_coll_size
+    adc (comp_entity1), y ; add coll_size=x1+size
+    sta hc_comp_val1
+    lda hc_comp_val1+1
+    adc #0
+    sta hc_comp_val1+1
+    clc
     ldy #Entity::_pixel_y
     lda (comp_entity2), y
-    ;adc #<HITBOX_SHRINK ; Shrink the hit box down a tad
+    ldy #Entity::_coll_adj
+    adc (comp_entity2), y ; pixel_y+coll_adj=x2
     sta hc_comp_val2
     ldy #Entity::_pixel_y+1
     lda (comp_entity2), y
-    ;adc #0
+    adc #0
     sta hc_comp_val2+1
     ; values are ready to compare
     lda hc_comp_val1+1

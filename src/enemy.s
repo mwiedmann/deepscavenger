@@ -42,6 +42,12 @@ next_enemy:
     lda #32
     ldy #Entity::_size
     sta (active_entity), y
+    lda #24
+    ldy #Entity::_coll_size
+    sta (active_entity), y
+    lda #4
+    ldy #Entity::_coll_adj
+    sta (active_entity), y
     lda #%10110000
     ldy #Entity::_collision
     sta (active_entity), y
@@ -123,6 +129,12 @@ next_enemy_laser:
     sta (active_entity), y ; Laser wraps around screen
     lda #16
     ldy #Entity::_size
+    lda #10
+    ldy #Entity::_coll_size
+    sta (active_entity), y
+    lda #3
+    ldy #Entity::_coll_adj
+    sta (active_entity), y
     sta (active_entity), y
     lda #%10110000
     ldy #Entity::_collision

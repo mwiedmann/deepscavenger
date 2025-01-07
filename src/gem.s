@@ -42,6 +42,12 @@ next_gem:
     lda #16
     ldy #Entity::_size
     sta (active_entity), y
+    lda #12
+    ldy #Entity::_coll_size
+    sta (active_entity), y
+    lda #2
+    ldy #Entity::_coll_adj
+    sta (active_entity), y
     lda #%11110000
     ldy #Entity::_collision
     sta (active_entity), y

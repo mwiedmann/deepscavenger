@@ -15,6 +15,12 @@ create_ship:
     lda #32
     ldy #Entity::_size
     sta (active_entity), y
+    lda #22
+    ldy #Entity::_coll_size
+    sta (active_entity), y
+    lda #5
+    ldy #Entity::_coll_adj
+    sta (active_entity), y
     lda #%11100000
     ldy #Entity::_collision
     sta (active_entity), y
@@ -211,6 +217,12 @@ set_laser_attr:
     sta (active_entity), y
     lda #16
     ldy #Entity::_size
+    sta (active_entity), y
+    lda #12
+    ldy #Entity::_coll_size
+    sta (active_entity), y
+    lda #2
+    ldy #Entity::_coll_adj
     sta (active_entity), y
     lda #%00010000
     ldy #Entity::_collision

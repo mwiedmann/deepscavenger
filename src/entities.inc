@@ -30,6 +30,8 @@ ENEMY_LASER_TYPE = 7
     _ang_ticks .byte
     _destroy_ticks .byte
     _health .byte
+    _coll_size .byte
+    _coll_adj .byte
 .endstruct
 
 .endif

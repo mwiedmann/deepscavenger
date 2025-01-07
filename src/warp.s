@@ -40,6 +40,12 @@ create_warp_sprite:
     lda #32
     ldy #Entity::_size
     sta (active_entity), y
+    lda #24
+    ldy #Entity::_coll_size
+    sta (active_entity), y
+    lda #4
+    ldy #Entity::_coll_adj
+    sta (active_entity), y
     lda #0
     ldy #Entity::_has_accel
     sta (active_entity), y
