@@ -108,6 +108,7 @@ start:
 @move:
     jsr handle_collision
     jsr check_storm
+    jsr check_mines
     lda ship_dead
     cmp #0
     beq @ship_ok

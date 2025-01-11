@@ -216,7 +216,6 @@ check_storm:
     ; sta storm_count
     ; sta storm_count+1
     jsr launch_astbigs
-    jsr launch_mine
 @no_storm:
     rts
 .endif

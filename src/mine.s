@@ -207,4 +207,26 @@ found_free_mine:
     jsr accel_entity
     rts
 
+mine_timer: .word 0
+
+check_mines:
+    clc
+    lda mine_timer
+    adc #1
+    sta mine_timer
+    lda mine_timer+1
+    adc #0
+    sta mine_timer+1
+    cmp #>300
+    bne @done
+    lda mine_timer
+    cmp #<300
+    bne @done
+    lda #0
+    sta mine_timer
+    sta mine_timer+1
+    jsr launch_mine
+@done:
+    rts
+
 .endif
