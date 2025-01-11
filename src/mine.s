@@ -106,7 +106,36 @@ mine_x: .word 32
 mine_y: .word 32
 
 launch_mine:
-    ldx #0
+    ; Copy ships y position for mine
+    jsr set_ship_as_active
+    ldy #Entity::_y
+    lda (active_entity), y
+    sta mine_y
+    ldy #Entity::_y+1
+    lda (active_entity), y
+    sta mine_y+1
+    ; see where ship X is and put mine on opposite side of screen
+    ldy #Entity::_pixel_x+1
+    lda (active_entity), y
+    cmp #>320
+    bcc @mine_right
+    ldy #Entity::_pixel_x
+    lda (active_entity), y
+    cmp #<320
+    bcc @mine_right
+    ; mine left
+    lda #<(16<<5)
+    sta mine_x
+    lda #>(16<<5)
+    sta mine_x+1
+    jmp @mine_x_set
+@mine_right:
+    ; mine right
+    lda #<(620<<5)
+    sta mine_x
+    lda #>(620<<5)
+    sta mine_x+1
+@mine_x_set:
     stx sp_entity_count
     ldx #<(.sizeof(Entity)*MINE_ENTITY_NUM_START)
     stx sp_offset
@@ -153,9 +182,6 @@ found_free_mine:
     sta (active_entity), y
     ldy #Entity::_vel_y+1
     sta (active_entity), y
-    lda #AST_COLLISIONS_SAFETY
-    ldy #Entity::_health
-    sta (active_entity), y
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
@@ -173,12 +199,12 @@ found_free_mine:
     sta (active_entity), y
     ; ; Set its angle and accel once to get it going
     ; ; astsml_ang_index
-    ; lda astsml_ang_index
-    ; ldy #Entity::_ang
-    ; sta (active_entity), y
+    lda #4
+    ldy #Entity::_ang
+    sta (active_entity), y
     ; ; Accelerate the astsml to get it started moving
     jsr accel_entity
-    ; jsr accel_entity
+    jsr accel_entity
     rts
 
 .endif

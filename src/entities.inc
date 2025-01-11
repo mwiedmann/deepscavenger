@@ -30,7 +30,6 @@ MINE_TYPE = 8
     _size .byte
     _ang_ticks .byte
     _destroy_ticks .byte
-    _health .byte
     _coll_size .byte
     _coll_adj .byte
 .endstruct

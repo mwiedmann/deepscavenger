@@ -41,6 +41,7 @@ move_entities:
 @skip_destroy:
     jsr move_entity
     jsr enemy_logic
+    jsr mine_logic
     lda #0
     sta param1 ; make entity not visible if out of bounds
     jsr check_entity_bounds
@@ -75,6 +76,103 @@ move_entities:
     rts
 @skip_enemywait_reset:
     inc enemywait
+    rts
+
+target_x: .word 0
+target_y: .word 0
+mine_y_adj: .byte 0
+
+mine_logic:
+    ldy #Entity::_type
+    lda (active_entity), y
+    cmp #MINE_TYPE
+    beq @mine_yes
+    rts
+@mine_yes:
+    ; move towards ship
+    jsr kill_velocity
+    ; load ship to get x/y
+    ldx #<ship
+    stx comp_entity1
+    ldx #>ship
+    stx comp_entity1+1
+    ldy #Entity::_pixel_x
+    lda (comp_entity1), y
+    sta target_x
+    ldy #Entity::_pixel_x+1
+    lda (comp_entity1), y
+    sta target_x+1
+    ldy #Entity::_pixel_y
+    lda (comp_entity1), y
+    sta target_y
+    ldy #Entity::_pixel_y+1
+    lda (comp_entity1), y
+    sta target_y+1
+    ; compare x and move mine towards ship
+    ldy #Entity::_pixel_x+1
+    lda (active_entity), y
+    cmp target_x+1
+    bcc @mine_x_less
+    bne @mine_x_greater
+    ; check low bits
+    ldy #Entity::_pixel_x
+    lda (active_entity), y
+    cmp target_x
+    bcs @mine_x_greater
+    ; mine less
+@mine_x_less:
+    ldy #Entity::_ang
+    lda #4
+    sta (active_entity), y
+    lda #0
+    sta mine_y_adj
+    bra @check_mine_y
+@mine_x_greater:
+    ldy #Entity::_ang
+    lda #12
+    sta (active_entity), y
+    lda #1
+    sta mine_y_adj
+@check_mine_y:
+    ; compare y and move mine towards ship
+    ldy #Entity::_pixel_y+1
+    lda (active_entity), y
+    cmp target_y+1
+    bcc @mine_y_less
+    bne @mine_y_greater
+    ; check low bits
+    ldy #Entity::_pixel_y
+    lda (active_entity), y
+    cmp target_y
+    bcs @mine_y_greater
+    ; mine less
+@mine_y_less:
+    lda mine_y_adj
+    cmp #0
+    beq @mine_add
+    bra @mine_sub
+@mine_y_greater:
+    lda mine_y_adj
+    cmp #0
+    beq @mine_sub
+@mine_add:
+    ldy #Entity::_ang
+    lda (active_entity), y
+    clc
+    adc #2
+    sta (active_entity), y
+    bra @accel
+@mine_sub:
+    ldy #Entity::_ang
+    lda (active_entity), y
+    sec
+    sbc #2
+    sta (active_entity), y
+@accel:
+    jsr accel_entity
+    jsr accel_entity
+    jsr accel_entity
+@done:
     rts
 
 enemy_logic:
@@ -129,8 +227,7 @@ enemy_logic:
 enemy_dir: .byte 4, 3, 5, 5, 4, 3, 3, 4, 5, 3, 4
 enemy_index_x: .word 0
 
-enemy_change_dir:
-    ; kill velocity
+kill_velocity:
     lda #0
     ldy #Entity::_vel_x
     sta (active_entity), y
@@ -146,6 +243,10 @@ enemy_change_dir:
     ldy #Entity::_pixel_x+1
     lda (active_entity), y
     sta enemy_index_x+1
+    rts
+
+enemy_change_dir:
+    jsr kill_velocity
     ldx #0
 @shift_x:
     ; Shift down 6 times to get an index
