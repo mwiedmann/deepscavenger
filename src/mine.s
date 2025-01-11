@@ -172,6 +172,7 @@ launch_mine:
 
 
 found_free_mine:
+    inc mine_count
     ; Clear any existing velocity
     lda #0
     ldy #Entity::_vel_x
@@ -208,8 +209,13 @@ found_free_mine:
     rts
 
 mine_timer: .word 0
+mine_max: .byte 5
+mine_count: .byte 0
 
 check_mines:
+    lda mine_count
+    cmp mine_max
+    beq @done
     clc
     lda mine_timer
     adc #1

@@ -160,6 +160,7 @@ reset_counters:
     sta enemywait
     sta accelwait
     sta gem_count
+    sta mine_count
     lda #120 ; Ship will warp in after a few seconds
     sta ship_dead
     rts
@@ -175,6 +176,7 @@ next_level:
     sta accelwait
     sta storm_count
     sta storm_count+1
+    sta mine_count
     lda level
     and #2
     cmp #2
