@@ -475,11 +475,75 @@ check_gems:
 @no_warp:
     rts
 
+collision_ship:
+    ldy #Entity::_type
+    lda (comp_entity2), y
+    cmp #ENEMY_TYPE
+    beq @ship_enemy
+    cmp #ENEMY_LASER_TYPE
+    beq @ship_enemy_laser
+    cmp #MINE_TYPE
+    beq @ship_mine
+    cmp #ASTSML_TYPE
+    beq @ship_astsml
+    cmp #ASTBIG_TYPE
+    beq @ship_astbig
+    cmp #GEM_TYPE
+    beq @ship_gem
+    cmp #WARP_TYPE
+    beq @ship_warp
+    rts
+@ship_enemy:
+    ; Both die
+    jsr destroy_ship
+    jsr destroy_2
+    rts
+@ship_enemy_laser:
+    ; Both die
+    jsr destroy_ship
+    jsr destroy_2
+    rts
+@ship_mine:
+    ; Both die
+    jsr destroy_ship
+    jsr destroy_2
+    rts
+@ship_astsml:
+    ; Destroy both
+    jsr destroy_ship
+    jsr destroy_2
+    rts
+@ship_astbig:
+    ; Destroy both
+    jsr destroy_ship
+    jsr split_2
+    rts
+@ship_gem:
+    ; Ship gets gem and points
+    jsr clear_amount_to_add
+    ; 750
+    lda #$50
+    sta amount_to_add
+    lda #$07
+    sta amount_to_add+1
+    jsr add_points
+    jsr count_gems
+    jsr destroy_2
+    rts
+@ship_warp:
+    lda #1
+    sta hit_warp
+    jsr destroy_1 ; Just hide the ship, doesn't count as a death
+    jsr destroy_2
+    rts
+
 collision_laser:
     ldy #Entity::_type
     lda (comp_entity2), y
     cmp #ENEMY_TYPE
     beq @laser_enemy
+    cmp #MINE_TYPE
+    beq @laser_mine
     cmp #ASTSML_TYPE
     beq @laser_astsml
     cmp #ASTBIG_TYPE
@@ -493,6 +557,15 @@ collision_laser:
     ; 500
     lda #$5
     sta amount_to_add+1
+    jsr add_points
+    jsr destroy_both
+    rts
+@laser_mine:
+    ; Destroy both - score points
+    jsr clear_amount_to_add
+    ; 50
+    lda #$75
+    sta amount_to_add
     jsr add_points
     jsr destroy_both
     rts
@@ -521,59 +594,6 @@ collision_laser:
     ; Destroy both
     jsr count_gems
     jsr destroy_both
-    rts
-
-collision_ship:
-    ldy #Entity::_type
-    lda (comp_entity2), y
-    cmp #ENEMY_TYPE
-    beq @ship_enemy
-    cmp #ENEMY_LASER_TYPE
-    beq @ship_enemy_laser
-    cmp #ASTSML_TYPE
-    beq @ship_astsml
-    cmp #ASTBIG_TYPE
-    beq @ship_astbig
-    cmp #GEM_TYPE
-    beq @ship_gem
-    cmp #WARP_TYPE
-    beq @ship_warp
-    rts
-@ship_enemy:
-    ; Both die
-    jsr destroy_ship
-    jsr destroy_2
-    rts
-@ship_enemy_laser:
-    ; Both die
-    jsr destroy_ship
-    jsr destroy_2
-    rts
-@ship_astsml:
-    ; Destroy ship
-    jsr destroy_ship
-    rts
-@ship_astbig:
-    ; Destroy ship
-    jsr destroy_ship
-    rts
-@ship_gem:
-    ; Ship gets gem and points
-    jsr clear_amount_to_add
-    ; 750
-    lda #$50
-    sta amount_to_add
-    lda #$07
-    sta amount_to_add+1
-    jsr add_points
-    jsr count_gems
-    jsr destroy_2
-    rts
-@ship_warp:
-    lda #1
-    sta hit_warp
-    jsr destroy_1 ; Just hide the ship, doesn't count as a death
-    jsr destroy_2
     rts
 
 collision_enemy:

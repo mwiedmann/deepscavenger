@@ -9,6 +9,7 @@ GEM_TYPE = 4
 WARP_TYPE = 5
 ENEMY_TYPE = 6
 ENEMY_LASER_TYPE = 7
+MINE_TYPE = 8
 
 .struct Entity
     _x .word

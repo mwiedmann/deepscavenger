@@ -71,6 +71,7 @@ level: .byte 0
 .include "entities.s"
 .include "ship.s"
 .include "astsml.s"
+.include "mine.s"
 .include "astbig.s"
 .include "gem.s"
 .include "warp.s"
@@ -91,6 +92,7 @@ start:
 @restart_game:
     jsr clear_tiles
     jsr create_astsml_sprites
+    jsr create_mine_sprites
     jsr create_astbig_sprites
     jsr create_gem_sprites
     jsr create_warp_sprite

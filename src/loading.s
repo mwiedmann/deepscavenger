@@ -12,6 +12,7 @@ gem_filename: .asciiz "gem.bin"
 font_filename: .asciiz "font.bin"
 warp_filename: .asciiz "warp.bin"
 exp_filename: .asciiz "exp.bin"
+mine_filename: .asciiz "mine.bin"
 
 testsound_filename: .asciiz "testsnd.zsm"
 
@@ -27,6 +28,7 @@ load_sprites:
     jsr load_font
     jsr load_warp
     jsr load_exp
+    jsr load_mine
     rts
 
 load_ship:
@@ -186,6 +188,22 @@ load_warp:
     lda #2 ; VRAM 1st bank
     ldx #<WARP_LOAD_ADDR 
     ldy #>WARP_LOAD_ADDR
+    jsr LOAD
+    rts
+
+load_mine:
+    lda #8
+    ldx #<mine_filename
+    ldy #>mine_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #3 ; VRAM 1st bank
+    ldx #<MINE_LOAD_ADDR 
+    ldy #>MINE_LOAD_ADDR
     jsr LOAD
     rts
 
