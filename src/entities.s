@@ -80,6 +80,8 @@ move_entities:
 
 target_x: .word 0
 target_y: .word 0
+mine_diff_x: .word 0
+mine_diff_y: .word 0
 mine_y_adj: .byte 0
 
 mine_logic:
@@ -121,6 +123,17 @@ mine_logic:
     bcs @mine_x_greater
     ; mine less
 @mine_x_less:
+    ; first store diff
+    sec
+    lda target_x
+    ldy #Entity::_pixel_x
+    sbc (active_entity), y
+    sta mine_diff_x
+    lda target_x+1
+    ldy #Entity::_pixel_x+1
+    sbc (active_entity), y
+    sta mine_diff_x+1
+    ; set base angle
     ldy #Entity::_ang
     lda #4
     sta (active_entity), y
@@ -128,6 +141,17 @@ mine_logic:
     sta mine_y_adj
     bra @check_mine_y
 @mine_x_greater:
+    ; first store diff
+    sec
+    ldy #Entity::_pixel_x
+    lda (active_entity), y
+    sbc target_x
+    sta mine_diff_x
+    ldy #Entity::_pixel_x+1
+    lda (active_entity), y
+    sbc target_x+1
+    sta mine_diff_x+1
+    ; set base angle
     ldy #Entity::_ang
     lda #12
     sta (active_entity), y
@@ -147,26 +171,100 @@ mine_logic:
     bcs @mine_y_greater
     ; mine less
 @mine_y_less:
+    ; first store diff
+    sec
+    lda target_y
+    ldy #Entity::_pixel_y
+    sbc (active_entity), y
+    sta mine_diff_y
+    lda target_y+1
+    ldy #Entity::_pixel_y+1
+    sbc (active_entity), y
+    sta mine_diff_y+1
+    ; check adj direction
     lda mine_y_adj
     cmp #0
     beq @mine_add
     bra @mine_sub
 @mine_y_greater:
+    ; first store diff
+    sec
+    ldy #Entity::_pixel_y
+    lda (active_entity), y
+    sbc target_y
+    sta mine_diff_y
+    ldy #Entity::_pixel_y+1
+    lda (active_entity), y
+    sbc target_y+1
+    sta mine_diff_y+1
+    ; check adj direction
     lda mine_y_adj
     cmp #0
     beq @mine_sub
 @mine_add:
+    lda mine_diff_x+1
+    cmp mine_diff_y+1
+    beq @mine_add_check_lower
+    bcs @mine_add_x_greater
+    bra @mine_add_x_less
+@mine_add_check_lower:
+    lda mine_diff_x
+    cmp mine_diff_y
+    beq @mine_add_x_even
+    bcs @mine_add_x_greater
+    bra @mine_add_x_less
+@mine_add_x_even:
     ldy #Entity::_ang
     lda (active_entity), y
     clc
     adc #2
     sta (active_entity), y
     bra @accel
+@mine_add_x_greater:
+    ldy #Entity::_ang
+    lda (active_entity), y
+    clc
+    adc #1
+    sta (active_entity), y
+    bra @accel
+@mine_add_x_less:
+    ldy #Entity::_ang
+    lda (active_entity), y
+    clc
+    adc #3
+    sta (active_entity), y
+    bra @accel
 @mine_sub:
+    lda mine_diff_x+1
+    cmp mine_diff_y+1
+    beq @mine_sub_check_lower
+    bcs @mine_sub_x_greater
+    bra @mine_sub_x_less
+@mine_sub_check_lower:
+    lda mine_diff_x
+    cmp mine_diff_y
+    beq @mine_sub_x_even
+    bcs @mine_sub_x_greater
+    bra @mine_sub_x_less
+@mine_sub_x_even:
     ldy #Entity::_ang
     lda (active_entity), y
     sec
     sbc #2
+    sta (active_entity), y
+    bra @accel
+@mine_sub_x_greater:
+    ldy #Entity::_ang
+    lda (active_entity), y
+    sec
+    sbc #1
+    sta (active_entity), y
+    bra @accel
+@mine_sub_x_less:
+    ldy #Entity::_ang
+    lda (active_entity), y
+    sec
+    sbc #3
     sta (active_entity), y
 @accel:
     jsr accel_entity
