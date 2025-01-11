@@ -66,10 +66,10 @@ next_mine:
     lda #16
     ldy #Entity::_size
     sta (active_entity), y
-    lda #10
+    lda #16
     ldy #Entity::_coll_size
     sta (active_entity), y
-    lda #3
+    lda #0
     ldy #Entity::_coll_adj
     sta (active_entity), y
     lda #%10110000
