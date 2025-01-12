@@ -4,7 +4,6 @@
     comp_entity1: .res 2
     comp_entity2: .res 2
     param1: .res 2
-    param2: .res 2
     hold: .res 2
 
 .segment "STARTUP"

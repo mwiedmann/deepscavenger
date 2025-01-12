@@ -140,7 +140,6 @@ launch_amount: .byte START_ASTBIG_COUNT
 launch_astbigs:
     ldx #0
 @next_astbig:
-    stx param1 ; Currently doesn't do anything but maybe later
     phx
     jsr launch_astbig
     plx
@@ -149,8 +148,6 @@ launch_astbigs:
     bne @next_astbig
     rts
 
-; param1 - ang
-; param2 - img offset
 launch_astbig:
     ldx #0
     stx sp_entity_count
@@ -171,9 +168,6 @@ launch_astbig:
     cmp #0
     bne @skip_entity
     ; Found a free astbig
-    ; lda param1
-    ; ldy #Entity::_ang
-    ; sta (active_entity), y
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y

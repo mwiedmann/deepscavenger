@@ -51,8 +51,6 @@ point_to_sprite:
     sta VERA_ADDR_HI_SET
     rts
 
-; param1: sprite_num
-; param2: size
 cs_sprite_num: .byte 0
 cs_size: .byte 0
 cs_czf: .byte 0
