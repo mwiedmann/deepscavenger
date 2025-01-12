@@ -23,7 +23,7 @@ ASTBIG_S = 1
 astbig_start_x:         .word 0<<5, 0<<5,   576<<5, 192<<5, 384<<5, 0<<5,   576<<5, 320<<5, 192<<5, 0<<5,   576<<5, 384<<5, 128<<5, 0<<5,   576<<5, 576<<5
 astbig_start_y:         .word 0<<5, 276<<5, 138<<5, 414<<5, 0<<5,   414<<5, 414<<5, 414<<5, 0<<5,   138<<5, 276<<5, 414<<5, 0<<5,   345<<5, 0<<5,   69<<5 
 astbig_start_ang:       .word 6,    6,      12,     2,      9,      1,      13,     14,     9,      5,      13,     13,     11,     2,      10,     10  
-
+astbig_accel:           .byte 1,    2,      3,      1,      2,      2,      1,      1,      2,      1,      3,      4,      3,      3,      4,      4
 
 ang_adj: .byte 1
 
@@ -140,6 +140,7 @@ launch_amount: .byte START_ASTBIG_COUNT
 launch_astbigs:
     ldx #0
 @next_astbig:
+    stx launch_big_accel_index
     phx
     jsr launch_astbig
     plx
@@ -147,6 +148,8 @@ launch_astbigs:
     cpx launch_amount
     bne @next_astbig
     rts
+
+launch_big_accel_index: .byte 0
 
 launch_astbig:
     ldx #0
@@ -171,11 +174,16 @@ launch_astbig:
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
-    ldx #0
+    ldx launch_big_accel_index ; Accelerate the astbig a few times to get it started moving
+    lda astbig_accel, x
 @initial_accel:
-    ; Accelerate the astbig a few times to get it started moving
+    pha
     jsr accel_entity
-    bra @done
+    pla
+    dec
+    cmp #0
+    beq @done
+    bra @initial_accel
 @skip_entity:
     clc
     lda sp_offset
