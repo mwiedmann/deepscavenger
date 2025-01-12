@@ -144,6 +144,11 @@ launch_astsml:
 @done:
     rts
 
+astsml_accel_index: .byte 0
+astsml_accel_list_1: .byte 1,3,2,3,2
+astsml_accel_list_2: .byte 2,3,2,4,3
+astsml_accel_list_3: .byte 3,4,3,4,3
+astsml_accel_list_4: .byte 3,4,4,4,3
 
 found_free_astsml:
     ; Clear any existing velocity
@@ -177,8 +182,43 @@ found_free_astsml:
     ldy #Entity::_ang
     sta (active_entity), y
     ; Accelerate the astsml to get it started moving
+    ldx astsml_accel_index
+    jsr pick_accel_list
+@next_accel:
+    phx
+    pha
     jsr accel_entity
-    jsr accel_entity
+    pla
+    plx
+    dec
+    cmp #0
+    bne @next_accel
+    ; increase the index and wrap if needed
+    inx
+    cpx #5
+    bne @accel_done
+    ldx #0
+@accel_done:
+    stx astsml_accel_index
     rts
 
+pick_accel_list:
+    lda level
+    cmp #2
+    bcs @check_level_4
+    lda astsml_accel_list_1, x
+    rts
+@check_level_4:
+    cmp #4
+    bcs @check_level_6
+    lda astsml_accel_list_2, x
+    rts
+@check_level_6:
+    cmp #6
+    bcs @check_level_8
+    lda astsml_accel_list_3, x
+    rts
+@check_level_8:
+    lda astsml_accel_list_4, x
+    rts
 .endif
