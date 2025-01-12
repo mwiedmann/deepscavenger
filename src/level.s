@@ -7,9 +7,18 @@ show_level:
     jsr clear_tiles
     lda #10
     sta mb_y
-    lda #15
+    lda #16
     sta mb_x
     jsr point_to_convo_mapbase
+    jsr display_level
+@loop:
+    lda #180
+    sta wc
+    jsr wait_count
+    jsr clear_tiles
+    rts
+
+display_level:
     ldx #0
 @next_char:
     lda level_text, x
@@ -28,10 +37,11 @@ show_level:
     jsr convert_level
     lda level_temp+1
     jsr get_font_num
-    lda num_low
-    sta VERA_DATA0
-    lda #0
-    sta VERA_DATA0
+    ; Only show 2 digits
+    ; lda num_low
+    ; sta VERA_DATA0
+    ; lda #0
+    ; sta VERA_DATA0
     lda level_temp
     jsr get_font_num
     lda num_high
@@ -42,11 +52,6 @@ show_level:
     sta VERA_DATA0
     lda #0
     sta VERA_DATA0
-@loop:
-    lda #180
-    sta wc
-    jsr wait_count
-    jsr clear_tiles
     rts
 
 level_temp: .word 0

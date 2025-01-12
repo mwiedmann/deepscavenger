@@ -898,6 +898,18 @@ destroy_ship:
     sta active_entity+1
     jsr create_explosion_active_entity
     jsr destroy_active_entity
+    lda lives
+    cmp #0
+    bne @more_lives
+    ; game over
+    lda #1
+    sta game_over
+    lda #DEAD_SHIP_TIME
+    sta ship_dead
+    rts
+@more_lives:
+    dec lives
+    jsr show_header
     lda #DEAD_SHIP_TIME
     sta ship_dead
     rts

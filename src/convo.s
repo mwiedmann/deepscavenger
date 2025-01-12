@@ -2,7 +2,7 @@
 CONVO_S = 1
 
 ; Convos happen before the level (so we can have the starting convo)
-convo_level_table: .word convo_1, 255, 255, convo_2, 255, 255, convo_3, 255, 255, 255, 255, 255
+convo_level_table: .word convo_1, 255, convo_2, 255, convo_3, 255, 255, 255, 255, 255, 255, 255
 
 convo_index: .byte 0
 

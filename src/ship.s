@@ -235,4 +235,66 @@ set_laser_attr:
     ldy #Entity::_ob_behavior
     sta (active_entity), y ; Laser wraps around screen
     rts
+
+lives_text: .asciiz "SHIPS "
+
+display_lives:
+    ldx #0
+@next_char:
+    lda lives_text, x
+    cmp #0
+    beq @found_null
+    ; Write the char
+    phx
+    jsr get_font_char
+    sta VERA_DATA0
+    lda #0
+    sta VERA_DATA0
+    plx
+    inx
+    bra @next_char
+@found_null:
+    jsr convert_lives
+    lda lives_temp+1
+    jsr get_font_num
+    ; Only show 2 digits
+    ; lda num_low
+    ; sta VERA_DATA0
+    ; lda #0
+    ; sta VERA_DATA0
+    lda lives_temp
+    jsr get_font_num
+    lda num_high
+    sta VERA_DATA0
+    lda #0
+    sta VERA_DATA0
+    lda num_low
+    sta VERA_DATA0
+    lda #0
+    sta VERA_DATA0
+    rts
+
+lives_temp: .word 0
+
+convert_lives:
+    sed
+    lda #0
+    sta lives_temp
+    sta lives_temp+1
+    ldx lives
+@next:
+    cpx #0
+    beq @done
+    clc
+    lda lives_temp
+    adc #1
+    sta lives_temp
+    lda lives_temp+1
+    adc #0
+    sta lives_temp+1
+    dex
+    bra @next
+@done:
+    cld
+    rts
 .endif

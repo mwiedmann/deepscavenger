@@ -3,7 +3,7 @@ TILES_S = 1
 
 TRANS_TILE = 58
 
-header_msg: .asciiz "WELCOME TO SCAVENGER       DEBT:"
+header_msg: .asciiz "    DEBT:"
 
 clear_tiles:
     jsr point_to_mapbase
@@ -26,6 +26,25 @@ clear_tiles:
 
 show_header:
     jsr point_to_mapbase
+    ; skip a few spaces
+    lda #TRANS_TILE ; Empty
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    jsr display_level
+    lda #TRANS_TILE ; Empty
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    jsr display_lives
     ldx #0
 @next_char:
     lda header_msg, x

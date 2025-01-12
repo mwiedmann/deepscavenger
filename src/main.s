@@ -56,6 +56,8 @@ hit_warp: .byte 0
 gem_count: .byte 0
 ship_dead: .byte 0
 level: .byte 0
+lives: .byte 2
+game_over: .byte 0
 
 .include "helpers.s"
 .include "sound.s"
@@ -89,6 +91,7 @@ start:
     jsr irq_config
     jsr init_oneshots
 @restart_game:
+    jsr new_game
     jsr clear_tiles
     jsr create_astsml_sprites
     jsr create_mine_sprites
@@ -117,6 +120,11 @@ start:
     sta ship_dead
     cmp #30 ; Flash the warp for a moment before bringing in the ship
     bne @skip_show_warp
+    ldx game_over
+    cpx #1
+    bne @game_not_over
+    bra @restart_game
+@game_not_over:  
     pha
     jsr show_warp
     pla
@@ -150,9 +158,31 @@ start:
     sta waitflag
     bra @move
 
+new_game:
+    lda #0
+    sta level
+    sta game_over
+    sta hit_warp
+    sta rotatewait
+    sta thrustwait
+    sta firewait
+    sta enemywait
+    sta accelwait
+    sta storm_count
+    sta storm_count+1
+    sta mine_count
+    sta score
+    sta score+1
+    lda #$25
+    sta score+2
+    lda #2
+    sta lives
+    rts
+
 reset_counters:
     ; Reset our counters now that we are ready to accept input
     lda #0
+    sta game_over
     sta rotatewait
     sta thrustwait
     sta firewait
