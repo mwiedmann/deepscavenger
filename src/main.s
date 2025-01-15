@@ -56,7 +56,7 @@ hit_warp: .byte 0
 gem_count: .byte 0
 ship_dead: .byte 0
 level: .byte 0
-lives: .byte 2
+lives: .byte 0
 game_over: .byte 0
 
 .include "helpers.s"
@@ -115,15 +115,25 @@ start:
     cmp #0
     beq @ship_ok
     ; Ship dead, see if can come back yet
-    sec
-    sbc #1
+    dec
     sta ship_dead
-    cmp #30 ; Flash the warp for a moment before bringing in the ship
-    bne @skip_show_warp
     ldx game_over
     cpx #1
-    bne @game_not_over
-    bra @restart_game
+    bne @check_warp
+    cmp #0
+    bne @ship_ok
+    ; End game if pressing button
+    ; Or push back ship_dead for another cycle
+    lda #0
+    jsr JOYGET
+    cmp #%11111111
+    bne @restart_game
+    lda #1
+    sta ship_dead
+    bra @ship_ok
+@check_warp:
+    cmp #30 ; Flash the warp for a moment before bringing in the ship
+    bne @skip_show_warp
 @game_not_over:  
     pha
     jsr show_warp
@@ -149,7 +159,7 @@ start:
     cmp #1
     bne @waiting
     jsr next_level
-    bra @restart_game
+    jmp @restart_game
 @waiting:
     lda waitflag
     cmp #0

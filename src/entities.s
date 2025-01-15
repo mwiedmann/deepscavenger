@@ -91,6 +91,13 @@ mine_logic:
     beq @mine_yes
     rts
 @mine_yes:
+    ; if ship is dead, destroy the mine
+    lda ship_dead
+    cmp #0
+    beq @ship_alive
+    jsr destroy_active_entity
+    rts
+@ship_alive:
     ; move towards ship
     jsr kill_velocity
     ; load ship to get x/y
@@ -904,6 +911,7 @@ destroy_ship:
     ; game over
     lda #1
     sta game_over
+    jsr show_game_over
     lda #DEAD_SHIP_TIME
     sta ship_dead
     rts

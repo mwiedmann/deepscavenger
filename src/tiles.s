@@ -58,7 +58,31 @@ show_header:
     bra @next_char
 @done:
     rts
-    
+
+game_over_text: .asciiz "GAME OVER"
+
+show_game_over:
+    lda #10
+    sta mb_y
+    lda #16
+    sta mb_x
+    jsr point_to_convo_mapbase
+    ldx #0
+@next_char:
+    lda game_over_text, x
+    cmp #0
+    beq @found_null
+    ; Write the char
+    phx
+    jsr get_font_char
+    sta VERA_DATA0
+    lda #0
+    sta VERA_DATA0
+    plx
+    inx
+    bra @next_char
+@found_null:
+    rts
 
 update_score:
     ; Point to the score section of mapbase
