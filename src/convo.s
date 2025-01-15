@@ -1,8 +1,10 @@
 .ifndef CONVO_S
 CONVO_S = 1
 
+MAX_CONVO = 7
+
 ; Convos happen before the level (so we can have the starting convo)
-convo_level_table: .word convo_1, 255, convo_2, 255, convo_3, 255, 255, 255, 255, 255, 255, 255
+convo_level_table: .word convo_1, 255, convo_2, 255, convo_3, 255, convo_4, 255
 
 convo_index: .byte 0
 
@@ -116,6 +118,10 @@ stc_y: .byte 0
 show_next_convo:
     jsr clear_tiles
     lda level
+    cmp #MAX_CONVO
+    bcc @level_ok
+    lda #MAX_CONVO
+@level_ok:
     clc
     rol ; mult by 2 for .word table index
     tax
