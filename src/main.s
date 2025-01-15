@@ -67,6 +67,7 @@ game_over: .byte 0
 .include "loading.s"
 .include "sprites.s"
 .include "wait.s"
+.include "intro.s"
 .include "convodata.s"
 .include "convo.s"
 .include "entities.s"
@@ -91,7 +92,10 @@ start:
     jsr irq_config
     jsr init_oneshots
 @restart_game:
+    jsr clear_tiles
+    jsr intro
     jsr new_game
+@new_level:
     jsr clear_tiles
     jsr create_astsml_sprites
     jsr create_mine_sprites
@@ -159,7 +163,7 @@ start:
     cmp #1
     bne @waiting
     jsr next_level
-    jmp @restart_game
+    jmp @new_level
 @waiting:
     lda waitflag
     cmp #0
