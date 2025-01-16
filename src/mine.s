@@ -108,34 +108,51 @@ mine_y: .word 32
 launch_mine:
     ; Copy ships y position for mine
     jsr set_ship_as_active
-    ldy #Entity::_y
-    lda (active_entity), y
-    sta mine_y
-    ldy #Entity::_y+1
-    lda (active_entity), y
-    sta mine_y+1
     ; see where ship X is and put mine on opposite side of screen
     ldy #Entity::_pixel_x+1
     lda (active_entity), y
     cmp #>320
     bcc @mine_right
+    bne @mine_left
     ldy #Entity::_pixel_x
     lda (active_entity), y
     cmp #<320
     bcc @mine_right
-    ; mine left
+@mine_left:
     lda #<(16<<5)
     sta mine_x
     lda #>(16<<5)
     sta mine_x+1
-    jmp @mine_x_set
+    bra @mine_y_check
 @mine_right:
     ; mine right
     lda #<(620<<5)
     sta mine_x
     lda #>(620<<5)
     sta mine_x+1
-@mine_x_set:
+@mine_y_check:
+    ; see where ship Y is and put mine on opposite side of screen
+    ldy #Entity::_pixel_y+1
+    lda (active_entity), y
+    cmp #>240
+    bne @mine_top
+    ldy #Entity::_pixel_y
+    lda (active_entity), y
+    cmp #<240
+    bcc @mine_bottom
+@mine_top:
+    lda #<(16<<5)
+    sta mine_y
+    lda #>(16<<5)
+    sta mine_y+1
+    bra @mine_checks_done
+@mine_bottom:
+    ; mine bottom
+    lda #<(460<<5)
+    sta mine_y
+    lda #>(460<<5)
+    sta mine_y+1
+@mine_checks_done:
     stx sp_entity_count
     ldx #<(.sizeof(Entity)*MINE_ENTITY_NUM_START)
     stx sp_offset
@@ -209,7 +226,7 @@ found_free_mine:
     rts
 
 mine_timer: .word 0
-mine_max: .byte 5
+mine_max: .byte 10
 mine_count: .byte 0
 
 check_mines:
