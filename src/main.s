@@ -185,12 +185,14 @@ new_game:
     sta storm_count
     sta storm_count+1
     sta mine_count
+    sta mine_timer
     sta score
     sta score+1
     lda #$25
     sta score+2
     lda #2
     sta lives
+    jsr mine_compare_set
     rts
 
 reset_counters:
@@ -204,6 +206,7 @@ reset_counters:
     sta accelwait
     sta gem_count
     sta mine_count
+    sta mine_timer
     lda #120 ; Ship will warp in after a few seconds
     sta ship_dead
     rts
@@ -229,6 +232,7 @@ next_level:
     beq @no_astbig_inc
     inc
     sta launch_amount
+    jsr mine_compare_set
 @no_astbig_inc:
     rts
 

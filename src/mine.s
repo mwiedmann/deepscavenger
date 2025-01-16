@@ -226,10 +226,15 @@ found_free_mine:
     rts
 
 mine_timer: .word 0
-mine_max: .byte 10
+mine_launch_time: .word 0
+mine_max: .byte 16
 mine_count: .byte 0
+mines_on: .byte 0
 
 check_mines:
+    lda mines_on
+    cmp #1
+    bne @done
     lda mine_count
     cmp mine_max
     beq @done
@@ -240,15 +245,60 @@ check_mines:
     lda mine_timer+1
     adc #0
     sta mine_timer+1
-    cmp #>300
+    cmp mine_launch_time+1
     bne @done
     lda mine_timer
-    cmp #<300
+    cmp mine_launch_time
     bne @done
     lda #0
     sta mine_timer
     sta mine_timer+1
     jsr launch_mine
+@done:
+    rts
+
+MINES_2 = 60*10
+MINES_4 = 60*8
+MINES_6 = 60*6
+MINES_8 = 60*5
+
+mine_compare_set:
+    ; mines start off
+    lda #0
+    sta mines_on
+    lda level
+    cmp #2
+    bcc @done ; no mines on fields 0-1
+    lda #1
+    sta mines_on ; mines are on for rest of the fields
+    cmp #4
+    bcs @check_6
+    lda #<MINES_2
+    sta mine_launch_time
+    lda #>MINES_2
+    sta mine_launch_time+1
+    bra @done
+@check_6:
+    cmp #6
+    bcs @check_8
+    lda #<MINES_4
+    sta mine_launch_time
+    lda #>MINES_4
+    sta mine_launch_time+1
+    bra @done
+@check_8:
+    cmp #8
+    bcs @max_mines
+    lda #<MINES_6
+    sta mine_launch_time
+    lda #>MINES_6
+    sta mine_launch_time+1
+    bra @done
+@max_mines:
+    lda #<MINES_8
+    sta mine_launch_time
+    lda #>MINES_8
+    sta mine_launch_time+1
 @done:
     rts
 
