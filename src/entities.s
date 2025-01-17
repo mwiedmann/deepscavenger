@@ -274,10 +274,15 @@ mine_logic:
     sbc #3
     sta (active_entity), y
 @accel:
+    ; Accelerate the mine to get it started moving
+    lda mine_accel_count
+@accel_loop:
+    pha
     jsr accel_entity
-    jsr accel_entity
-    jsr accel_entity
-@done:
+    pla
+    dec
+    cmp #0
+    bne @accel_loop
     rts
 
 enemy_logic:

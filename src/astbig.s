@@ -138,6 +138,16 @@ next_astbig:
 launch_amount: .byte START_ASTBIG_COUNT
 
 launch_astbigs:
+    lda level
+    clc
+    ror
+    clc
+    adc #START_ASTBIG_COUNT
+    cmp #ASTBIG_COUNT ; Max astbig count
+    bcc @count_set
+    lda #ASTBIG_COUNT ; might be over max
+@count_set:
+    sta launch_amount
     ldx #0
 @next_astbig:
     stx launch_big_accel_index

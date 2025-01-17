@@ -216,13 +216,9 @@ found_free_mine:
     ldy #Entity::_y+1
     sta (active_entity), y
     ; ; Set its angle and accel once to get it going
-    ; ; astsml_ang_index
     lda #4
     ldy #Entity::_ang
     sta (active_entity), y
-    ; ; Accelerate the astsml to get it started moving
-    jsr accel_entity
-    jsr accel_entity
     rts
 
 mine_timer: .word 0
@@ -230,6 +226,7 @@ mine_launch_time: .word 0
 mine_max: .byte 16
 mine_count: .byte 0
 mines_on: .byte 0
+mine_accel_count: .byte 0
 
 check_mines:
     lda mines_on
@@ -257,10 +254,10 @@ check_mines:
 @done:
     rts
 
-MINES_2 = 60*10
-MINES_4 = 60*8
-MINES_6 = 60*6
-MINES_8 = 60*5
+MINES_2_3 = 60*10
+MINES_4_5 = 60*8
+MINES_6_7 = 60*6
+MINES_8_UP = 60*5
 
 mine_compare_set:
     ; mines start off
@@ -271,34 +268,43 @@ mine_compare_set:
     bcc @done ; no mines on fields 0-1
     lda #1
     sta mines_on ; mines are on for rest of the fields
+    lda level
     cmp #4
     bcs @check_6
-    lda #<MINES_2
+    lda #<MINES_2_3
     sta mine_launch_time
-    lda #>MINES_2
+    lda #>MINES_2_3
     sta mine_launch_time+1
+    lda #4
+    sta mine_accel_count
     bra @done
 @check_6:
     cmp #6
     bcs @check_8
-    lda #<MINES_4
+    lda #<MINES_4_5
     sta mine_launch_time
-    lda #>MINES_4
+    lda #>MINES_4_5
     sta mine_launch_time+1
+    lda #5
+    sta mine_accel_count
     bra @done
 @check_8:
     cmp #8
     bcs @max_mines
-    lda #<MINES_6
+    lda #<MINES_6_7
     sta mine_launch_time
-    lda #>MINES_6
+    lda #>MINES_6_7
     sta mine_launch_time+1
+    lda #6
+    sta mine_accel_count
     bra @done
 @max_mines:
-    lda #<MINES_8
+    lda #<MINES_8_UP
     sta mine_launch_time
-    lda #>MINES_8
+    lda #>MINES_8_UP
     sta mine_launch_time+1
+    lda #7
+    sta mine_accel_count
 @done:
     rts
 

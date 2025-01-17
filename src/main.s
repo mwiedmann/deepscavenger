@@ -223,17 +223,7 @@ next_level:
     sta storm_count
     sta storm_count+1
     sta mine_count
-    lda level
-    and #2
-    cmp #2
-    bne @no_astbig_inc ; Only increase on even levels
-    lda launch_amount
-    cmp #ASTBIG_COUNT ; Max astbig count
-    beq @no_astbig_inc
-    inc
-    sta launch_amount
     jsr mine_compare_set
-@no_astbig_inc:
     rts
 
 point_to_mapbase:
