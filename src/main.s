@@ -107,14 +107,13 @@ start:
     jsr show_next_convo
     jsr show_level
     jsr show_header
-    ; jsr launch_enemy_top
-    ; jsr launch_enemy_bottom
     jsr reset_counters
     jsr update_score
 @move:
     jsr handle_collision
     jsr check_storm
     jsr check_mines
+    jsr check_enemies
     lda ship_dead
     cmp #0
     beq @ship_ok
@@ -186,6 +185,8 @@ new_game:
     sta storm_count+1
     sta mine_count
     sta mine_timer
+    sta enemy_timer
+    sta enemy_count
     sta score
     sta score+1
     lda #$25
@@ -193,6 +194,7 @@ new_game:
     lda #2
     sta lives
     jsr mine_compare_set
+    jsr enemy_compare_set
     rts
 
 reset_counters:
@@ -207,6 +209,8 @@ reset_counters:
     sta gem_count
     sta mine_count
     sta mine_timer
+    sta enemy_timer
+    sta enemy_count
     lda #120 ; Ship will warp in after a few seconds
     sta ship_dead
     rts
@@ -223,7 +227,9 @@ next_level:
     sta storm_count
     sta storm_count+1
     sta mine_count
+    sta enemy_count
     jsr mine_compare_set
+    jsr enemy_compare_set
     rts
 
 point_to_mapbase:

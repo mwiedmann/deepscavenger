@@ -334,7 +334,7 @@ enemy_logic:
 @done:
     rts
     
-enemy_dir: .byte 4, 3, 5, 5, 4, 3, 3, 4, 5, 3, 4
+enemy_dir: .byte 2, 3, 2, 1, 2, 2, 3, 4, 3, 2, 1
 enemy_index_x: .word 0
 
 kill_velocity:
@@ -381,7 +381,7 @@ enemy_change_dir:
     jsr accel_entity
     plx
     inx
-    cpx #7
+    cpx enemy_accel_count
     bne @accel
     rts
 

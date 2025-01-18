@@ -172,7 +172,6 @@ next_enemy_laser:
 enemy_ang_index: .byte 4
 enemy_x: .word 100<<5
 enemy_y: .word 100<<5
-enemy_row: .byte 0
 
 launch_enemy_top:
     lda #4
@@ -185,24 +184,20 @@ launch_enemy_top:
     sta enemy_y
     lda #>(120<<5)
     sta enemy_y+1
-    lda #0
-    sta enemy_row
     jsr launch_enemy
     rts
 
 launch_enemy_bottom:
     lda #12
     sta enemy_ang_index
-    lda #<(608<<5)
+    lda #<(0<<5)
     sta enemy_x
-    lda #>(608<<5)
+    lda #>(0<<5)
     sta enemy_x+1
     lda #<(348<<5)
     sta enemy_y
     lda #>(348<<5)
     sta enemy_y+1
-    lda #1
-    sta enemy_row
     jsr launch_enemy
     rts
 
@@ -221,8 +216,9 @@ launch_enemy:
     lda #>entities
     adc sp_offset+1
     sta active_entity+1
-    lda enemy_row
-    cmp sp_entity_count
+    ldy #Entity::_visible
+    lda (active_entity), y
+    cmp #0
     bne @skip_entity
     jsr found_free_enemy
     bra @done
@@ -389,4 +385,99 @@ found_free_enemy_laser:
     jsr move_entity
     jsr move_entity
     rts
+
+enemy_timer: .word 0
+enemy_launch_time: .word 0
+enemy_max: .byte 8
+enemy_count: .byte 0
+enemy_on: .byte 0
+enemy_accel_count: .byte 0
+
+check_enemies:
+    lda enemy_on
+    cmp #1
+    bne @done
+    lda enemy_count
+    cmp enemy_max
+    beq @done
+    clc
+    lda enemy_timer
+    adc #1
+    sta enemy_timer
+    lda enemy_timer+1
+    adc #0
+    sta enemy_timer+1
+    cmp enemy_launch_time+1
+    bne @done
+    lda enemy_timer
+    cmp enemy_launch_time
+    bne @done
+    lda #0
+    sta enemy_timer
+    sta enemy_timer+1
+    ; see where to launch enemy
+    jsr set_ship_as_active
+    ; see where ship Y is and put mine on opposite side of screen
+    ldy #Entity::_pixel_y+1
+    lda (active_entity), y
+    cmp #>240
+    bcc @enemy_bottom
+    bne @enemy_top
+    ldy #Entity::_pixel_y
+    lda (active_entity), y
+    cmp #<240
+    bcc @enemy_bottom
+@enemy_top:
+    jsr launch_enemy_top
+    rts
+@enemy_bottom:
+    jsr launch_enemy_bottom
+    rts
+@done:
+    rts
+
+ENEMY_4_5 = 60*15
+ENEMY_6_7 = 60*13
+ENEMY_8_UP = 60*11
+
+enemy_compare_set:
+    ; enemies start off
+    lda #0
+    sta enemy_on
+    lda level
+    cmp #4
+    bcc @done ; no enemies on fields 0-3
+    lda #1
+    sta enemy_on ; enemies are on for rest of the fields
+    lda level
+@check_6:
+    cmp #6
+    bcs @check_8
+    lda #<ENEMY_4_5
+    sta enemy_launch_time
+    lda #>ENEMY_4_5
+    sta enemy_launch_time+1
+    lda #6
+    sta enemy_accel_count
+    bra @done
+@check_8:
+    cmp #8
+    bcs @max_enemies
+    lda #<ENEMY_6_7
+    sta enemy_launch_time
+    lda #>ENEMY_6_7
+    sta enemy_launch_time+1
+    lda #7
+    sta enemy_accel_count
+    bra @done
+@max_enemies:
+    lda #<ENEMY_8_UP
+    sta enemy_launch_time
+    lda #>ENEMY_8_UP
+    sta enemy_launch_time+1
+    lda #8
+    sta enemy_accel_count
+@done:
+    rts
+
 .endif
