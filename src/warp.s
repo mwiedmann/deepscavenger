@@ -35,7 +35,10 @@ create_warp_sprite:
     ldy #Entity::_type
     sta (active_entity), y
     lda #%10000000
-    ldy #Entity::_collision
+    ldy #Entity::_collision_matrix
+    sta (active_entity), y
+    lda #%00000001
+    ldy #Entity::_collision_id
     sta (active_entity), y
     lda #32
     ldy #Entity::_size
@@ -72,9 +75,6 @@ create_warp_sprite:
     sta cs_sprite_num ; pass the sprite_num for the warp and create its sprite
     lda #%10100000 ; 32x32
     sta cs_size
-    ldy #Entity::_collision
-    lda (active_entity), y
-    sta cs_czf
     jsr create_sprite
     rts
 

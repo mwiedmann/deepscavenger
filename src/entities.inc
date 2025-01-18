@@ -25,7 +25,8 @@ MINE_TYPE = 8
     _has_accel .byte
     _has_ang .byte
     _ob_behavior .byte ; 0=dead, 1=reset, 2=wrap
-    _collision .byte
+    _collision_matrix .byte
+    _collision_id .byte
     _type .byte
     _size .byte
     _ang_ticks .byte

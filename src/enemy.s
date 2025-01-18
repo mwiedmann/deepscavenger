@@ -48,8 +48,11 @@ next_enemy:
     lda #4
     ldy #Entity::_coll_adj
     sta (active_entity), y
-    lda #%10110000
-    ldy #Entity::_collision
+    lda #%11000100
+    ldy #Entity::_collision_matrix
+    sta (active_entity), y
+    lda #%00010000
+    ldy #Entity::_collision_id
     sta (active_entity), y
     lda #0
     ldy #Entity::_has_accel
@@ -66,9 +69,6 @@ next_enemy:
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
     lda #%10100000
     sta cs_size ; 32x32
-    ldy #Entity::_collision
-    lda (active_entity), y
-    sta cs_czf
     jsr create_sprite
     lda sp_offset
     adc #.sizeof(Entity)
@@ -136,8 +136,11 @@ next_enemy_laser:
     ldy #Entity::_coll_adj
     sta (active_entity), y
     sta (active_entity), y
-    lda #%10110000
-    ldy #Entity::_collision
+    lda #%10100100
+    ldy #Entity::_collision_matrix
+    sta (active_entity), y
+    lda #%00001000
+    ldy #Entity::_collision_id
     sta (active_entity), y
     lda #1
     ldy #Entity::_has_accel
@@ -150,9 +153,6 @@ next_enemy_laser:
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
     lda #%01010000
     sta cs_size ; 16x16
-    ldy #Entity::_collision
-    lda (active_entity), y
-    sta cs_czf
     jsr create_sprite
     lda sp_offset
     adc #.sizeof(Entity)

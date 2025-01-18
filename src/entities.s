@@ -423,8 +423,9 @@ check_entities:
     cmp (comp_entity2), y
     beq @jump_to_no_collision
     ; Different types, see if they can collide
-    ldy #Entity::_collision
+    ldy #Entity::_collision_id
     lda (comp_entity1), y
+    ldy #Entity::_collision_matrix
     and (comp_entity2), y
     cmp #0
     beq @jump_to_no_collision

@@ -102,8 +102,11 @@ next_astbig:
     lda #6
     ldy #Entity::_coll_adj
     sta (active_entity), y
-    lda #%10110000
-    ldy #Entity::_collision
+    lda #%11001000
+    ldy #Entity::_collision_matrix
+    sta (active_entity), y
+    lda #%00100000
+    ldy #Entity::_collision_id
     sta (active_entity), y
     lda #0
     ldy #Entity::_has_accel
@@ -114,9 +117,6 @@ next_astbig:
     sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
     lda #%10100000
     sta cs_size ; 32x32
-    ldy #Entity::_collision
-    lda (active_entity), y
-    sta cs_czf
     jsr create_sprite
     lda sp_offset
     adc #.sizeof(Entity)

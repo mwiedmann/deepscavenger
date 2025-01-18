@@ -92,18 +92,12 @@ start:
     jsr irq_config
     jsr init_oneshots
 @restart_game:
+    jsr clear_and_create
     jsr clear_tiles
     jsr intro
     jsr new_game
 @new_level:
-    jsr clear_tiles
-    jsr create_astsml_sprites
-    jsr create_mine_sprites
-    jsr create_astbig_sprites
-    jsr create_gem_sprites
-    jsr create_warp_sprite
-    jsr create_enemy_sprites
-    jsr create_enemy_laser_sprites
+    jsr clear_and_create
     jsr show_next_convo
     jsr show_level
     jsr show_header
@@ -170,6 +164,17 @@ start:
     lda #0
     sta waitflag
     bra @move
+
+clear_and_create:
+    jsr clear_tiles
+    jsr create_astsml_sprites
+    jsr create_mine_sprites
+    jsr create_astbig_sprites
+    jsr create_gem_sprites
+    jsr create_warp_sprite
+    jsr create_enemy_sprites
+    jsr create_enemy_laser_sprites
+    rts
 
 new_game:
     lda #0

@@ -53,7 +53,6 @@ point_to_sprite:
 
 cs_sprite_num: .byte 0
 cs_size: .byte 0
-cs_czf: .byte 0
 
 create_sprite:
     lda cs_sprite_num
@@ -75,7 +74,7 @@ create_sprite:
     ldy #Entity::_pixel_y+1
     lda (active_entity), y
     sta VERA_DATA0
-    lda cs_czf ; #%00001100 ; In front of layer 1
+    lda #0 ; z-depth
     sta VERA_DATA0
     lda cs_size ; #%10100000 ; 32x32 pixels
     sta VERA_DATA0
@@ -261,8 +260,7 @@ update_sprite:
     ldy #Entity::_pixel_y+1
     lda (active_entity), y
     sta VERA_DATA0
-    ldy #Entity::_collision
-    lda (active_entity), y
+    lda #0
     ldx us_skip_flip
     cpx #1
     beq @skip_flipping
