@@ -50,7 +50,7 @@ enemywait: .byte 0
 
 joy_a: .byte 0
 
-score: .byte $00, $00, $25
+score: .byte $00, $00, $00
 storm_count: .word 0
 hit_warp: .byte 0
 gem_count: .byte 0
@@ -58,6 +58,7 @@ ship_dead: .byte 0
 level: .byte 0
 lives: .byte 0
 game_over: .byte 0
+winner: .byte 0
 
 .include "helpers.s"
 .include "sound.s"
@@ -99,6 +100,9 @@ start:
 @new_level:
     jsr clear_and_create
     jsr show_next_convo
+    lda winner
+    cmp #1
+    beq @restart_game
     jsr show_level
     jsr show_header
     jsr reset_counters
@@ -180,6 +184,7 @@ new_game:
     lda #0
     sta level
     sta game_over
+    sta winner
     sta hit_warp
     sta rotatewait
     sta thrustwait
@@ -206,6 +211,7 @@ reset_counters:
     ; Reset our counters now that we are ready to accept input
     lda #0
     sta game_over
+    sta winner
     sta rotatewait
     sta thrustwait
     sta firewait

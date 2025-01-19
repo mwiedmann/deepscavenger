@@ -117,6 +117,13 @@ stc_y: .byte 0
 
 show_next_convo:
     jsr clear_tiles
+    ; check for winner convo
+    lda winner
+    cmp #1
+    bne @reg_convo
+    jsr load_winner_convo
+    bra @new_convo
+@reg_convo:
     lda level
     cmp #MAX_CONVO
     bcc @level_ok
@@ -201,6 +208,13 @@ load_valid_convo:
     lda convo_level_table, x
     sta param1 ; Convo to show
     lda convo_level_table+1, x
+    sta param1+1 ; Convo to show
+    rts
+
+load_winner_convo:
+    lda #<convo_winner
+    sta param1 ; Convo to show
+    lda #>convo_winner
     sta param1+1 ; Convo to show
     rts
 

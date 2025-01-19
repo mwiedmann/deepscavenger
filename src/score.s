@@ -23,6 +23,15 @@ add_points:
     sbc amount_to_add+2
     sta score+2
     cld
+    cmp #$99
+    bne @done
+    lda #0
+    sta score
+    sta score+1
+    sta score+2
+    lda #1
+    sta winner
+@done:
     rts
 
 .endif
