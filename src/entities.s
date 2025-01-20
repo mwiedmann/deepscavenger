@@ -871,6 +871,7 @@ create_explosion_active_entity:
     lda (active_entity), y
     sta os_y+1
     jsr create_oneshot
+    jsr sound_explode
     rts
 
 destroy_1:

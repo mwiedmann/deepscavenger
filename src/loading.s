@@ -14,7 +14,8 @@ warp_filename: .asciiz "warp.bin"
 exp_filename: .asciiz "exp.bin"
 mine_filename: .asciiz "mine.bin"
 
-testsound_filename: .asciiz "testsnd.zsm"
+missile_filename: .asciiz "missile.zsm"
+explode_filename: .asciiz "explode.zsm"
 
 load_sprites:
     jsr load_ship
@@ -225,8 +226,8 @@ load_exp:
 
 load_sounds:
     lda #11
-    ldx #<testsound_filename
-    ldy #>testsound_filename
+    ldx #<missile_filename
+    ldy #>missile_filename
     jsr SETNAM
     ; 0,8,2
     lda #0
@@ -234,8 +235,22 @@ load_sounds:
     ldy #2
     jsr SETLFS
     lda #0 ; RAM
-    ldx #<HIRAM 
-    ldy #>HIRAM
+    ldx #<MISSILE_SOUND 
+    ldy #>MISSILE_SOUND
+    jsr LOAD
+
+    lda #11
+    ldx #<explode_filename
+    ldy #>explode_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #0 ; RAM
+    ldx #<EXPLODE_SOUND 
+    ldy #>EXPLODE_SOUND
     jsr LOAD
     rts
 

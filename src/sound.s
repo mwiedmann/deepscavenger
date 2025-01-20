@@ -3,6 +3,7 @@ SOUND_S = 1
 
 SOUND_PRIORITY_MUSIC = 0
 SOUND_PRIORITY_SFX = 1
+SOUND_PRIORITY_SFX_2 = 2
 
 sound_init:
     lda #ZSM_BANK
@@ -11,16 +12,28 @@ sound_init:
     rts
 
 sound_shoot:
-    rts
-    ldx #SOUND_PRIORITY_SFX
-	jsr zsm_stop
+    ; ldx #SOUND_PRIORITY_SFX
+	; jsr zsm_stop
 
 	lda #0
 	ldx #SOUND_PRIORITY_SFX ; Priority
-	ldy #>HIRAM; address hi to Y
+	ldy #>MISSILE_SOUND; address hi to Y
 	jsr zsm_setmem
 
 	ldx #SOUND_PRIORITY_SFX
+	jsr zsm_play
+    rts
+
+sound_explode:
+    ; ldx #SOUND_PRIORITY_SFX
+	; jsr zsm_stop
+
+	lda #0
+	ldx #SOUND_PRIORITY_SFX_2 ; Priority
+	ldy #>EXPLODE_SOUND; address hi to Y
+	jsr zsm_setmem
+
+	ldx #SOUND_PRIORITY_SFX_2
 	jsr zsm_play
     rts
 
