@@ -1,6 +1,9 @@
 .ifndef GEM_S
 GEM_S = 1
 
+gem_number: .byte 0,0,0,1,1,1,2,2,3,3,4,4,5,5,6,7
+last_gem_number: .byte 0
+
 create_gem_sprites:
     lda #<GEM_LOAD_ADDR
     sta us_img_addr
@@ -9,6 +12,7 @@ create_gem_sprites:
     lda #<(GEM_LOAD_ADDR>>16)
     sta us_img_addr+2
     ldx #0
+    sta last_gem_number
     stx sp_entity_count
     ldx #GEM_SPRITE_NUM_START
     stx sp_num
@@ -64,8 +68,8 @@ next_gem:
     sta (active_entity), y
     lda sp_num
     ldy #Entity::_sprite_num
-    sta (active_entity), y ; Set enemy sprite num
-    sta cs_sprite_num ; pass the sprite_num for the enemy and create its sprite
+    sta (active_entity), y ; Set sprite num
+    sta cs_sprite_num ; pass the sprite_num and create its sprite
     lda #%01010000
     sta cs_size ; 16x16
     jsr create_sprite
@@ -75,8 +79,14 @@ next_gem:
     lda sp_offset+1
     adc #0
     sta sp_offset+1
-    ; Increase the GEM img once we have more than 1 image
-    ; Increase the GEM img addr
+    ; Increase the GEM img addr if next gem
+    ldx sp_entity_count
+    inx
+    lda gem_number, x
+    cmp last_gem_number
+    beq @check_max
+    sta last_gem_number
+    ; new gem type, change gfx
     clc
     lda us_img_addr
     adc #<GEM_SPRITE_FRAME_SIZE
@@ -87,18 +97,10 @@ next_gem:
     lda us_img_addr+2
     adc #0
     sta us_img_addr+2
+@check_max:
     inc sp_num
     inc sp_entity_count
     lda sp_entity_count
-    cmp #8 ; Only 8 gem types, go back to 0
-    bne @check_max
-    ldx #<GEM_LOAD_ADDR
-    stx us_img_addr
-    ldx #>GEM_LOAD_ADDR
-    stx us_img_addr+1
-    ldx #<(GEM_LOAD_ADDR>>16)
-    stx us_img_addr+2
-@check_max:
     cmp #GEM_COUNT
     beq @done
     jmp next_gem
@@ -128,23 +130,20 @@ drop_gem_from_active_entity:
     sta dg_y+1
     ldx #0
     stx sp_entity_count
-    ldx #<(.sizeof(Entity)*GEM_ENTITY_NUM_START)
-    stx sp_offset
-    ldx #>(.sizeof(Entity)*GEM_ENTITY_NUM_START)
-    stx sp_offset+1
-@next_entity:
-    clc
-    lda #<entities
-    adc sp_offset
+    ; there are 16 astbigs and 16 gems
+    ; pick the same gem sprite num as the astbig+16
+    lda active_entity
+    adc #<(.sizeof(Entity)*GEM_COUNT)
+    sta sp_offset
+    lda active_entity+1
+    adc #>(.sizeof(Entity)*GEM_COUNT)
+    sta sp_offset+1
+    ; make the gem the active entity
+    lda sp_offset
     sta active_entity
-    lda #>entities
-    adc sp_offset+1
+    lda sp_offset+1
     sta active_entity+1
-    ldy #Entity::_visible
-    lda (active_entity), y
-    cmp #0
-    bne @skip_entity
-    ; Found a free gem
+    ; make it visible and config it
     lda #1
     ldy #Entity::_visible
     sta (active_entity), y
@@ -161,23 +160,8 @@ drop_gem_from_active_entity:
     ldy #Entity::_y+1
     sta (active_entity), y
     jsr set_gem_vel
-    ldx #0
-    bra @done
-@skip_entity:
-    clc
-    lda sp_offset
-    adc #.sizeof(Entity)
-    sta sp_offset
-    lda sp_offset+1
-    adc #0
-    sta sp_offset+1
-    inc sp_entity_count
-    lda sp_entity_count
-    cmp #GEM_COUNT
-    bne @next_entity
 @done:
     rts
-
 
 set_gem_vel:
     ; We will set the x vel somewhat "randomly" (based on x pos)

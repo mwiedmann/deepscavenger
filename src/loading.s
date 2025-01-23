@@ -252,6 +252,7 @@ load_sounds:
     ldx #<EXPLODE_SOUND 
     ldy #>EXPLODE_SOUND
     jsr LOAD
+    
     rts
 
 .endif
