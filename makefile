@@ -33,6 +33,7 @@ img:
 	node tools/gimp-img-convert.js gfx/sprites.data build/ASTBIG.BIN 32 32 8 48 8 2
 	node tools/gimp-img-convert.js gfx/sprites.data build/ASTSML.BIN 16 16 16 256 16 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/GEM.BIN 16 16 16 272 8 1
+	node tools/gimp-img-convert.js gfx/sprites.data build/SCORE.BIN 16 16 16 320 8 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/EXP.BIN 32 32 8 72 8 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/WARP.BIN 32 32 8 104 8 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/FONT.BIN 16 16 16 352 16 4

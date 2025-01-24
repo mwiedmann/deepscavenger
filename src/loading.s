@@ -9,6 +9,7 @@ laser_filename: .asciiz "laser.bin"
 astbig_filename: .asciiz "astbig.bin"
 astsml_filename: .asciiz "astsml.bin"
 gem_filename: .asciiz "gem.bin"
+score_filename: .asciiz "score.bin"
 font_filename: .asciiz "font.bin"
 warp_filename: .asciiz "warp.bin"
 exp_filename: .asciiz "exp.bin"
@@ -26,6 +27,7 @@ load_sprites:
     jsr load_astbig
     jsr load_astsml
     jsr load_gem
+    jsr load_score
     jsr load_font
     jsr load_warp
     jsr load_exp
@@ -157,6 +159,22 @@ load_gem:
     lda #2 ; VRAM 1st bank
     ldx #<GEM_LOAD_ADDR 
     ldy #>GEM_LOAD_ADDR
+    jsr LOAD
+    rts
+
+load_score:
+    lda #9
+    ldx #<score_filename
+    ldy #>score_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #2 ; VRAM 1st bank
+    ldx #<SCORE_LOAD_ADDR 
+    ldy #>SCORE_LOAD_ADDR
     jsr LOAD
     rts
 
