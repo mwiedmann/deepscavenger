@@ -733,10 +733,17 @@ collision_ship:
 @ship_gem:
     ; Ship gets gem and points
     jsr clear_amount_to_add
-    ; 750
-    lda #$50
+    ; Get the gem num so we can get the points
+    lda hc_inner_entity_count
+    sec
+    sbc #GEM_SPRITE_NUM_START
+    clc
+    rol
+    tax
+    lda gem_score, x
     sta amount_to_add
-    lda #$07
+    inx
+    lda gem_score, x
     sta amount_to_add+1
     jsr add_points
     jsr count_gems

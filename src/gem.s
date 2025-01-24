@@ -1,7 +1,9 @@
 .ifndef GEM_S
 GEM_S = 1
 
-gem_number: .byte 0,0,0,1,1,1,2,2,3,3,4,4,5,5,6,7
+gem_number: .byte 0,     0,     0,     1,     1,     1,     2,     2,     3,     3,     4,     4,     5,     5,     6,     7
+gem_score: .word  $0250, $0250, $0250, $0500, $0500, $0500, $0750, $0750, $1000, $1000, $2000, $2000, $3500, $3500, $5000, $7500
+
 last_gem_number: .byte 0
 
 create_gem_sprites:
