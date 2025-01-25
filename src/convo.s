@@ -4,7 +4,7 @@ CONVO_S = 1
 MAX_CONVO = 7
 
 ; Convos happen before the level (so we can have the starting convo)
-convo_level_table: .word convo_1, 255, convo_2, 255, convo_3, 255, convo_4, 255
+convo_level_table: .word convo_intro, 255, convo_love_interest_1, 255, convo_pirate_1, 255, convo_corp_1, 255, convo_colony_1, 255, convo_pirate_2, 255
 
 convo_index: .byte 0
 
