@@ -9,6 +9,7 @@ EXP_H=1
     _ticks .byte
     _sprite_num .byte
     _image_addr .dword
+    _type .byte
 .endstruct
 
 .endif

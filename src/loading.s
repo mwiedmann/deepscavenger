@@ -172,7 +172,7 @@ load_score:
     ldx #8
     ldy #2
     jsr SETLFS
-    lda #2 ; VRAM 1st bank
+    lda #3 ; VRAM 2nd bank
     ldx #<SCORE_LOAD_ADDR 
     ldy #>SCORE_LOAD_ADDR
     jsr LOAD
@@ -220,7 +220,7 @@ load_mine:
     ldx #8
     ldy #2
     jsr SETLFS
-    lda #3 ; VRAM 1st bank
+    lda #3 ; VRAM 2nd bank
     ldx #<MINE_LOAD_ADDR 
     ldy #>MINE_LOAD_ADDR
     jsr LOAD
