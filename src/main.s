@@ -138,6 +138,7 @@ start:
 @game_not_over:  
     pha
     jsr show_warp
+    jsr enable_safe_area
     pla
 @skip_show_warp:
     cmp #1 ; Hide the warp just before bringing in the ship

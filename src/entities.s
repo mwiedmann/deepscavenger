@@ -618,8 +618,8 @@ last_inner_entity:
     ; Reached last entity
     inc hc_outer_entity_count ; Update the outer index
     lda hc_outer_entity_count 
-    cmp #ASTSML_ENTITY_NUM_START
-    beq @something_wrong ;@done ; Reached end of list...stop
+    cmp #MINE_SPRITE_NUM_START
+    beq @done ; Reached end of list...stop
     inc ; Inc and store as the starting inner index
     sta hc_inner_entity_count 
     clc
@@ -638,8 +638,6 @@ last_inner_entity:
     sta comp_entity2+1
     jmp check_entities
 @done:
-    rts
-@something_wrong:
     rts
 
 hcs_keep_going: .byte 0
@@ -666,8 +664,13 @@ handle_collision_sprites:
     bra @done
 @check_enemy_laser:
     cmp #ENEMY_LASER_TYPE
-    bne @catch_all
+    bne @check_safe
     jsr collision_enemy_laser
+    bra @done
+@check_safe:
+    cmp #SAFE_TYPE
+    bne @catch_all
+    jsr collision_safe
     bra @done
 @catch_all:
     ;jsr destroy_1 ; Catch all, shouldn't get here
@@ -806,9 +809,12 @@ collision_enemy:
     beq @enemy_astbig
     cmp #GEM_TYPE
     beq @enemy_gem
+    cmp #SAFE_TYPE
+    beq @enemy_safe
     rts
 @enemy_astsml:
     ; Destroy ast
+    jsr create_explosion_2
     jsr destroy_2
     rts
 @enemy_astbig:
@@ -817,33 +823,67 @@ collision_enemy:
     rts
 @enemy_gem:
     ; Destroy gem
+    jsr create_explosion_2
     jsr count_gems
     jsr destroy_2
+    rts
+@enemy_safe:
+    jsr create_explosion_active_entity
+    jsr destroy_1
     rts
 
 collision_enemy_laser:
     ldy #Entity::_type
     lda (comp_entity2), y
     cmp #ASTSML_TYPE
-    beq @enemy_astsml
+    beq @enemylsr_astsml
     cmp #ASTBIG_TYPE
-    beq @enemy_astbig
+    beq @enemylsr_astbig
     cmp #GEM_TYPE
-    beq @enemy_gem
+    beq @enemylsr_gem
+    cmp #SAFE_TYPE
+    beq @enemylsr_safe
     rts
-@enemy_astsml:
+@enemylsr_astsml:
     ; Destroy both
     jsr destroy_both
     rts
-@enemy_astbig:
+@enemylsr_astbig:
     ; Split the big, destroy laser
     jsr destroy_1
     jsr split_2
     rts
-@enemy_gem:
+@enemylsr_gem:
     ; Destroy both
     jsr count_gems
     jsr destroy_both
+    rts
+@enemylsr_safe:
+    jsr destroy_1
+    rts
+
+collision_safe:
+    ldy #Entity::_type
+    lda (comp_entity2), y
+    cmp #ASTSML_TYPE
+    beq @safe_astsml
+    cmp #ASTBIG_TYPE
+    beq @safe_astbig
+    cmp #GEM_TYPE
+    beq @safe_gem
+    rts
+@safe_astsml:
+    jsr create_explosion_2
+    jsr destroy_2
+    rts
+@safe_astbig:
+    ; Split the big
+    jsr split_2
+    rts
+@safe_gem:
+    jsr create_explosion_2
+    jsr count_gems
+    jsr destroy_2
     rts
 
 create_explosion_active_entity:
@@ -858,6 +898,23 @@ create_explosion_active_entity:
     sta os_y
     ldy #Entity::_pixel_y+1
     lda (active_entity), y
+    sta os_y+1
+    jsr create_explosion
+    jsr sound_explode
+    rts
+
+create_explosion_2:
+    ldy #Entity::_pixel_x
+    lda (comp_entity2), y
+    sta os_x
+    ldy #Entity::_pixel_x+1
+    lda (comp_entity2), y
+    sta os_x+1
+    ldy #Entity::_pixel_y
+    lda (comp_entity2), y
+    sta os_y
+    ldy #Entity::_pixel_y+1
+    lda (comp_entity2), y
     sta os_y+1
     jsr create_explosion
     jsr sound_explode

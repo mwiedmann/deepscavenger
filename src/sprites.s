@@ -86,6 +86,10 @@ update_sprite:
     lda #0
     sta us_skip_flip
     lda param1
+    cmp #SAFE_SPRITE_NUM_START ; don't show this sprite
+    bne @continue
+    rts
+@continue:
     sta pts_sprite_num
     jsr point_to_sprite
     ldx #0
