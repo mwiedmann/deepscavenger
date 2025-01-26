@@ -2,9 +2,11 @@
 LEVEL_S = 1
 
 level_text: .asciiz "FIELD "
+extra_ship_text: .asciiz "EXTRA SHIP!!!"
 
 show_level:
     jsr clear_tiles
+    jsr check_extra_ship
     lda #10
     sta mb_y
     lda #16
@@ -17,6 +19,42 @@ show_level:
     jsr wait_count
     jsr clear_tiles
     rts
+
+check_extra_ship:
+    lda level
+    cmp #5
+    beq @extra
+    cmp #10
+    beq @extra
+    cmp #15
+    beq @extra
+    cmp #20
+    beq @extra
+    bra @done
+@extra:
+    inc lives
+    lda #14
+    sta mb_x
+    lda #12
+    sta mb_y
+    jsr point_to_convo_mapbase
+    ldx #0
+@next_char:
+    lda extra_ship_text, x
+    cmp #0
+    beq @done
+    ; Write the char
+    phx
+    jsr get_font_char
+    sta VERA_DATA0
+    lda #0
+    sta VERA_DATA0
+    plx
+    inx
+    bra @next_char
+@done:
+    rts
+
 
 display_level:
     ldx #0
