@@ -1,10 +1,10 @@
 .ifndef CONVO_S
 CONVO_S = 1
 
-MAX_CONVO = 7
+MAX_CONVO = 16
 
 ; Convos happen before the level (so we can have the starting convo)
-convo_level_table: .word convo_intro, 255, convo_love_interest_1, 255, convo_pirate_1, 255, convo_corp_1, 255, convo_colony_1, 255, convo_pirate_2, 255
+convo_level_table: .word convo_intro, 255, convo_love_interest_1, 255, convo_pirate_1, 255, convo_corp_1, 255, convo_colony_1, 255, convo_pirate_2, 255, convo_love_hurt, 255, convo_friend, convo_last, 255
 
 convo_index: .byte 0
 
