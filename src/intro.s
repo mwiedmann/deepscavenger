@@ -1,40 +1,79 @@
 .ifndef INTRO_S
 INTRO_S = 1
 
-intro_1: .asciiz "||||      DEEP SCAVENGER||     BY MARK WIEDMANN|||         CONTROLS|   LEFT-RIGHT TO ROTATE|       UP TO THRUST|DOWN OR ANY BUTTON TO SHOOT|||        CUT SCENES|  ANY BUTTON TO SPEED UP|    ENTER-START TO SKIP"
+intro_1: 
+.byte 13, 4
+.asciiz "DEEP SCAVENGER"
+.byte 12, 5
+.asciiz "BY MARK WIEDMANN"
+.byte 14, 8
+.asciiz "--CONTROLS--"
+.byte 10, 9
+.asciiz "LEFT-RIGHT TO ROTATE"
+.byte 14, 10
+.asciiz "UP TO THRUST"
+.byte 6, 11
+.asciiz "DOWN OR ANY BUTTON TO SHOOT"
+.byte 14, 14
+.asciiz "--GAMEPLAY--"
+.byte 6, 15
+.asciiz "SHOOT ASTEROIDS AND FLY OVER"
+.byte 6, 16
+.asciiz "THE CRYSTALS TO HARVEST THEM"
+.byte 8, 18
+.asciiz "BONUS SHIP EVERY 5 FIELDS"
+.byte 13, 21
+.asciiz "--CUT SCENES--"
+.byte 8, 22
+.asciiz "PRESS BUTTON TO SPEED UP"
+.byte 7, 23
+.asciiz "ENTER-START TO SKIP INTRO"
+.byte 255
 
 intro:
-    lda #0
-    sta mb_y
-    lda #7
+    lda #<intro_1
+    sta active_exp
+    lda #>intro_1
+    sta active_exp+1
+@set_xy:
+    ldy #0
+    lda (active_exp), y
     sta mb_x
+    iny
+    lda (active_exp), y
+    sta mb_y
+    iny
+    phy
     jsr point_to_convo_mapbase
-    ldx #0
+    ply
 @next_char:
-    lda intro_1, x
+    lda (active_exp), y
     cmp #0
     beq @found_null
-    cmp #$DD ; Pipe char for CR 
-    beq @found_cr
     ; Write the char
-    phx
+    phy
     jsr get_font_char
     sta VERA_DATA0
     lda #0
     sta VERA_DATA0
-    plx
-    inx
-    bra @next_char
-@found_cr:
-    inx
-    inc mb_y
-    lda #7
-    sta mb_x
-    phx
-    jsr point_to_convo_mapbase
-    plx
+    ply
+    iny
     bra @next_char
 @found_null:
+    iny
+    clc
+    tya
+    adc active_exp
+    sta active_exp
+    lda active_exp+1
+    adc #0
+    sta active_exp+1
+    ldy #0
+    lda (active_exp), y
+    cmp #255
+    beq @found_end
+    bra @set_xy
+@found_end:
     jsr watch_for_joystick_press
     rts
 
