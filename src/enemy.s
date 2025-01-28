@@ -436,9 +436,9 @@ check_enemies:
 @done:
     rts
 
-ENEMY_4_5 = 60*15
-ENEMY_6_7 = 60*13
-ENEMY_8_UP = 60*11
+ENEMY_4_5 = 60*40
+ENEMY_6_7 = 60*36
+ENEMY_8_UP = 60*32
 
 enemy_compare_set:
     ; enemies start off
@@ -457,7 +457,7 @@ enemy_compare_set:
     sta enemy_launch_time
     lda #>ENEMY_4_5
     sta enemy_launch_time+1
-    lda #6
+    lda #3
     sta enemy_accel_count
     bra @done
 @check_8:
@@ -467,7 +467,7 @@ enemy_compare_set:
     sta enemy_launch_time
     lda #>ENEMY_6_7
     sta enemy_launch_time+1
-    lda #7
+    lda #4
     sta enemy_accel_count
     bra @done
 @max_enemies:
@@ -475,7 +475,7 @@ enemy_compare_set:
     sta enemy_launch_time
     lda #>ENEMY_8_UP
     sta enemy_launch_time+1
-    lda #8
+    lda #5
     sta enemy_accel_count
 @done:
     rts

@@ -254,10 +254,10 @@ check_mines:
 @done:
     rts
 
-MINES_2_3 = 60*10
-MINES_4_5 = 60*8
-MINES_6_7 = 60*6
-MINES_8_UP = 60*5
+MINES_2_3 = 60*20
+MINES_4_5 = 60*19
+MINES_6_7 = 60*16
+MINES_8_UP = 60*14
 
 mine_compare_set:
     ; mines start off
@@ -275,7 +275,7 @@ mine_compare_set:
     sta mine_launch_time
     lda #>MINES_2_3
     sta mine_launch_time+1
-    lda #4
+    lda #3
     sta mine_accel_count
     bra @done
 @check_6:
@@ -285,7 +285,7 @@ mine_compare_set:
     sta mine_launch_time
     lda #>MINES_4_5
     sta mine_launch_time+1
-    lda #5
+    lda #4
     sta mine_accel_count
     bra @done
 @check_8:
@@ -295,7 +295,7 @@ mine_compare_set:
     sta mine_launch_time
     lda #>MINES_6_7
     sta mine_launch_time+1
-    lda #6
+    lda #5
     sta mine_accel_count
     bra @done
 @max_mines:
@@ -303,7 +303,7 @@ mine_compare_set:
     sta mine_launch_time
     lda #>MINES_8_UP
     sta mine_launch_time+1
-    lda #7
+    lda #6
     sta mine_accel_count
 @done:
     rts
