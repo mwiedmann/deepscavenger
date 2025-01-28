@@ -112,6 +112,7 @@ start:
     jsr check_storm
     jsr check_mines
     jsr check_enemies
+    jsr sound_thrust_check
     lda ship_dead
     cmp #0
     beq @ship_ok
@@ -171,6 +172,7 @@ start:
     bra @move
 
 clear_and_create:
+    jsr sound_all_stop
     jsr clear_tiles
     jsr create_astsml_sprites
     jsr create_mine_sprites
@@ -182,9 +184,8 @@ clear_and_create:
     rts
 
 new_game:
-    lda #12
-    sta level
     lda #0
+    sta level
     sta game_over
     sta winner
     sta hit_warp

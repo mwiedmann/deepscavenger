@@ -17,7 +17,7 @@ mine_filename: .asciiz "mine.bin"
 
 missile_filename: .asciiz "missile.zsm"
 explode_filename: .asciiz "explode.zsm"
-
+thrust_filename: .asciiz "thrust.zsm"
 load_sprites:
     jsr load_ship
     jsr load_ship_thust
@@ -269,6 +269,20 @@ load_sounds:
     lda #0 ; RAM
     ldx #<EXPLODE_SOUND 
     ldy #>EXPLODE_SOUND
+    jsr LOAD
+
+    lda #10
+    ldx #<thrust_filename
+    ldy #>thrust_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #0 ; RAM
+    ldx #<THRUST_SOUND 
+    ldy #>THRUST_SOUND
     jsr LOAD
     
     rts
