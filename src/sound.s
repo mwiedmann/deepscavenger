@@ -1,9 +1,10 @@
 .ifndef SOUND_S
 SOUND_S = 1
 
-SOUND_PRIORITY_SHOOT = 1
-SOUND_PRIORITY_EXPLODE = 2
-SOUND_PRIORITY_THRUST = 3
+SOUND_PRIORITY_SHOOT = 0
+SOUND_PRIORITY_EXPLODE = 1
+SOUND_PRIORITY_THRUST = 2
+SOUND_PRIORITY_CRYSTAL = 3
 
 sound_init:
     lda #ZSM_BANK
@@ -26,6 +27,15 @@ sound_explode:
 	ldy #>EXPLODE_SOUND; address hi to Y
 	jsr zsm_setmem
 	ldx #SOUND_PRIORITY_EXPLODE
+	jsr zsm_play
+    rts
+
+sound_crystal:
+	lda #0
+	ldx #SOUND_PRIORITY_CRYSTAL ; Priority
+	ldy #>CRYSTAL_SOUND; address hi to Y
+	jsr zsm_setmem
+	ldx #SOUND_PRIORITY_CRYSTAL
 	jsr zsm_play
     rts
 

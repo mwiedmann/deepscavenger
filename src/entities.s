@@ -757,6 +757,7 @@ collision_ship:
     sta amount_to_add+1
     jsr add_points
     jsr count_gems
+    jsr sound_crystal
     jsr create_score_entity2
     jsr destroy_2
     rts
