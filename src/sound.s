@@ -1,9 +1,8 @@
 .ifndef SOUND_S
 SOUND_S = 1
 
-SOUND_PRIORITY_MUSIC = 0
-SOUND_PRIORITY_SFX = 1
-SOUND_PRIORITY_SFX_2 = 2
+SOUND_PRIORITY_SHOOT = 1
+SOUND_PRIORITY_EXPLODE = 2
 SOUND_PRIORITY_THRUST = 3
 
 sound_init:
@@ -13,22 +12,20 @@ sound_init:
     rts
 
 sound_shoot:
-    lda #0
-	ldx #SOUND_PRIORITY_SFX ; Priority
+	lda #0
+	ldx #SOUND_PRIORITY_SHOOT ; Priority
 	ldy #>MISSILE_SOUND; address hi to Y
 	jsr zsm_setmem
-
-	ldx #SOUND_PRIORITY_SFX
+	ldx #SOUND_PRIORITY_SHOOT
 	jsr zsm_play
     rts
 
 sound_explode:
-    lda #0
-	ldx #SOUND_PRIORITY_SFX_2 ; Priority
+	lda #0
+	ldx #SOUND_PRIORITY_EXPLODE ; Priority
 	ldy #>EXPLODE_SOUND; address hi to Y
 	jsr zsm_setmem
-
-	ldx #SOUND_PRIORITY_SFX_2
+	ldx #SOUND_PRIORITY_EXPLODE
 	jsr zsm_play
     rts
 
@@ -64,9 +61,6 @@ sound_thrust_play:
 	ldx #SOUND_PRIORITY_THRUST ; Priority
 	ldy #>THRUST_SOUND; address hi to Y
 	jsr zsm_setmem
-	ldx #SOUND_PRIORITY_THRUST
-	sec
-	jsr zsm_setloop
 	ldx #SOUND_PRIORITY_THRUST
 	jsr zsm_play
 	lda #1

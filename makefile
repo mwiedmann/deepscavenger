@@ -1,4 +1,5 @@
 CC=cl65
+EMU=../../x16emur46/x16emu
 
 make:
 	$(CC) --cpu 65C02 -Or -Cl -C cx16-zsm-bank.cfg -o ./build/DEEP.PRG -t cx16 -l DEEP.list -Ln DEEP.sym \
@@ -10,15 +11,19 @@ test:
 
 run:
 	cd build && \
-	../../x16emur46/x16emu -prg DEEP.PRG -run
+	$(EMU) -prg DEEP.PRG -run
+
+emu:
+	cd build && \
+	$(EMU)
 
 rt:
 	cd build && \
-	../../x16emur46/x16emu -prg TEST.PRG -debug
+	$(EMU) -prg TEST.PRG -debug
 
 debug:
 	cd build && \
-	../../x16emur46/x16emu -prg DEEP.PRG -debug
+	$(EMU) -prg DEEP.PRG -debug
 
 pal:
 	node tools/gimp-pal-convert.js gfx/sprites.data.pal build/MAINPAL.BIN
@@ -47,3 +52,7 @@ img:
 	node tools/gimp-img-convert.js gfx/sprites.data build/SGY.BIN 64 64 4 64 4 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/DAU.BIN 64 64 4 68 4 1
 
+zip:
+	cd build && \
+	rm -f deep.zip && \
+	zip deep.zip *
