@@ -15,10 +15,11 @@ warp_filename: .asciiz "warp.bin"
 exp_filename: .asciiz "exp.bin"
 mine_filename: .asciiz "mine.bin"
 
-missile_filename: .asciiz "missile.zsm"
-explode_filename: .asciiz "explode.zsm"
-thrust_filename: .asciiz "thrust.zsm"
-crystal_filename: .asciiz "crystal.zsm"
+missile_sound_filename: .asciiz "missile.zsm"
+explode_sound_filename: .asciiz "explode.zsm"
+thrust_sound_filename: .asciiz "thrust.zsm"
+crystal_sound_filename: .asciiz "crystal.zsm"
+mine_sound_filename: .asciiz "mine.zsm"
 
 load_sprites:
     jsr load_ship
@@ -246,8 +247,8 @@ load_exp:
 
 load_sounds:
     lda #11
-    ldx #<missile_filename
-    ldy #>missile_filename
+    ldx #<missile_sound_filename
+    ldy #>missile_sound_filename
     jsr SETNAM
     ; 0,8,2
     lda #0
@@ -260,8 +261,8 @@ load_sounds:
     jsr LOAD
 
     lda #11
-    ldx #<explode_filename
-    ldy #>explode_filename
+    ldx #<explode_sound_filename
+    ldy #>explode_sound_filename
     jsr SETNAM
     ; 0,8,2
     lda #0
@@ -274,8 +275,8 @@ load_sounds:
     jsr LOAD
 
     lda #10
-    ldx #<thrust_filename
-    ldy #>thrust_filename
+    ldx #<thrust_sound_filename
+    ldy #>thrust_sound_filename
     jsr SETNAM
     ; 0,8,2
     lda #0
@@ -288,8 +289,8 @@ load_sounds:
     jsr LOAD
 
     lda #11
-    ldx #<crystal_filename
-    ldy #>crystal_filename
+    ldx #<crystal_sound_filename
+    ldy #>crystal_sound_filename
     jsr SETNAM
     ; 0,8,2
     lda #0
@@ -299,6 +300,20 @@ load_sounds:
     lda #0 ; RAM
     ldx #<CRYSTAL_SOUND 
     ldy #>CRYSTAL_SOUND
+    jsr LOAD
+
+    lda #8
+    ldx #<mine_sound_filename
+    ldy #>mine_sound_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #0 ; RAM
+    ldx #<MINE_SOUND 
+    ldy #>MINE_SOUND
     jsr LOAD
     
     rts

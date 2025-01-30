@@ -96,6 +96,7 @@ mine_logic:
     cmp #0
     beq @ship_alive
     jsr destroy_active_entity
+    dec current_mine_count
     rts
 @ship_alive:
     ; move towards ship
@@ -722,6 +723,7 @@ collision_ship:
     ; Both die
     jsr destroy_ship
     jsr destroy_2
+    dec current_mine_count
     rts
 @ship_astsml:
     ; Destroy both
@@ -787,6 +789,7 @@ collision_laser:
     rts
 @laser_mine:
     jsr destroy_both
+    dec current_mine_count
     rts
 @laser_astsml:
     jsr destroy_both
@@ -866,12 +869,19 @@ collision_enemy_laser:
 collision_safe:
     ldy #Entity::_type
     lda (comp_entity2), y
+    cmp #MINE_TYPE
+    beq @safe_mine
     cmp #ASTSML_TYPE
     beq @safe_astsml
     cmp #ASTBIG_TYPE
     beq @safe_astbig
     cmp #GEM_TYPE
     beq @safe_gem
+    rts
+@safe_mine:
+    jsr create_explosion_2
+    jsr destroy_2
+    dec current_mine_count
     rts
 @safe_astsml:
     jsr create_explosion_2

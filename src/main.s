@@ -113,6 +113,7 @@ start:
     jsr check_mines
     jsr check_enemies
     jsr sound_thrust_check
+    jsr sound_mine_check
     lda ship_dead
     cmp #0
     beq @ship_ok
@@ -197,6 +198,7 @@ new_game:
     sta storm_count
     sta storm_count+1
     sta mine_count
+    sta current_mine_count
     sta mine_timer
     sta enemy_timer
     sta enemy_count
@@ -222,6 +224,7 @@ reset_counters:
     sta accelwait
     sta gem_count
     sta mine_count
+    sta current_mine_count
     sta mine_timer
     sta enemy_timer
     sta enemy_count
@@ -241,6 +244,7 @@ next_level:
     sta storm_count
     sta storm_count+1
     sta mine_count
+    sta current_mine_count
     sta enemy_count
     jsr mine_compare_set
     jsr enemy_compare_set
