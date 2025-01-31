@@ -256,7 +256,7 @@ check_mines:
 @done:
     rts
 
-MINES_2_3 = 240;60*20
+MINES_2_3 = 60*20
 MINES_4_5 = 60*19
 MINES_6_7 = 60*16
 MINES_8_UP = 60*14
@@ -266,8 +266,8 @@ mine_compare_set:
     lda #0
     sta mines_on
     lda level
-    ; cmp #2
-    ; bcc @done ; no mines on fields 0-1
+    cmp #2
+    bcc @done ; no mines on fields 0-1
     lda #1
     sta mines_on ; mines are on for rest of the fields
     lda level
