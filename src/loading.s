@@ -14,6 +14,8 @@ font_filename: .asciiz "font.bin"
 warp_filename: .asciiz "warp.bin"
 exp_filename: .asciiz "exp.bin"
 mine_filename: .asciiz "mine.bin"
+star_tiles_filename: .asciiz "stars.bin"
+star_field_filename: .asciiz "field.bin"
 
 missile_sound_filename: .asciiz "missile.zsm"
 explode_sound_filename: .asciiz "explode.zsm"
@@ -35,6 +37,40 @@ load_sprites:
     jsr load_warp
     jsr load_exp
     jsr load_mine
+    jsr load_star_tiles
+    jsr load_star_field
+    rts
+
+load_star_tiles:
+    lda #9
+    ldx #<star_tiles_filename
+    ldy #>star_tiles_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #2 ; VRAM 1st bank
+    ldx #<TILEBASE_L0_ADDR 
+    ldy #>TILEBASE_L0_ADDR
+    jsr LOAD
+    rts
+
+load_star_field:
+    lda #9
+    ldx #<star_field_filename
+    ldy #>star_field_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #2 ; VRAM 1st bank
+    ldx #<MAPBASE_L0_ADDR 
+    ldy #>MAPBASE_L0_ADDR
+    jsr LOAD
     rts
 
 load_ship:

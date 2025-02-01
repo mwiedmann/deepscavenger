@@ -92,8 +92,6 @@ start:
     jsr load_sounds
     jsr irq_config
     jsr init_oneshots
-    jsr create_star_tiles
-    jsr show_star_field
 @restart_game:
     jsr clear_and_create
     jsr clear_tiles
