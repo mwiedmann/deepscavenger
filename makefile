@@ -52,6 +52,12 @@ img:
 	node tools/gimp-img-convert.js gfx/sprites.data build/SGY.BIN 64 64 4 64 4 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/DAU.BIN 64 64 4 68 4 1
 
+stars:
+	node tools/startiles.js
+
+field:
+	node tools/starfield.js
+
 zip:
 	cd build && \
 	rm -f deep.zip && \
