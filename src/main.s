@@ -92,6 +92,8 @@ start:
     jsr load_sounds
     jsr irq_config
     jsr init_oneshots
+    jsr create_star_tiles
+    jsr show_star_field
 @restart_game:
     jsr clear_and_create
     jsr clear_tiles
@@ -249,16 +251,6 @@ next_level:
     jsr mine_compare_set
     jsr enemy_compare_set
     rts
-
-point_to_mapbase:
-    lda #<MAPBASE_L1_ADDR
-    sta VERA_ADDR_LO
-    lda #>MAPBASE_L1_ADDR
-    sta VERA_ADDR_MID
-    lda #VERA_ADDR_HI_INC_BITS
-    sta VERA_ADDR_HI_SET
-    rts
-
 
 thrusting: .byte 0
 

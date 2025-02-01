@@ -5,8 +5,27 @@ TRANS_TILE = 58
 
 header_msg: .asciiz "    DEBT:"
 
+point_to_mapbase_l1:
+    lda #<MAPBASE_L1_ADDR
+    sta VERA_ADDR_LO
+    lda #>MAPBASE_L1_ADDR
+    sta VERA_ADDR_MID
+    lda #VERA_ADDR_HI_INC_BITS
+    sta VERA_ADDR_HI_SET
+    rts
+
+
+point_to_mapbase_l0:
+    lda #<MAPBASE_L0_ADDR
+    sta VERA_ADDR_LO
+    lda #>MAPBASE_L0_ADDR
+    sta VERA_ADDR_MID
+    lda #VERA_ADDR_HI_INC_BITS
+    sta VERA_ADDR_HI_SET
+    rts
+
 clear_tiles:
-    jsr point_to_mapbase
+    jsr point_to_mapbase_l1
     lda #TRANS_TILE ; Empty
     ldy #0
 @outer:
@@ -23,9 +42,47 @@ clear_tiles:
     bne @outer
     rts
 
+create_star_tiles:
+    lda #<TILEBASE_L0_ADDR
+    sta VERA_ADDR_LO
+    lda #>TILEBASE_L0_ADDR
+    sta VERA_ADDR_MID
+    lda #VERA_ADDR_HI_INC_BITS
+    sta VERA_ADDR_HI_SET
+    ldx #0
+@next:
+    lda #0
+    cpx #15
+    bne @write
+    lda #1
+@write:
+    sta VERA_DATA0
+    inx
+    cpx #32
+    bne @next
+@done:
+    rts
+
+show_star_field:
+    jsr point_to_mapbase_l0
+    ldx #0
+    ldy #0
+@next:
+    lda #0 ; tile index
+    sta VERA_DATA0
+    lda #208 ; tile color
+    sta VERA_DATA0
+    inx
+    cpx #32
+    bne @next
+    ldx #0
+    iny
+    cpy #32
+    bne @next
+    rts
 
 show_header:
-    jsr point_to_mapbase
+    jsr point_to_mapbase_l1
     ; skip a few spaces
     lda #TRANS_TILE ; Empty
     sta VERA_DATA0
