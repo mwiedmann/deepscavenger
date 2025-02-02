@@ -49,6 +49,7 @@ accelwait: .byte 0
 enemywait: .byte 0
 
 joy_a: .byte 0
+joy_x: .byte 0
 
 score: .byte $00, $00, $00
 storm_count: .word 0
@@ -261,6 +262,7 @@ thrusting: .byte 0
 move_ship:
     jsr JOYGET
     sta joy_a ; hold the joystick A state
+    stx joy_x ; hold the joystick X state
     lda thrustwait
     cmp #0 ; We only thrust the ship every few ticks (otherwise it takes off SUPER fast)
     beq @thrust_ready
@@ -348,8 +350,16 @@ move_ship:
     bra @done
 @fire_ready:
     lda joy_a
-    bit #%100 ; Pressing down (fire)?
-    bne @done
+    eor #$FF
+    and #%11000100 ; Pressing down, or B/Y (fire)
+    cmp #0
+    bne @firing
+    lda joy_x
+    eor #$FF
+    and #%11110000 ; Pressing A/X/L/R (fire)
+    cmp #0
+    beq @done
+@firing:
     ldx #SHIP_FIRE_TICKS
     stx firewait ; Reset fire ticks
     jsr fire_laser
