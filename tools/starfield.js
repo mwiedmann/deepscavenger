@@ -7,7 +7,7 @@ let lastHit=false
 
 for(let i=0; i<1024; i++){
     let n=0
-    if (!lastHit && Math.random()*100 > 70) {
+    if (!lastHit && Math.random()*100 > 60) {
         n=d
         d++
         if (d==5) {

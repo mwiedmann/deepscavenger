@@ -437,8 +437,8 @@ check_enemies:
     rts
 
 ENEMY_4_5 = 60*40
-ENEMY_6_7 = 60*36
-ENEMY_8_UP = 60*32
+ENEMY_6_7 = 60*38
+ENEMY_8_UP = 60*36
 
 enemy_compare_set:
     ; enemies start off

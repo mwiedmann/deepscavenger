@@ -21,7 +21,7 @@ intro_1:
 .byte 6, 16
 .asciiz "THE CRYSTALS TO HARVEST THEM"
 .byte 8, 18
-.asciiz "BONUS SHIP EVERY 5 FIELDS"
+.asciiz "EXTRA SHIP EVERY 2 FIELDS"
 .byte 13, 21
 .asciiz "--CUT SCENES--"
 .byte 8, 22

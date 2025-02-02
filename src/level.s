@@ -22,16 +22,10 @@ show_level:
 
 check_extra_ship:
     lda level
-    cmp #5
-    beq @extra
-    cmp #10
-    beq @extra
-    cmp #15
-    beq @extra
-    cmp #20
-    beq @extra
-    bra @done
-@extra:
+    and #2
+    cmp #2
+    bne @done
+    ; extra ship
     inc lives
     lda #14
     sta mb_x

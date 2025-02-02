@@ -165,48 +165,36 @@ drop_gem_from_active_entity:
 @done:
     rts
 
-set_gem_vel:
-    ; We will set the x vel somewhat "randomly" (based on x pos)
-    lda dg_x
-    and #1
-    cmp #1
-    beq @odd_x
-    ldy #Entity::_vel_x 
-    lda #<(65535-1)
-    sta (active_entity), y
-    ldy #Entity::_vel_x+1
-    lda #>(65535-1)
-    sta (active_entity), y
-    bra @x_done
-@odd_x:
-    ldy #Entity::_vel_x
-    lda #1
-    sta (active_entity), y
-    ldy #Entity::_vel_x+1
-    lda #0
-    sta (active_entity), y
-@x_done:
-    ; We will set the y vel somewhat "randomly" (based on y pos)
-    lda dg_y
-    and #1
-    cmp #1
-    beq @odd_y
-    ldy #Entity::_vel_y 
-    lda #<(65535-1)
-    sta (active_entity), y
-    ldy #Entity::_vel_y+1
-    lda #>(65535-1)
-    sta (active_entity), y
-    bra @y_done
-@odd_y:
-    ldy #Entity::_vel_y
-    lda #1
-    sta (active_entity), y
-    ldy #Entity::_vel_y+1
-    lda #0
-    sta (active_entity), y
-@y_done:
-    rts
+GEM_VELOCITY=3
 
+gem_vel: .word 65535-GEM_VELOCITY, 65535-GEM_VELOCITY, GEM_VELOCITY, 65535-GEM_VELOCITY, GEM_VELOCITY, GEM_VELOCITY, 65535-GEM_VELOCITY, GEM_VELOCITY
+gem_vel_idx: .byte 0
+
+set_gem_vel:
+    ; _vel_x
+    ldx gem_vel_idx
+    lda gem_vel, x
+    ldy #Entity::_vel_x 
+    sta (active_entity), y
+    inx
+    lda gem_vel, x
+    ldy #Entity::_vel_x+1
+    sta (active_entity), y
+    inx
+    ; _vel_y
+    lda gem_vel, x
+    ldy #Entity::_vel_y
+    sta (active_entity), y
+    inx
+    lda gem_vel, x
+    ldy #Entity::_vel_y+1
+    sta (active_entity), y
+    inx
+    cpx #16
+    bne @done
+    ldx #0
+@done:
+    stx gem_vel_idx
+    rts
 
 .endif

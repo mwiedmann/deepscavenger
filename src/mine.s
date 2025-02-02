@@ -258,8 +258,8 @@ check_mines:
 
 MINES_2_3 = 60*20
 MINES_4_5 = 60*19
-MINES_6_7 = 60*16
-MINES_8_UP = 60*14
+MINES_6_7 = 60*18
+MINES_8_UP = 60*17
 
 mine_compare_set:
     ; mines start off
