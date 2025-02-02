@@ -182,6 +182,44 @@ create_score:
 @done:
     rts
 
+clear_oneshots:
+    ldx #0
+    lda #<oneshots
+    sta active_exp
+    lda #>oneshots
+    sta active_exp+1
+@next_oneshot:
+    lda #0
+    ldy #Oneshot::_visible
+    sta (active_exp), y
+    ldy #Oneshot::_sprite_num
+    lda (active_exp), y
+    sta pts_sprite_num
+    phx
+    jsr point_to_sprite
+    plx
+    lda #0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    sta VERA_DATA0
+    clc
+    lda active_exp
+    adc #<(.sizeof(Oneshot))
+    sta active_exp
+    lda active_exp+1
+    adc #>(.sizeof(Oneshot))
+    sta active_exp+1
+    inx
+    cpx #ONESHOT_SPRITE_COUNT
+    beq @done
+    bra @next_oneshot
+@done:
+    rts
+
 update_oneshots:
     ldx #0
     lda #<oneshots
