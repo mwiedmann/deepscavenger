@@ -65,10 +65,16 @@ show_convo_msg:
     lda #CONVO_TEXT_WAIT_AMOUNT
     sta wc
 @next_char:
+    lda level
+    cmp #0
+    bne @bypass_skipall ; skip all only on long intro cut-scene
     lda #0
     jsr JOYGET
     cmp #%11101111
     beq @done
+@bypass_skipall:
+    lda #0
+    jsr JOYGET
     cmp #255
     bne @skip_wait
     jsr wait_count
@@ -147,10 +153,16 @@ show_next_convo:
 @new_screen:
     jsr new_screen
 @next_por:
+    lda level
+    cmp #0
+    bne @bypass_skipall ; skip all only on long intro cut-scene
     lda #0
     jsr JOYGET
     cmp #%11101111
     beq @quick_exit
+@bypass_skipall:
+    lda #0
+    jsr JOYGET
     cmp #255
     bne @skip_wait
     lda #CONVO_WAIT_BETWEEN_PORTRAITS

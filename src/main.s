@@ -188,8 +188,9 @@ clear_and_create:
     rts
 
 new_game:
-    lda #0
+    lda #STARTING_LEVEL
     sta level
+    lda #0
     sta game_over
     sta winner
     sta hit_warp
