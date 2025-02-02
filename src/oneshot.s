@@ -238,7 +238,7 @@ update_score_type:
     lda (active_exp), y
     inc
     sta (active_exp), y
-    cmp #180
+    cmp #120
     bne @not_expired
     ; hide it
     ldy #Oneshot::_visible

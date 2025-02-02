@@ -986,6 +986,8 @@ destroy_ship:
     sta active_entity+1
     jsr create_explosion_active_entity
     jsr destroy_active_entity
+    lda #0
+    sta thrusting ; stop thrusting to stop sound
     lda lives
     cmp #0
     bne @more_lives

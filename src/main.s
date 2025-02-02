@@ -91,7 +91,6 @@ start:
     jsr load_sprites
     jsr load_sounds
     jsr irq_config
-    jsr init_oneshots
 @restart_game:
     jsr clear_and_create
     jsr clear_tiles
@@ -182,6 +181,8 @@ clear_and_create:
     jsr create_warp_sprite
     jsr create_enemy_sprites
     jsr create_enemy_laser_sprites
+    jsr init_oneshots
+    jsr update_oneshots
     rts
 
 new_game:
@@ -202,6 +203,7 @@ new_game:
     sta mine_timer
     sta enemy_timer
     sta enemy_count
+    sta thrusting
     sta score
     sta score+1
     lda #$25
@@ -246,6 +248,7 @@ next_level:
     sta mine_count
     sta current_mine_count
     sta enemy_count
+    sta thrusting
     jsr mine_compare_set
     jsr enemy_compare_set
     rts
