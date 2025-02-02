@@ -282,6 +282,8 @@ load_exp:
     rts
 
 load_sounds:
+    lda #SOUND_BANK
+	sta BANK
     lda #11
     ldx #<missile_sound_filename
     ldy #>missile_sound_filename
@@ -352,6 +354,9 @@ load_sounds:
     ldy #>MINE_SOUND
     jsr LOAD
     
+    lda #ZSM_BANK
+	sta BANK
+
     rts
 
 .endif

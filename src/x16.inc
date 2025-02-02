@@ -1,6 +1,8 @@
 .ifndef X16_H
 X16_H = 1
 
+BANK=$0
+
 ; Kernal functions
 RDTIM = $FFDE
 JOYGET = $FF56

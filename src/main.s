@@ -60,6 +60,8 @@ lives: .byte 0
 game_over: .byte 0
 winner: .byte 0
 
+zsmreserved: .res 256
+
 .include "helpers.s"
 .include "sound.s"
 .include "config.s"

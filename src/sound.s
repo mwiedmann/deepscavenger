@@ -7,14 +7,55 @@ SOUND_PRIORITY_THRUST = 2
 SOUND_PRIORITY_CRYSTAL = 1
 SOUND_PRIORITY_MINE = 3
 
+zsmkit_filename: .asciiz "zsmkit.bin"
+
 sound_init:
-    lda #ZSM_BANK
+	; load the zsmkit code into banked RAM
+	lda #ZSM_BANK
+	sta BANK
+    lda #10
+    ldx #<zsmkit_filename
+    ldy #>zsmkit_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #0
+    ldx #<HIRAM
+    ldy #>HIRAM
+    jsr LOAD
+	; Init zsmkit
+	lda #ZSM_BANK
+	sta BANK
+    ldx #<zsmreserved
+    ldy #>zsmreserved
 	jsr zsm_init_engine
+	lda #ZSM_BANK
+	sta BANK
 	jsr zsmkit_setisr
+	jsr sound_set_bank
     rts
 
+sound_set_bank:
+	; Set bank for all priorities (currently all the same)
+	ldx #0
+	lda #SOUND_BANK
+	jsr zsm_setbank
+	ldx #1
+	lda #SOUND_BANK
+	jsr zsm_setbank
+	ldx #2
+	lda #SOUND_BANK
+	jsr zsm_setbank
+	ldx #3
+	lda #SOUND_BANK
+	jsr zsm_setbank
+	rts
+
 sound_shoot:
-	lda #0
+	lda #<MISSILE_SOUND
 	ldx #SOUND_PRIORITY_SHOOT ; Priority
 	ldy #>MISSILE_SOUND; address hi to Y
 	jsr zsm_setmem
@@ -23,7 +64,7 @@ sound_shoot:
     rts
 
 sound_explode:
-	lda #0
+	lda #<EXPLODE_SOUND
 	ldx #SOUND_PRIORITY_EXPLODE ; Priority
 	ldy #>EXPLODE_SOUND; address hi to Y
 	jsr zsm_setmem
@@ -32,7 +73,7 @@ sound_explode:
     rts
 
 sound_crystal:
-	lda #0
+	lda #<CRYSTAL_SOUND
 	ldx #SOUND_PRIORITY_CRYSTAL ; Priority
 	ldy #>CRYSTAL_SOUND; address hi to Y
 	jsr zsm_setmem
@@ -69,7 +110,7 @@ sound_thrust_stop:
 	rts
 
 sound_thrust_play:
-	lda #0
+	lda #<THRUST_SOUND
 	ldx #SOUND_PRIORITY_THRUST ; Priority
 	ldy #>THRUST_SOUND; address hi to Y
 	jsr zsm_setmem
@@ -105,7 +146,7 @@ sound_mine_stop:
 	rts
 
 sound_mine_play:
-	lda #0
+	lda #<MINE_SOUND
 	ldx #SOUND_PRIORITY_MINE ; Priority
 	ldy #>MINE_SOUND; address hi to Y
 	jsr zsm_setmem

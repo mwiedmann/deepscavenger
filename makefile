@@ -3,7 +3,7 @@ EMU=../../x16emur46/x16emu
 
 make:
 	$(CC) --cpu 65C02 -Or -Cl -C cx16-zsm-bank.cfg -o ./build/DEEP.PRG -t cx16 -l DEEP.list -Ln DEEP.sym \
-	src/main.s src/zsmkit.lib
+	src/main.s
 
 test:
 	$(CC) --cpu 65C02 -Or -Cl -o ./build/TEST.PRG -t cx16 -l TEST.list \
