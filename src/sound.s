@@ -6,6 +6,7 @@ SOUND_PRIORITY_EXPLODE = 1
 SOUND_PRIORITY_THRUST = 2
 SOUND_PRIORITY_CRYSTAL = 1
 SOUND_PRIORITY_MINE = 3
+SOUND_PRIORITY_CUT = 3
 
 zsmkit_filename: .asciiz "zsmkit.bin"
 
@@ -154,6 +155,21 @@ sound_mine_play:
 	jsr zsm_play
 	lda #1
 	sta playing_mine
+	rts
+
+sound_cut_play:
+	jsr sound_cut_stop
+	lda #<CUT_SOUND
+	ldx #SOUND_PRIORITY_CUT ; Priority
+	ldy #>CUT_SOUND; address hi to Y
+	jsr zsm_setmem
+	ldx #SOUND_PRIORITY_CUT
+	jsr zsm_play
+	rts
+
+sound_cut_stop:
+	ldx #SOUND_PRIORITY_CUT
+	jsr zsm_stop
 	rts
 
 sound_all_stop:

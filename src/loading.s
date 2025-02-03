@@ -22,6 +22,7 @@ explode_sound_filename: .asciiz "explode.zsm"
 thrust_sound_filename: .asciiz "thrust.zsm"
 crystal_sound_filename: .asciiz "crystal.zsm"
 mine_sound_filename: .asciiz "mine.zsm"
+cut_sound_filename: .asciiz "cut.zsm"
 
 load_sprites:
     jsr load_ship
@@ -352,6 +353,20 @@ load_sounds:
     lda #0 ; RAM
     ldx #<MINE_SOUND 
     ldy #>MINE_SOUND
+    jsr LOAD
+
+    lda #7
+    ldx #<cut_sound_filename
+    ldy #>cut_sound_filename
+    jsr SETNAM
+    ; 0,8,2
+    lda #0
+    ldx #8
+    ldy #2
+    jsr SETLFS
+    lda #0 ; RAM
+    ldx #<CUT_SOUND 
+    ldy #>CUT_SOUND
     jsr LOAD
     
     lda #ZSM_BANK

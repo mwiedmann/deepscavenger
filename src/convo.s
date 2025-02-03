@@ -150,6 +150,7 @@ show_next_convo:
 @new_convo:
     jsr load_convo_images
     jsr inc_param1
+    jsr sound_cut_play
 @new_screen:
     jsr new_screen
 @next_por:
@@ -207,13 +208,15 @@ show_next_convo:
     cmp #253
     bne @check_new_screen
     jsr inc_param1
-    bra @new_convo
+    jmp @new_convo
 @check_new_screen:
     cmp #254
     beq @new_screen
+    jsr sound_cut_stop
     rts
 @quick_exit:
     jsr cleanup_convo
+    jsr sound_cut_stop
     rts
 
 load_valid_convo:
