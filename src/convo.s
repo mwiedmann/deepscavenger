@@ -128,6 +128,7 @@ show_next_convo:
     cmp #1
     bne @reg_convo
     jsr load_winner_convo
+    jsr sound_cut_play
     bra @new_convo
 @reg_convo:
     lda level
@@ -147,10 +148,10 @@ show_next_convo:
     rts
 @convo_valid:
     jsr load_valid_convo
+    jsr sound_cut_play
 @new_convo:
     jsr load_convo_images
     jsr inc_param1
-    jsr sound_cut_play
 @new_screen:
     jsr new_screen
 @next_por:

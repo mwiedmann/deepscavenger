@@ -31,6 +31,9 @@ intro_1:
 .byte 255
 
 intro:
+    ; Playing these sounds seems to fix some sound issues on the initial music playing later
+    jsr sound_explode
+    jsr sound_shoot
     lda #<intro_1
     sta active_exp
     lda #>intro_1
