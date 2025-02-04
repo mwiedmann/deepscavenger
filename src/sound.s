@@ -10,6 +10,8 @@ SOUND_PRIORITY_CUT = 3
 
 zsmkit_filename: .asciiz "zsmkit.bin"
 
+soundmuted: .byte 0
+
 sound_init:
 	; load the zsmkit code into banked RAM
 	lda #ZSM_BANK
@@ -56,36 +58,51 @@ sound_set_bank:
 	rts
 
 sound_shoot:
+	lda soundmuted
+	cmp #1
+	beq @done
 	lda #<MISSILE_SOUND
 	ldx #SOUND_PRIORITY_SHOOT ; Priority
 	ldy #>MISSILE_SOUND; address hi to Y
 	jsr zsm_setmem
 	ldx #SOUND_PRIORITY_SHOOT
 	jsr zsm_play
+@done:
     rts
 
 sound_explode:
+	lda soundmuted
+	cmp #1
+	beq @done
 	lda #<EXPLODE_SOUND
 	ldx #SOUND_PRIORITY_EXPLODE ; Priority
 	ldy #>EXPLODE_SOUND; address hi to Y
 	jsr zsm_setmem
 	ldx #SOUND_PRIORITY_EXPLODE
 	jsr zsm_play
+@done:
     rts
 
 sound_crystal:
+	lda soundmuted
+	cmp #1
+	beq @done
 	lda #<CRYSTAL_SOUND
 	ldx #SOUND_PRIORITY_CRYSTAL ; Priority
 	ldy #>CRYSTAL_SOUND; address hi to Y
 	jsr zsm_setmem
 	ldx #SOUND_PRIORITY_CRYSTAL
 	jsr zsm_play
+@done:
     rts
 
 playing_thrust: .byte 0
 playing_mine: .byte 0
 
 sound_thrust_check:
+	lda soundmuted
+	cmp #1
+	beq @done
 	lda thrusting
 	cmp #1
 	beq @thrusting
@@ -104,13 +121,20 @@ sound_thrust_check:
     rts
 
 sound_thrust_stop:
+	lda soundmuted
+	cmp #1
+	beq @done
 	ldx #SOUND_PRIORITY_THRUST
 	jsr zsm_stop
 	lda #0
 	sta playing_thrust
+@done:
 	rts
 
 sound_thrust_play:
+	lda soundmuted
+	cmp #1
+	beq @done
 	lda #<THRUST_SOUND
 	ldx #SOUND_PRIORITY_THRUST ; Priority
 	ldy #>THRUST_SOUND; address hi to Y
@@ -119,9 +143,13 @@ sound_thrust_play:
 	jsr zsm_play
 	lda #1
 	sta playing_thrust
+@done:
 	rts
 
 sound_mine_check:
+	lda soundmuted
+	cmp #1
+	beq @done
 	lda current_mine_count
 	cmp #1
 	bcs @play_sound_check
@@ -140,13 +168,20 @@ sound_mine_check:
 	rts
 
 sound_mine_stop:
+	lda soundmuted
+	cmp #1
+	beq @done
 	ldx #SOUND_PRIORITY_MINE
 	jsr zsm_stop
 	lda #0
 	sta playing_mine
+@done:
 	rts
 
 sound_mine_play:
+	lda soundmuted
+	cmp #1
+	beq @done
 	lda #<MINE_SOUND
 	ldx #SOUND_PRIORITY_MINE ; Priority
 	ldy #>MINE_SOUND; address hi to Y
@@ -155,9 +190,13 @@ sound_mine_play:
 	jsr zsm_play
 	lda #1
 	sta playing_mine
+@done:
 	rts
 
 sound_cut_play:
+	lda soundmuted
+	cmp #1
+	beq @done
 	jsr sound_cut_stop
 	lda #<CUT_SOUND
 	ldx #SOUND_PRIORITY_CUT ; Priority
@@ -165,13 +204,24 @@ sound_cut_play:
 	jsr zsm_setmem
 	ldx #SOUND_PRIORITY_CUT
 	jsr zsm_play
+@done:
 	rts
 
 sound_cut_stop:
+	lda soundmuted
+	cmp #1
+	beq @done
 	ldx #SOUND_PRIORITY_CUT
 	jsr zsm_stop
+@done:
 	rts
 
+sound_toggle:
+	lda soundmuted
+	eor #%1
+	sta soundmuted
+	rts
+	
 sound_all_stop:
 	jsr sound_thrust_stop
 	jsr sound_mine_stop

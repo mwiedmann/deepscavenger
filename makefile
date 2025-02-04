@@ -27,6 +27,7 @@ debug:
 
 pal:
 	node tools/gimp-pal-convert.js gfx/sprites.data.pal build/MAINPAL.BIN
+	node tools/gimp-pal-convert.js gfx/title.data.pal build/TPAL.BIN
 
 img:
 	node tools/gimp-img-convert.js gfx/sprites.data build/SHIP.BIN 32 32 8 0 5 1
@@ -51,6 +52,9 @@ img:
 	node tools/gimp-img-convert.js gfx/sprites.data build/EGL.BIN 64 64 4 60 4 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/SGY.BIN 64 64 4 64 4 1
 	node tools/gimp-img-convert.js gfx/sprites.data build/DAU.BIN 64 64 4 68 4 1
+
+title:
+	node tools/gimp-img-convert.js gfx/title.data build/TITLE.BIN 320 240 1 0 1 1
 
 stars:
 	node tools/startiles.js

@@ -86,15 +86,17 @@ zsmreserved: .res 256
 .include "score.s"
 .include "oneshot.s"
 .include "level.s"
+.include "title.s"
 
 start:
+    jsr show_title
     jsr sound_init
-    jsr config
     jsr load_mainpal
     jsr load_sprites
     jsr load_sounds
     jsr irq_config
     jsr init_oneshots
+    jsr config
 @restart_game:
     jsr clear_and_create
     jsr clear_tiles
