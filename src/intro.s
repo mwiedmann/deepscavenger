@@ -147,6 +147,11 @@ intro:
     cmp #%11111100
     beq @found_end
 @done:
+@release:
+    lda #0
+    jsr JOYGET
+    cmp #255 ; Wait for release
+    bne @release
     rts
 
 .endif
