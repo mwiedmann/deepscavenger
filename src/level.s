@@ -22,8 +22,9 @@ show_level:
 
 check_extra_ship:
     lda level
-    and #2
-    cmp #2
+    cmp #0
+    beq @done
+    bit #1
     bne @done
     ; extra ship
     inc lives
