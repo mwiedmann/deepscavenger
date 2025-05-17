@@ -89,8 +89,7 @@ intro:
     bra @set_xy
 @found_end:
     ; left/right toggle sound, button to continue
-    lda #0
-    jsr JOYGET
+    jsr joy1
     and #%11
     cmp #%11
     beq @check_button
@@ -135,21 +134,18 @@ intro:
     lda #0
     sta VERA_DATA0
 @wait_for_lr_release:
-    lda #0
-    jsr JOYGET
+    jsr joy1
     and #%11
     cmp #%11
     bne @wait_for_lr_release
 @check_button:
-    lda #0
-    jsr JOYGET
+    jsr joy1
     and #%11111100
     cmp #%11111100
     beq @found_end
 @done:
 @release:
-    lda #0
-    jsr JOYGET
+    jsr joy1
     cmp #255 ; Wait for release
     bne @release
     rts

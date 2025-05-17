@@ -132,8 +132,7 @@ start:
     bne @ship_ok
     ; End game if pressing button
     ; Or push back ship_dead for another cycle
-    lda #0
-    jsr JOYGET
+    jsr joy1
     cmp #%11111111
     bne @restart_game
     lda #1
@@ -262,9 +261,7 @@ next_level:
 thrusting: .byte 0
 
 move_ship:
-    jsr JOYGET
-    sta joy_a ; hold the joystick A state
-    stx joy_x ; hold the joystick X state
+    jsr joy1
     lda thrustwait
     cmp #0 ; We only thrust the ship every few ticks (otherwise it takes off SUPER fast)
     beq @thrust_ready

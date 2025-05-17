@@ -72,8 +72,6 @@ create_explosion:
     lda #<(EXPLOSION_LOAD_ADDR>>16)
     ldy #Oneshot::_image_addr+2
     sta (active_exp), y
-    lda #1
-    sta (active_exp), y ; Mark as visible
     lda os_x
     ldy #Oneshot::_pixel_x
     sta (active_exp), y
